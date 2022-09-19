@@ -12,6 +12,9 @@ RUN mkdir -p $bin
 WORKDIR $bin
 COPY . .
 
+# compile code
+RUN qmake -makefile . && make -j
+
 # the execution will happen in the folder /workdir/exec
 # it will be created by IPOL
 
