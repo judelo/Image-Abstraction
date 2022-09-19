@@ -13,10 +13,7 @@ WORKDIR $bin
 COPY . .
 
 # compile code
-RUN qmake -makefile .
-RUN make
-RUN ls
-RUN pwd
+RUN qmake -makefile . && make
 
 # the execution will happen in the folder /workdir/exec
 # it will be created by IPOL
