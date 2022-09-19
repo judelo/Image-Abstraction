@@ -1,0 +1,5 @@
+qt4-qmake
+qt4-dev-tools 
+libqt4-dev 
+libqtcore4 
+libqtgui4
