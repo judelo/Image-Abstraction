@@ -14,8 +14,6 @@ COPY . .
 
 # compile code
 RUN qmake -makefile . && make
-ENV ex /workdir/exec
-COPY image_abstraction ex
 
 # the execution will happen in the folder /workdir/exec
 # it will be created by IPOL
