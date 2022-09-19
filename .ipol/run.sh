@@ -10,7 +10,7 @@ echo ./image_abstraction input_0.png $task $model $segmentation input_1.png
 echo ls /workdir/bin/
 ls /workdir/bin/
 
-mv /workdir/bin/image_abstraction /workdir/exec/image_abstraction
+cp /workdir/bin/image_abstraction /workdir/exec/image_abstraction
 
 echo ls /workdir/exec
 ls /workdir/exec
