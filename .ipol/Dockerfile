@@ -6,10 +6,10 @@ COPY .ipol/packages.txt packages.txt
 RUN apt-get update && apt-get install -y $(cat packages.txt) && rm -rf /var/lib/apt/lists/* && rm packages.txt
 
 
-# copy the code to $bin
-ENV bin /workdir/bin/
-RUN mkdir -p $bin
-WORKDIR $bin
+# copy the code to $exec
+ENV exec /workdir/exec/
+RUN mkdir -p $exec
+WORKDIR $exec
 COPY . .
 
 # compile code
