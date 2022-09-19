@@ -2,7 +2,7 @@
 FROM debian:buster
 
 # Add repo
-RUN add-apt-repository ppa:rock-core/qt4
+RUN apt-get update && apt-get install -y software-properties-common && add-apt-repository ppa:rock-core/qt4
 
 # install additional debian packages
 COPY .ipol/packages.txt packages.txt
