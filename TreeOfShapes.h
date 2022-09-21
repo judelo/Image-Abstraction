@@ -36,7 +36,7 @@ public:
     TreeOfShapes( Cfimage imageIn, Cfimage texture_image );
     ~TreeOfShapes();
 
-    Ccimage render(TOSParameters tosParameters, bool &tree_recomputed, TreeOfShapes *tosDictionary=NULL, DictionaryParameters dictionaryParameters=getDefaultDictionaryParameters(), bool save_shapes=false, QString folder_name=QString()  );
+    QImage render(TOSParameters tosParameters, bool &tree_recomputed, TreeOfShapes *tosDictionary=NULL, DictionaryParameters dictionaryParameters=getDefaultDictionaryParameters(), bool save_shapes=false, QString folder_name=QString()  );
     void save_shapes( QString folder_name, bool average_color );
     void compute_tree( TOSParameters tosParameters, bool dictionary=false );
     void computeKdTree(float average_r, float average_g, float average_b );

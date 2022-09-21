@@ -148,7 +148,7 @@ Cfimage AbstractionProcess::cfimageread(const char* name){
     return cfimages_from_qimage(image);
 }
 
-
+/*
 QImage AbstractionProcess::render(TOSParameters tosParameters, bool &tree_recomputed, DictionaryParameters dictionaryParameters, TreeOfShapes * dictionnary){
 
     Ccimage imgsyn =NULL;
@@ -173,5 +173,6 @@ QImage AbstractionProcess::render(TOSParameters tosParameters, bool &tree_recomp
         mw_delete_ccimage(imgsyn);
     return result_image;
 }
+*/
 
 

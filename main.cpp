@@ -11,7 +11,7 @@ You should have received a copy of the GNU Affero General Public License along w
 */
 
 #include "Segmentation.h"
-#include "AbstractionProcess.h"
+//#include "AbstractionProcess.h"
 #include "TreeOfShapes.h"
 #include <iostream>
 #include <QImage>

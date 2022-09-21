@@ -3609,7 +3609,7 @@ void TreeOfShapes::save_shapes( QString folder_name, bool average_color ){
 }
 
 
-Ccimage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, TreeOfShapes *tosDictionary, DictionaryParameters dictionaryParameters, bool save_shapes, QString folder_name ){
+QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, TreeOfShapes *tosDictionary, DictionaryParameters dictionaryParameters, bool save_shapes, QString folder_name ){
     
     struct timeval start, end;
     gettimeofday(&start, NULL);

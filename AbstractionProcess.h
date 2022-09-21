@@ -37,7 +37,7 @@ public:
     AbstractionProcess( const QImage &imageIn );
     ~AbstractionProcess();
 
-    QImage render(TOSParameters tosParameters, bool &tree_recomputed, DictionaryParameters dictionaryParameters = getDefaultDictionaryParameters(), TreeOfShapes * dictionnary=NULL);
+    //QImage render(TOSParameters tosParameters, bool &tree_recomputed, DictionaryParameters dictionaryParameters = getDefaultDictionaryParameters(), TreeOfShapes * dictionnary=NULL);
 
 protected:
     bool _tree_computed;
