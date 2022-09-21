@@ -14,7 +14,6 @@ You should have received a copy of the GNU Affero General Public License along w
 #include <cstdlib>
 #include <iostream>
 #include "segment-image.h"
-
 #include "Segmentation.h"
 #include <QColor>
 
@@ -23,7 +22,6 @@ Segmentation::Segmentation(const QImage & input_image )
 
     int width = input_image.width();
     int height = input_image.height();
-
     input = new image<rgb> ( width, height );
 
     // smooth each color channel
@@ -118,7 +116,6 @@ QImage Segmentation::segment(float sigma, float c, int min_size) {
     }
 
     int num_ccs = u->num_sets();
-
     segmentation = new image<rgb>(width, height);
 
     // pick random colors for each component

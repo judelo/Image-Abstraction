@@ -31,21 +31,14 @@ class TreeOfShapes
 public:
 
     static int _tree_count;
-
     TreeOfShapes( Cfimage imageIn );
     TreeOfShapes( Cfimage imageIn, Cfimage texture_image );
     ~TreeOfShapes();
-
     QImage render(TOSParameters tosParameters, bool &tree_recomputed, TreeOfShapes *tosDictionary=NULL, DictionaryParameters dictionaryParameters=getDefaultDictionaryParameters() );
     void compute_tree( TOSParameters tosParameters, bool dictionary=false );
     void computeKdTree(float average_r, float average_g, float average_b );
     Cfimage getCfImage(){ if( _texture_image_loaded ) return _texture_image; else return _imgin; }
-    Shape selectShapeDict(Shape pShape,
-                          float *paDict,
-                          int *randS,
-                          int &index,
-                          float average_r, float average_g, float average_b);
-
+    Shape selectShapeDict(Shape pShape, float *paDict, int *randS, int &index, float average_r, float average_g, float average_b);
     Shape getShape(int index);
     int getTreeId(){ return _tree_id; }
     int getMaxArea(){ return _maxArea; }
@@ -76,11 +69,8 @@ protected:
     void init(Cfimage inputImg, Shapes &pTree);
     void sortShapes(Fsignal t2b_index);
     void fgrain_side(int MinArea, float *in, int nx, int ny, float *out, int sideflag);
-    Shape m_order_parent(Shape pShape,
-                         int *mn,
-                         bool dict = false);
-    void Order(Fsignal t2b_index,
-               int *p, int *q);
+    Shape m_order_parent(Shape pShape, int *mn, bool dict = false);
+    void Order(Fsignal t2b_index, int *p, int *q);
     void shape_orilam(Shape pShape,float *out_ori, float *out_e, float *out_k);
     void shape_orilam(Shape pShape, float *out_ori, float *out_e, float *out_k, float *pX0, float *pY0);
     void compute_shape_attribute();

@@ -36,7 +36,6 @@ protected:
     int num;
     std::map<int, QColor> component_colors;
     std::map<int, bool> removed_regions;
-
 };
 
 #endif // SEGMENTATION_H

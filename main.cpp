@@ -15,7 +15,7 @@ You should have received a copy of the GNU Affero General Public License along w
 #include <iostream>
 #include <QImage>
 
-
+// Auxiliary Function to get cfimage from a QImage
 Cfimage cfimages_from_qimage( const QImage &input_image  ){
 
     int nx = input_image.width(),ny = input_image.height();
@@ -48,11 +48,11 @@ int main(int argc, char *argv[])
 {
     
     // Read input parameters
-    char * fileName = argv[1];    // something like: "/mnt/data/lbouza/Image-Abstraction-Modif/bordeauxResize.jpg"
-    char * mode_char = argv[2];   //Task Abstraction: 0; Watercolor:1; Shaking: 2; Shape smoothing:3; Style transfer:4;
-    char * model_char = argv[3]; //synthesis model: orignal shape: m=0; ellipse: m=1; rectangle: m=2; circle m=3,  dictionary m=4 (use just for styletransfer), random: m=5 (not use);
-    char * seg_char = argv[4];   //Segmentation of input image: No 0, Yes 1;
-    char * style_fileName = argv[5];   // something like: "/mnt/data/lbouza/Image-Abstraction-Modif/VanGogh.jpg"
+    char * fileName = argv[1];          // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/bordeauxResize.jpg"
+    char * mode_char = argv[2];         // Task Abstraction: 0; Watercolor:1; Shaking: 2; Shape smoothing:3; Style transfer:4;
+    char * model_char = argv[3];        // Synthesis model: orignal shape: m=0; ellipse: m=1; rectangle: m=2; circle m=3,  dictionary m=4 (use just for styletransfer), random: m=5 (not use);
+    char * seg_char = argv[4];          // Segmentation of input image: No 0, Yes 1;
+    char * style_fileName = argv[5];    // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/VanGogh.jpg"
     
     int mode = atoi(mode_char);
     int model = atoi(model_char);
@@ -62,10 +62,9 @@ int main(int argc, char *argv[])
     QImage image(fileName);
     
     // Update image if segmentation is selected. 
-    // _segParameters.c = 500;  _segParameters.min_size = 50; _segParameters.sigma = 0.5;
     if (seg==1){
        Segmentation * segmentation = new Segmentation (image);
-       image = segmentation->segment( 0.5, 500, 50);
+       image = segmentation->segment( 0.5, 500, 50); // segParameters.c = 500;  segParameters.min_size = 50; segParameters.sigma = 0.5;
        image.save("Segment.png");
        image = segmentation->getResult();
        image.save("After_Segment.png");
@@ -96,7 +95,7 @@ int main(int argc, char *argv[])
         _TOSParameters =  getStyleTransferTOSParameters();
         DictionaryParameters _dictionaryParameters = getDefaultDictionaryParameters();
 
-        // load dictionary of Style image
+        // Load dictionary of Style image
         QImage image_dict(style_fileName);
         TreeOfShapes * dictionary = new TreeOfShapes(cfimages_from_qimage(image_dict));
         dictionary->compute_tree( getDefaultTOSParameters(), true);
@@ -110,5 +109,4 @@ int main(int argc, char *argv[])
     };
     
     resulting_image.save("result.png");
-
 }
