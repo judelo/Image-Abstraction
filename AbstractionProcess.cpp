@@ -1,29 +1,29 @@
-#include "AbstractionProcess.h"
+/*
+ Module to implement abstraction process.
 
+Copyright (C) 2022, noura.faraj@umontpellier.fr, lucia.bouza-heguerte@u-paris.fr, julie.delon@u-paris.fr
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License along with this program. If not, see <http://www.gnu.org/licenses/>
+*/
+
+#include "AbstractionProcess.h"
 #include "tree_of_shapes.h"
 #include <iostream>
 #include <sys/time.h>
 #include <QColor>
 
 extern void flst();
-#define PI 3.1415926
-#define _MIN(x, y) ( (x)<(y) ? (x) : (y) )
-#define _MAX(x, y) ( (x)>(y) ? (x) : (y) )
 
-AbstractionProcess::AbstractionProcess( std::string fileNameIn )
-{
+AbstractionProcess::AbstractionProcess( std::string fileNameIn ){
 
-    /**************************************************/
-    /*************   READ INPUT IMAGE   ***************/
-    /**************************************************/
-
+    // read input image
     _imgin = cfimageread(fileNameIn.c_str());
 
-    /**************************************************/
-    /*************   SET DEFAULT INPUT OPTIONS   **************/
-    /**************************************************/
-
-    // init(_imgin);
+    // set default input options
     _image_loaded = true;
     _tosParameters = getDefaultTOSParameters();
     _tree_computed = false;
@@ -58,18 +58,10 @@ Cfimage AbstractionProcess::cfimages_from_qimage( const QImage &input_image  ){
 
 AbstractionProcess::AbstractionProcess( const QImage &imageIn ){
 
-
-    /**************************************************/
-    /*************   READ INPUT IMAGE   ***************/
-    /**************************************************/
-
+    // read input image
     _imgin = cfimages_from_qimage(imageIn);
 
-    /**************************************************/
-    /*************   SET DEFAULT INPUT OPTIONS   **************/
-    /**************************************************/
-
-    //init(_imgin);
+    // set default input options
     _image_loaded = true;
     _tosParameters = getDefaultTOSParameters();
     _tree_computed = false;
@@ -150,8 +142,7 @@ AbstractionProcess::~AbstractionProcess(){
     }
 }
 
-Cfimage AbstractionProcess::cfimageread(const char* name)
-{
+Cfimage AbstractionProcess::cfimageread(const char* name){
 
     QImage image(name);
     return cfimages_from_qimage(image);
@@ -159,7 +150,6 @@ Cfimage AbstractionProcess::cfimageread(const char* name)
 
 
 QImage AbstractionProcess::render(TOSParameters tosParameters, bool &tree_recomputed, DictionaryParameters dictionaryParameters, TreeOfShapes * dictionnary){
-
 
     Ccimage imgsyn =NULL;
     if( tosParameters.model == 4 )

@@ -1,3 +1,15 @@
+/*
+ Module to implement abstraction process.
+
+Copyright (C) 2022, noura.faraj@umontpellier.fr, lucia.bouza-heguerte@u-paris.fr, julie.delon@u-paris.fr
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License along with this program. If not, see <http://www.gnu.org/licenses/>
+*/
+
 #ifndef TREEOFSHAPES_H
 #define TREEOFSHAPES_H
 
@@ -66,28 +78,18 @@ protected:
     float _average_b;
 
     void init(Cfimage inputImg, Shapes &pTree);
-
-    /* This removes the shapes from the tree associated to pFloatImageInput
-    that are too small (threshold *pMinArea). As a consequence all the remaining
-    shapes of pFloatImageOutput are of area larger or equal than *pMinArea */
-
     void mw_fgrain_side(int *pMinArea, int sideflag);
-
     void sortShapes(Fsignal t2b_index);
-    /*in and out must be allocated*/
     void fgrain_side(int MinArea, float *in, int nx, int ny, float *out, int sideflag);
-
     Shape m_order_parent(Shape pShape,
                          int *mn,
                          bool dict = false);
     void Order(Fsignal t2b_index,
                int *p, int *q);
     void Bubble( Fsignal t2b_index);
-
     void shape_orilam(Shape pShape,float *out_ori, float *out_e, float *out_k);
     void shape_orilam(Shape pShape, float *out_ori, float *out_e, float *out_k, float *pX0, float *pY0);
     void compute_shape_attribute();
-
     float min_contrast(Shape pShape);
     void synshapeCircle(Shape pShape,
                         Ccimage imgsyn,
