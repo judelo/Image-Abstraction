@@ -42,9 +42,7 @@ Cfimage cfimages_from_qimage( const QImage &input_image  ){
     out->green = green;
     out->blue = blue;
 
-
     return out;
-
 }
 
 int main(int argc, char *argv[])
@@ -63,12 +61,6 @@ int main(int argc, char *argv[])
     
     // Load Image
     QImage image(fileName);
-
-    /*
-    _effect_intensity = 5;
-    _effect_intensity_nb = 10;
-    */
-
     
     // Update image if segmentation is selected. 
     // _segParameters.c = 500;  _segParameters.min_size = 50; _segParameters.sigma = 0.5;
@@ -80,7 +72,8 @@ int main(int argc, char *argv[])
        image.save("After_Segment.png");
     };
     
-    AbstractionProcess * imageAbstractionProcess = new AbstractionProcess(image);    
+    //AbstractionProcess * imageAbstractionProcess = new AbstractionProcess(image);    
+    TreeOfShapes * TOS = new TreeOfShapes(cfimages_from_qimage(image));
 
     QImage resulting_image;
     bool tree_recomputed;
@@ -109,14 +102,16 @@ int main(int argc, char *argv[])
         QImage image_dict(style_fileName);
         TreeOfShapes * dictionary = new TreeOfShapes(cfimages_from_qimage(image_dict));
         dictionary->compute_tree( getDefaultTOSParameters(), true);
-        resulting_image = imageAbstractionProcess->render(_TOSParameters, tree_recomputed, _dictionaryParameters, dictionary);
+        //resulting_image = imageAbstractionProcess->render(_TOSParameters, tree_recomputed, _dictionaryParameters, dictionary);
+        resulting_image = TOS->render(_TOSParameters, tree_recomputed, _dictionaryParameters, dictionary);
     };
      
 
     if (mode!=4){
        // Select model
        _TOSParameters.model = model;  
-       resulting_image = imageAbstractionProcess->render(_TOSParameters, tree_recomputed);
+       //resulting_image = imageAbstractionProcess->render(_TOSParameters, tree_recomputed);
+       resulting_image = TOS->render(_TOSParameters, tree_recomputed);
     };
     
     resulting_image.save("result.png");

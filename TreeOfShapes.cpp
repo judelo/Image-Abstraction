@@ -3608,9 +3608,6 @@ void TreeOfShapes::save_shapes( QString folder_name, bool average_color ){
     std::cout << "Saved" << std::endl;
 }
 
-std::vector<QImage> TreeOfShapes::render_shape_by_shape(TOSParameters tosParameters, TreeOfShapes *tosDictionary, DictionaryParameters dictionaryParameters ){
-
-}
 
 Ccimage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, TreeOfShapes *tosDictionary, DictionaryParameters dictionaryParameters, bool save_shapes, QString folder_name ){
     
@@ -3950,5 +3947,19 @@ Ccimage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed,
     _tosParameters = tosParameters;
     _tree_recomputed = false;
 
-    return imgsyn;
+    //return imgsyn;
+    QImage result_image( QSize(imgsyn->ncol, imgsyn->nrow), QImage::Format_RGB32 );
+
+    for( int j= 0; j< imgsyn->nrow; j++)
+        for( int i= 0; i< imgsyn->ncol; i++)
+        {
+            int comp = j*imgsyn->ncol + i;
+
+            QColor color (imgsyn->red[comp], imgsyn->green[comp], imgsyn->blue[comp]);
+            result_image.setPixel(i, j , qRgb(color.red(), color.green(), color.blue()));
+        }
+
+    if( imgsyn != NULL )
+        mw_delete_ccimage(imgsyn);
+    return result_image;
 }
