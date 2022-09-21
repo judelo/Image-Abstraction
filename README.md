@@ -19,8 +19,10 @@ This source code provides a C++ implementation of the framework for the structur
 * Segmentation.h and cpp:  Class to implement segmentation on input image.
 * TreeOfShapes.h and TreeOfShapes.cpp:  Class to implement abstraction process.
 * src/tree_of_shapes.h and src/tree_of_shapes.cpp:  Class to implement initialization of shapes and default parameters.
-* src/segment, src/mw3, src/kdtree and src/flst: Modules used by the solutions, implemented by other authors. 
 * Image-Abstraction.pro: file used for compilation with qmake. 
+* src/segment: Library used by the solution, implemented by Pedro Felzenszwalb.
+* src/mw3, src/flst: Library used by the solution, implemented by other authors. [link](http://dev.ipol.im/git/nil/megawave.git/)
+* src/kdtree: Library used by the solution, implemented by David M. Mount and Sunil Arya [link](https://www.cs.umd.edu/~mount/ANN/)
 
 ## USER GUIDE
 
