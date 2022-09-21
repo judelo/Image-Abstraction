@@ -1,5 +1,5 @@
 /*
- Module to implement abstraction process.
+ Class to implement abstraction process.
 
 Copyright (C) 2022, noura.faraj@umontpellier.fr, lucia.bouza-heguerte@u-paris.fr, julie.delon@u-paris.fr
 

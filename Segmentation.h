@@ -1,5 +1,5 @@
 /*
- Module to implement segmentation on input image.
+ Class to implement segmentation on input image.
 
 Copyright (C) 2022, noura.faraj@umontpellier.fr, lucia.bouza-heguerte@u-paris.fr, julie.delon@u-paris.fr
 
