@@ -159,90 +159,6 @@ TreeOfShapes::~TreeOfShapes(){
 }
 
 
-void TreeOfShapes::getTreeInfo(std::vector<QPoint> &positions, std::vector<QColor> &colors,
-                               std::vector< std::vector< std::pair<int, int> > > &pixels, std::vector<int> & heights, std::vector<std::pair<int, int> > &edges){
-
-    int queArr[_pTree->nb_shapes];
-    int i, qInd;
-    int *head, *rear;
-    Shape pShape, pShapeTemp;
-
-    for(i=0; i< _pTree->nb_shapes; i++){
-        pShape = _pTree->the_shapes + i;
-        ((Info*)(pShape->data))->index = i;
-        queArr[i] = -i;
-    }
-
-    head = queArr;
-    rear = queArr;
-    queArr[0] = 0;
-    rear++;
-    i=0; qInd =1;
-
-    edges.clear();
-    while(head != rear){
-        int parent_id = *head;
-        pShape = _pTree->the_shapes + *head;
-        head++;
-
-        for(pShapeTemp = pShape->child; pShapeTemp != NULL;
-            pShapeTemp = pShapeTemp->next_sibling){
-            queArr[qInd++] = (((Info*)(pShapeTemp->data))->index);
-            edges.push_back(std::make_pair(parent_id, (((Info*)(pShapeTemp->data))->index)));
-            std::pair<int, int > pair = std::make_pair(parent_id, (((Info*)(pShapeTemp->data))->index));
-            if( pair.first >= _pTree->nb_shapes || pair.second >= _pTree->nb_shapes )
-                std::cout <<pair.first << " , " << pair.second << std::endl;
-            rear++;
-            }
-    }
-
-    positions.clear();
-    heights.clear();
-    colors.clear();
-    pixels.clear();
-
-    positions.resize(_pTree->nb_shapes);
-    heights.resize(_pTree->nb_shapes);
-    colors.resize(_pTree->nb_shapes);
-    pixels.resize(_pTree->nb_shapes);
-    int height;
-    for(int j= 0; j< _pTree->nb_shapes; j++){
-        pShape = _pTree->the_shapes + j;
-
-        height = 0;
-        for(pShapeTemp = pShape; pShapeTemp != NULL; pShapeTemp = pShapeTemp->parent)
-            height++;
-
-        heights[j] = height;
-        positions[j] = QPoint((((Info*)(pShape->data))->x0),(((Info*)(pShape->data))->y0));
-        colors[j] = QColor((((Info*)(pShape->data))->r), (((Info*)(pShape->data))->g), (((Info*)(pShape->data))->b));
-
-        if( j==0 ){
-            pixels[j].push_back(std::make_pair(_pTree->ncol, _pTree->nrow));
-        } else {
-            pixels[j].resize(pShape->area);
-            for(i=0; i< pShape->area; i++){
-                pixels[j][i]=std::make_pair(((pShape->pixels+i)->x), ((pShape->pixels+i)->y));
-            }
-        }
-    }
-
-}
-
-
-/* This removes the shapes from the tree associated to pFloatImageInput
-that are too small (threshold *pMinArea). As a consequence all the remaining
-shapes of pFloatImageOutput are of area larger or equal than *pMinArea */
-void TreeOfShapes::mw_fgrain_side(int *pMinArea, int sideflag){
-    int i;
-    /* Kill too small grains.
-     Bound i>0 because it is forbidden to delete the root, at index 0 */
-    for(i = _pTree->nb_shapes-1; i > 0; i--)
-        if(_pTree->the_shapes[i].area < *pMinArea && ( (sideflag >0) ^ _pTree->the_shapes[i].inferior_type ))
-            _pTree->the_shapes[i].removed = (char)1;
-}
-
-
 // This computes the orientation and Elongation of shapes
 void TreeOfShapes::shape_orilam(Shape pShape, float *out_ori, float *out_e, float *out_k){
 
@@ -790,35 +706,6 @@ void TreeOfShapes::compute_shape_attribute(){
     _average_r /= _pTree->nb_shapes;
     _average_g /= _pTree->nb_shapes;
     _average_b /=  _pTree->nb_shapes;
-}
-
-
-/*================ Compute the perimeter of one shape ================== */
-float TreeOfShapes::peri_shape(Shape pShape)
-{
-    float fPerimeter;
-    int nr, nc, size, i;
-    Flist pBoundary = NULL;
-
-    nr = _pTree->nrow;
-    nc = _pTree->ncol;
-    size = nr*nc;
-
-    if (pShape->area >= size)
-        return((float) 2*(nr+nc));
-
-    if (!pShape)
-        printf("shape is empty\n");
-
-    pBoundary = mw_change_flist(pBoundary, 4*pShape->area+1, 0, 2);
-
-    flst_boundary(_pTree, pShape, pBoundary);
-    fPerimeter = (float)pBoundary->size;
-
-    free(pBoundary->data);
-    mw_delete_flist(pBoundary);
-
-    return (fPerimeter);
 }
 
 
@@ -2463,30 +2350,6 @@ void TreeOfShapes::sortShapes(Fsignal t2b_index){
     std::cout << "***************************" << std::endl << std::endl << std::endl;
 }
 
-
-/*Index the tree in coast-to-fine order*/
-/*Buuble sorting of integer array */
-void TreeOfShapes::Bubble( Fsignal t2b_index){
-
-    int i,j, a, b;
-    Shape pShape;
-
-    mw_change_fsignal(t2b_index, _pTree->nb_shapes);
-
-    for(i=0; i< _pTree->nb_shapes; i++)
-    {
-        pShape = _pTree->the_shapes + i;
-        ((Info*)(pShape->data))->index = i;
-        t2b_index->values[i] = i;
-    }
-
-    for (i=0; i< _pTree->nb_shapes; i++)
-        for (j = _pTree->nb_shapes-1; i<j; j--)
-        {
-            a = j-1; b = j;
-            Order(t2b_index, &a, &b);
-        }
-}
 
 // Generate a 1D Gaussian kernel
 Fsignal TreeOfShapes::sgauss(float *std, Fsignal out, int *size){

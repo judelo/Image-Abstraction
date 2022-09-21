@@ -49,8 +49,6 @@ public:
     Shape getShape(int index);
     int getTreeId(){ return _tree_id; }
     int getMaxArea(){ return _maxArea; }
-    void getTreeInfo(std::vector<QPoint> &positions, std::vector<QColor> &colors,
-                     std::vector< std::vector< std::pair<int, int> > > &pixels, std::vector<int> & heights, std::vector<std::pair<int, int> > &edges);
 protected:
     bool _tree_computed;
     bool _texture_image_loaded;
@@ -76,7 +74,6 @@ protected:
     float _average_b;
 
     void init(Cfimage inputImg, Shapes &pTree);
-    void mw_fgrain_side(int *pMinArea, int sideflag);
     void sortShapes(Fsignal t2b_index);
     void fgrain_side(int MinArea, float *in, int nx, int ny, float *out, int sideflag);
     Shape m_order_parent(Shape pShape,
@@ -84,7 +81,6 @@ protected:
                          bool dict = false);
     void Order(Fsignal t2b_index,
                int *p, int *q);
-    void Bubble( Fsignal t2b_index);
     void shape_orilam(Shape pShape,float *out_ori, float *out_e, float *out_k);
     void shape_orilam(Shape pShape, float *out_ori, float *out_e, float *out_k, float *pX0, float *pY0);
     void compute_shape_attribute();
@@ -162,8 +158,6 @@ protected:
                    Fsignal out,
                    int *size);
     Fsignal Sgauss(float *std, Fsignal out, int *size);
-
-    float peri_shape(Shape pShape);
 
     void compute_shape_attribute(int *ns);
     void filter_image(int *ns,
