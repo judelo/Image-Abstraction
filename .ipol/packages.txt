@@ -1,4 +1,3 @@
 qt4-qmake
 qt4-dev-tools 
-gcc
-make
+build-essential
