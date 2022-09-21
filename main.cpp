@@ -103,7 +103,6 @@ int main(int argc, char *argv[])
         resulting_image = TOS->render(_TOSParameters, tree_recomputed,  dictionary, _dictionaryParameters);
     };
      
-
     if (mode!=4){
        // Select model
        _TOSParameters.model = model;  

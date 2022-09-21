@@ -26,28 +26,22 @@ extern void flst();
 int TreeOfShapes::_tree_count = 0;
 
 TreeOfShapes::TreeOfShapes( Cfimage imageIn ){
-    /**************************************************/
-    /*************   READ INPUT IMAGE   ***************/
-    /**************************************************/
-
+    
+    //  read input image
     _imgin = imageIn;
 
-    /**************************************************/
-    /*************   SET DEFAULT INPUT OPTIONS   **************/
-    /**************************************************/
+    //  set default input options   
     _tosParameters = getDefaultTOSParameters();
     _dictionaryParameters = getDefaultDictionaryParameters();
-
     _tree_computed = false;
     _tree_recomputed = false;
-
     _tree_id = _tree_count++;
-
     _large_to_small_index = NULL;
     _large_to_small_index_computed = false;
     _texture_image_loaded = false;
     _use_kdtree = false;
 }
+
 
 TreeOfShapes::TreeOfShapes( Cfimage imageIn, Cfimage texture_image ){
 
@@ -62,17 +56,15 @@ TreeOfShapes::TreeOfShapes( Cfimage imageIn, Cfimage texture_image ){
     // set default input options
     _tosParameters = getDefaultTOSParameters();
     _dictionaryParameters = getDefaultDictionaryParameters();
-
     _tree_computed = false;
     _tree_recomputed = false;
-
     _tree_id = _tree_count++;
-
     _large_to_small_index = NULL;
     _large_to_small_index_computed = false;
     _use_kdtree = false;
 
 }
+
 
 void TreeOfShapes::init(Cfimage inputImg, Shapes &pTree){
 
@@ -87,21 +79,20 @@ void TreeOfShapes::init(Cfimage inputImg, Shapes &pTree){
     if((pTree = mw_new_shapes()) == NULL)
         mwerror(FATAL, 1,
                 "fgrain --> Not enough memory to allocate the tree of shapes");
+
     if  ( ((_NormOfDu = mw_new_fimage()) == NULL) ||
           (mw_alloc_fimage(_NormOfDu,inputImg->nrow,inputImg->ncol) == NULL) )
         mwerror(FATAL,1,"Not enough memory.\n");
+
     /*=======================================*/
     /*==    Compute Intensity imag        ===*/
     /*=======================================*/
     for( int i= 0; i< inputImg->ncol; i++)
-        for( int j= 0; j< inputImg->nrow; j++)
-        {
-            //imgIntensity->gray[j*imgin->ncol + i] = (imgin->blue[j*imgin->ncol + i] * 255.0 );
+        for( int j= 0; j< inputImg->nrow; j++){
             imgIntensity->gray[j*inputImg->ncol + i] = (int)(inputImg->blue[j*inputImg->ncol + i]
                     + inputImg->red[j*inputImg->ncol + i]
                     + inputImg->green[j*inputImg->ncol + i])/3;
         }
-
 
     float fzero = 0.; int nsize = 3;
     fderiv(imgIntensity,NULL,NULL,NULL,NULL,NULL,NULL,_NormOfDu,NULL,&fzero,&nsize);
@@ -125,7 +116,6 @@ void TreeOfShapes::init(Cfimage inputImg, Shapes &pTree){
 
     for(int i= 0; i< pTree->ncol*pTree->nrow; i++){
         pShape = ppShapeOfPixel[i];
-
         ((Info*)(pShape->data))->r += inputImg->red[i];
         ((Info*)(pShape->data))->g += inputImg->green[i];
         ((Info*)(pShape->data))->b += inputImg->blue [i];
@@ -134,11 +124,9 @@ void TreeOfShapes::init(Cfimage inputImg, Shapes &pTree){
 
     for(int i= 0; i< pTree->nb_shapes; i++){
         pShape = pTree->the_shapes + i;
-
         ((Info*)(pShape->data))->r /= (float)((Info*)(pShape->data))->n_cc;
         ((Info*)(pShape->data))->g /= (float)((Info*)(pShape->data))->n_cc;
         ((Info*)(pShape->data))->b /= (float)((Info*)(pShape->data))->n_cc;
-        //printf("%f, %f\n", ((Info*)(pShape->data))->b, pShape->value/255.0);
     }
 
     mw_delete_fimage(imgIntensity);
@@ -152,8 +140,6 @@ void TreeOfShapes::init(Cfimage inputImg, Shapes &pTree){
     //synthesize the image
     printf("---1---- Synthesize the image ..........\n");
 }
-
-
 
 
 TreeOfShapes::~TreeOfShapes(){
@@ -172,6 +158,7 @@ TreeOfShapes::~TreeOfShapes(){
     }
 }
 
+
 void TreeOfShapes::getTreeInfo(std::vector<QPoint> &positions, std::vector<QColor> &colors,
                                std::vector< std::vector< std::pair<int, int> > > &pixels, std::vector<int> & heights, std::vector<std::pair<int, int> > &edges){
 
@@ -180,7 +167,7 @@ void TreeOfShapes::getTreeInfo(std::vector<QPoint> &positions, std::vector<QColo
     int *head, *rear;
     Shape pShape, pShapeTemp;
 
-    for(i=0; i< _pTree->nb_shapes; i++) {
+    for(i=0; i< _pTree->nb_shapes; i++){
         pShape = _pTree->the_shapes + i;
         ((Info*)(pShape->data))->index = i;
         queArr[i] = -i;
@@ -206,7 +193,7 @@ void TreeOfShapes::getTreeInfo(std::vector<QPoint> &positions, std::vector<QColo
             if( pair.first >= _pTree->nb_shapes || pair.second >= _pTree->nb_shapes )
                 std::cout <<pair.first << " , " << pair.second << std::endl;
             rear++;
-        }
+            }
     }
 
     positions.clear();
@@ -246,7 +233,6 @@ void TreeOfShapes::getTreeInfo(std::vector<QPoint> &positions, std::vector<QColo
 /* This removes the shapes from the tree associated to pFloatImageInput
 that are too small (threshold *pMinArea). As a consequence all the remaining
 shapes of pFloatImageOutput are of area larger or equal than *pMinArea */
-
 void TreeOfShapes::mw_fgrain_side(int *pMinArea, int sideflag){
     int i;
     /* Kill too small grains.
@@ -254,12 +240,12 @@ void TreeOfShapes::mw_fgrain_side(int *pMinArea, int sideflag){
     for(i = _pTree->nb_shapes-1; i > 0; i--)
         if(_pTree->the_shapes[i].area < *pMinArea && ( (sideflag >0) ^ _pTree->the_shapes[i].inferior_type ))
             _pTree->the_shapes[i].removed = (char)1;
-
 }
 
 
-/*========= Compute the orientation and Elongation of shapes ========*/
+// This computes the orientation and Elongation of shapes
 void TreeOfShapes::shape_orilam(Shape pShape, float *out_ori, float *out_e, float *out_k){
+
     float size;
     float a11, a20, a02, x0, y0, sumx, sumy, lambda1, lambda2;
     int i,j;
@@ -268,8 +254,7 @@ void TreeOfShapes::shape_orilam(Shape pShape, float *out_ori, float *out_e, floa
 
     sumx = 0;
     sumy = 0;
-    for(i = 0; i< size; i++)
-    {
+    for(i = 0; i< size; i++){
         sumx += (double)((pShape->pixels+i)->x);
         sumy += (double)((pShape->pixels+i)->y);
     }
@@ -279,8 +264,7 @@ void TreeOfShapes::shape_orilam(Shape pShape, float *out_ori, float *out_e, floa
     a11 = 0;
     a20 = 0;
     a02 = 0;
-    for(i = 0; i< size; i++)
-    {
+    for(i = 0; i< size; i++){
         a11 += (float) ((pShape->pixels+i)->x - x0)*((pShape->pixels+i)->y - y0);
         a20 += (float) ((pShape->pixels+i)->x - x0)*((pShape->pixels+i)->x - x0);
         a02 += (float) ((pShape->pixels+i)->y - y0)*((pShape->pixels+i)->y - y0);
@@ -295,14 +279,12 @@ void TreeOfShapes::shape_orilam(Shape pShape, float *out_ori, float *out_e, floa
     lambda2 =0.5*( a02 + a20 - sqrt((a20-a02)*(a20-a02) + 4*a11*a11));
 
     *out_e = lambda2/lambda1;
-
     *out_k = ((float) pShape->area)/(sqrt(lambda2*lambda1)*4*PI);
 }
 
 
-/*========= Compute the orientation and engienvalues of shapes ========*/
-void TreeOfShapes::shape_orilam(Shape pShape, float *out_ori, float *out_e, float *out_k, float *pX0, float *pY0)
-{
+// This Compute the orientation and engienvalues of shapes
+void TreeOfShapes::shape_orilam(Shape pShape, float *out_ori, float *out_e, float *out_k, float *pX0, float *pY0){
     float size;
     float a11, a20, a02, x0, y0, sumx, sumy, lambda1, lambda2;
     int i,j;
@@ -311,8 +293,7 @@ void TreeOfShapes::shape_orilam(Shape pShape, float *out_ori, float *out_e, floa
 
     sumx = 0;
     sumy = 0;
-    for(i = 0; i< size; i++)
-    {
+    for(i = 0; i< size; i++){
         sumx += (double)((pShape->pixels+i)->x);
         sumy += (double)((pShape->pixels+i)->y);
     }
@@ -322,8 +303,7 @@ void TreeOfShapes::shape_orilam(Shape pShape, float *out_ori, float *out_e, floa
     a11 = 0;
     a20 = 0;
     a02 = 0;
-    for(i = 0; i< size; i++)
-    {
+    for(i = 0; i< size; i++){
         a11 += (float) ((pShape->pixels+i)->x - x0)*((pShape->pixels+i)->y - y0);
         a20 += (float) ((pShape->pixels+i)->x - x0)*((pShape->pixels+i)->x - x0);
         a02 += (float) ((pShape->pixels+i)->y - y0)*((pShape->pixels+i)->y - y0);
@@ -344,27 +324,24 @@ void TreeOfShapes::shape_orilam(Shape pShape, float *out_ori, float *out_e, floa
     *pY0 = y0;
 }
 
-/* sort two shapes according to their scales*/
+
+// This sort two shapes according to their scales
 void TreeOfShapes::Order(Fsignal t2b_index, int *p, int *q){
     int temp;
     Shape pShape1, pShape2;
     pShape1 = _pTree->the_shapes + (int) t2b_index->values[*p];
     pShape2 = _pTree->the_shapes + (int) t2b_index->values[*q];
 
-    if( pShape1->area < pShape2->area)
-    {
+    if( pShape1->area < pShape2->area){
         temp = t2b_index->values[*p];
-
         t2b_index->values[*p] =  t2b_index->values[*q];
         t2b_index->values[*q] =  temp;
     }
 }
 
-/*====== Indexing the mn-order parent of the pShape ===*/
-Shape TreeOfShapes::m_order_parent(Shape pShape,
-                                   int *mn,
-                                   bool dict)
-{
+
+// Indexing the mn-order parent of the pShape
+Shape TreeOfShapes::m_order_parent(Shape pShape, int *mn, bool dict){
     int t;
     Shape pShapeTemp;
     pShapeTemp = pShape;
@@ -385,8 +362,8 @@ Shape TreeOfShapes::m_order_parent(Shape pShape,
     return pShapeTemp;
 }
 
-/* sampling the leaf node of the tree according to
-   given distribution */
+
+// sampling the leaf node of the tree according to given distribution
 void TreeOfShapes::random_leaf(Fsignal leaf, Fsignal t2b_index,int *k_ind){
     Shape pShape, pShapeTemp;
     int i, size, select_i;
@@ -402,24 +379,22 @@ void TreeOfShapes::random_leaf(Fsignal leaf, Fsignal t2b_index,int *k_ind){
 
     select_i = size-1;
 
-    if(size > 1) {
+    if(size > 1){
         pb_sum = 0.0;
         pb = mw_change_fsignal(pb,size);
         mw_clear_fsignal(pb,0.0);
 
         for(i=0; i< size; i++){
-            /*// sampling by uniform distribution; */
+            // sampling by uniform distribution;
             pb->values[i] = 1;
             pb_sum += pb->values[i];
         }
 
-        for(i=0; i< size; i++){
+        for(i=0; i< size; i++)
             pb->values[i] /= pb_sum;
-        }
 
-        for(i=1; i< size; i++){
+        for(i=1; i< size; i++)
             pb->values[i] += pb->values[i-1];
-        }
 
         temp = ((float)rand())/RAND_MAX;
 
@@ -457,6 +432,7 @@ void TreeOfShapes::random_leaf(Fsignal leaf, Fsignal t2b_index,int *k_ind){
 
     mw_delete_fsignal(pb);
 }
+
 
 /* visit the tree in random order */
 void TreeOfShapes::random_tree_order(Fsignal t2b_index){
@@ -508,6 +484,7 @@ void TreeOfShapes::random_tree_order(Fsignal t2b_index){
     mw_delete_fsignal(leaf);
 }
 
+
 /*Indexing the tree by the Breadth-first order*/
 void TreeOfShapes::top2bottom_index_tree(Fsignal t2b_index){
     int queArr[_pTree->nb_shapes];
@@ -544,9 +521,10 @@ void TreeOfShapes::top2bottom_index_tree(Fsignal t2b_index){
     }
 }
 
-/*===== Compute the mean contrast of the curve l =====*/
-float TreeOfShapes::mean_contrast(Shape pShape)
-{
+
+//Compute the mean contrast of the curve l
+float TreeOfShapes::mean_contrast(Shape pShape){
+
     double per;
     float mu,meanmu,x,y,ox,oy;
     int i,ix,iy;
@@ -559,7 +537,6 @@ float TreeOfShapes::mean_contrast(Shape pShape)
     meanmu = 0.0;
 
     for (i=0; i<pBoundary->size;i++) {
-
         x = pBoundary->values[i*2];
         y = pBoundary->values[i*2+1];
 
@@ -580,6 +557,7 @@ float TreeOfShapes::mean_contrast(Shape pShape)
     mw_delete_flist(pBoundary);
     return(meanmu);
 }
+
 
 void TreeOfShapes::adaptive_shift_shape(float *shift, float *theta){
     int i,j;
@@ -680,9 +658,10 @@ void TreeOfShapes::random_shift_shape(float *shift, float * theta){
     }
 }
 
-/*===== Compute the mean contrast of the curve l =====*/
-float TreeOfShapes::min_contrast(Shape pShape)
-{
+
+// the mean contrast of the curve l
+float TreeOfShapes::min_contrast(Shape pShape){
+
     double per;
     float mu,meanmu,x,y,ox,oy;
     int i,ix,iy;
@@ -694,9 +673,7 @@ float TreeOfShapes::min_contrast(Shape pShape)
     per = 0.;
     meanmu = FLT_MAX;
 
-    for(i=0; i<pBoundary->size;i++)
-    {
-
+    for(i=0; i<pBoundary->size;i++){
         x = pBoundary->values[i*2];
         y = pBoundary->values[i*2+1];
 
@@ -705,8 +682,7 @@ float TreeOfShapes::min_contrast(Shape pShape)
 
         ix = (int)rint((double)x)-1;
         iy = (int)rint((double)y)-1;
-        if (ix>=0 && iy>=0 && ix<_NormOfDu->ncol && iy<_NormOfDu->nrow)
-        {
+        if (ix>=0 && iy>=0 && ix<_NormOfDu->ncol && iy<_NormOfDu->nrow){
             mu =_NormOfDu->gray[_NormOfDu->ncol*iy+ix];
             if (mu<meanmu) meanmu=mu;
         }
@@ -718,15 +694,13 @@ float TreeOfShapes::min_contrast(Shape pShape)
     return(meanmu);
 }
 
+
 /*========================================================*/
 /*====== Compute boundingbox of each shape on the tree ===*/
 /*====== contains two functions:                       ===*/
 /*====== shape_boundingbox(pTree, pShape),  and        ===*/
 /*====== tree_boundingbox(pTree, pShape)               ===*/
 /*========================================================*/
-
-/*====== Compute boundingbox of a shape===*/
-/* Note: the setp 'flst_pixels(pTree)' should be done before this function; */
 void TreeOfShapes::shape_boundingbox(Shape pShape){
 
     float xmin, xmax, ymin, ymax, theta, x0temp, y0temp;
@@ -744,8 +718,7 @@ void TreeOfShapes::shape_boundingbox(Shape pShape){
     xmin = ncol;  xmax = -ncol;
     ymin = nrow;  ymax = -nrow;
     sx = 1.0; sy = 1.0;
-    for(i = 0; i< size; i++)
-    {
+    for(i = 0; i< size; i++){
         x = (float)((pShape->pixels+i)->x - x0temp);
         y = (float)((pShape->pixels+i)->y - y0temp);
 
@@ -765,22 +738,22 @@ void TreeOfShapes::shape_boundingbox(Shape pShape){
     ((Info*)(pShape->data))->boundingbox[3] = (int) ymax;
 }
 
+
 /*====== Compute boundingbox of each shape on the tree ===*/
-void TreeOfShapes::tree_boundingbox()
-{
+void TreeOfShapes::tree_boundingbox(){
     Shape pShape;
     int i;
 
-    for(i = _pTree->nb_shapes-1; i>=0; i--)
-    {
+    for(i = _pTree->nb_shapes-1; i>=0; i--){
         pShape = _pTree->the_shapes + i;
         shape_boundingbox(pShape);
     }
 }
 
+
 /*====== Compute shape attribute ===*/
-void TreeOfShapes::compute_shape_attribute()
-{
+void TreeOfShapes::compute_shape_attribute(){
+
     int i;
     float oren, lamb1, lamb2, x0, y0;
     Shape pShape;
@@ -789,7 +762,8 @@ void TreeOfShapes::compute_shape_attribute()
     _average_g = 0.;
     _average_b = 0.;
     _maxArea = 0;
-    for(i = _pTree->nb_shapes-1; i>=0; i--)  {
+
+    for(i = _pTree->nb_shapes-1; i>=0; i--){
         pShape = _pTree->the_shapes + i;
 
         shape_orilam(pShape, &oren, &lamb1, &lamb2, &x0, &y0);
@@ -816,9 +790,8 @@ void TreeOfShapes::compute_shape_attribute()
     _average_r /= _pTree->nb_shapes;
     _average_g /= _pTree->nb_shapes;
     _average_b /=  _pTree->nb_shapes;
-
-
 }
+
 
 /*================ Compute the perimeter of one shape ================== */
 float TreeOfShapes::peri_shape(Shape pShape)
@@ -826,7 +799,6 @@ float TreeOfShapes::peri_shape(Shape pShape)
     float fPerimeter;
     int nr, nc, size, i;
     Flist pBoundary = NULL;
-
 
     nr = _pTree->nrow;
     nc = _pTree->ncol;
@@ -836,9 +808,7 @@ float TreeOfShapes::peri_shape(Shape pShape)
         return((float) 2*(nr+nc));
 
     if (!pShape)
-    {
         printf("shape is empty\n");
-    }
 
     pBoundary = mw_change_flist(pBoundary, 4*pShape->area+1, 0, 2);
 
@@ -862,7 +832,7 @@ void TreeOfShapes::compute_shape_attribute(int *ns)
 
     nn = *ns; nsize = 3;
 
-    for(i = _pTree->nb_shapes-1; i>=0; i--)  {
+    for(i = _pTree->nb_shapes-1; i>=0; i--){
         pShape = _pTree->the_shapes + i;
 
         shape_orilam(pShape, &oren, &elg, &kap);
@@ -926,14 +896,11 @@ void TreeOfShapes::synshapeRect(Shape pShape,
     TG  = ((Info*)(pShape->data))->g;
     TB  = ((Info*)(pShape->data))->b;
     for( xi= ceil(left); xi<= right; xi++)
-        for( yi= ceil(top); yi<= bottom; yi++)
-        {
+        for( yi= ceil(top); yi<= bottom; yi++){
             xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
             yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
 
-            if( xi_e >= -a && xi_e <= +a && yi_e >= -b && yi_e <= +b )
-            {
-
+            if( xi_e >= -a && xi_e <= +a && yi_e >= -b && yi_e <= +b ){
                 if(xi<0 || xi>= imgsyn->ncol ||
                         yi<0 || yi>= imgsyn->nrow )
                     continue;
@@ -950,12 +917,10 @@ void TreeOfShapes::synshapeRect(Shape pShape,
     /*=== Median Filter ===*/
     MedSize = (int)((*median)/2.0);
     for(x = left; x <= right; x++)
-        for(y = top; y <= bottom; y++)
-        {
+        for(y = top; y <= bottom; y++){
             numMedain = 0;
             for(iKer = - MedSize; iKer <= MedSize; iKer++)
-                for(jKer = - MedSize; jKer <= MedSize; jKer++)
-                {
+                for(jKer = - MedSize; jKer <= MedSize; jKer++){
                     xKer = x + iKer;
                     yKer = y + jKer;
 
@@ -974,22 +939,17 @@ void TreeOfShapes::synshapeRect(Shape pShape,
         }
 
     for(x = left; x <= right; x++)
-        for(y = top; y <= bottom; y++)
-        {
-            imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] =
-                    (int) imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
-
+        for(y = top; y <= bottom; y++){
+            imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] = (int) imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
             imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
         }
 
     /*=== Add Gaussian Bulr ===*/
     KerSize = (int) ( sqrt( (double) gaussKernel->size) /2.0 );
     for(x = left; x <= right; x++)
-        for(y = top; y <= bottom; y++)
-        {
+        for(y = top; y <= bottom; y++){
             for(iKer = -KerSize; iKer <= KerSize; iKer++)
-                for(jKer = -KerSize; jKer <= KerSize; jKer++)
-                {
+                for(jKer = -KerSize; jKer <= KerSize; jKer++){
                     xKer = x + iKer;
                     yKer = y + jKer;
 
@@ -1015,8 +975,7 @@ void TreeOfShapes::synshapeRect(Shape pShape,
 
         shLambda = 0.3;
         for(x = ceil(left); x <= right; x++)
-            for(y = ceil(top); y <= bottom; y++)
-            {
+            for(y = ceil(top); y <= bottom; y++){
                 if(imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] == 0)
                     continue;
 
@@ -1025,7 +984,6 @@ void TreeOfShapes::synshapeRect(Shape pShape,
                 shTR = TR* shLambda;
                 shTG = TG* shLambda;
                 shTB = TB* shLambda;
-
 
                 xsh = x + shiftsh*cos( PI*(*reliefOrentation)/180.0 );
                 ysh = y - shiftsh*sin( PI*(*reliefOrentation)/180.0 );
@@ -1046,13 +1004,11 @@ void TreeOfShapes::synshapeRect(Shape pShape,
 
                 tB = ((float) imgsyn->blue[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*tb;
                 imgsyn->blue[ysh*imgsyn->ncol + xsh]  = (int) tB;
-
             }
     }
 
     for(x = left; x <= right; x++)
-        for(y = top; y <= bottom; y++)
-        {
+        for(y = top; y <= bottom; y++){
             if(imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] == 0)
                 continue;
 
@@ -1077,13 +1033,9 @@ void TreeOfShapes::synshapeRect(Shape pShape,
 }
 
 
-/*=== Synthesis a shape using a rectangle with the same parameters (second-order moments)===*/
-void TreeOfShapes::synshapeRect(Shape pShape,
-                                Ccimage imgsyn,
-                                float *alpha,
-                                int *relief,
-                                float *reliefOrentation, float *reliefHeight)
-{
+// Synthesis a shape using a rectangle with the same parameters (second-order moments)
+void TreeOfShapes::synshapeRect(Shape pShape, Ccimage imgsyn, float *alpha, int *relief, float *reliefOrentation, float *reliefHeight){
+    
     int xi, yi;
     float a, b, x0temp, y0temp, top, right, left, bottom, bLimit, ALPHA;
     float phi, xi_e, yi_e;
@@ -1128,14 +1080,12 @@ void TreeOfShapes::synshapeRect(Shape pShape,
 
         shLambda = 0.3;
         for(xi = ceil(left); xi <= right; xi++)
-            for(yi = ceil(top); yi <= bottom; yi++)
-            {
+            for(yi = ceil(top); yi <= bottom; yi++){
 
                 xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
                 yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
 
-                if( xi_e >= -a && xi_e <= +a && yi_e >= -b && yi_e <= +b )
-                {
+                if( xi_e >= -a && xi_e <= +a && yi_e >= -b && yi_e <= +b ){
                     tr = TR* shLambda;
                     tg = TG* shLambda;
                     tb = TB* shLambda;
@@ -1160,13 +1110,11 @@ void TreeOfShapes::synshapeRect(Shape pShape,
     }
 
     for( xi= ceil(left); xi<= right; xi++)
-        for( yi= ceil(top); yi<= bottom; yi++)
-        {
+        for( yi= ceil(top); yi<= bottom; yi++){
             xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
             yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
 
-            if( xi_e >= -a && xi_e <= +a && yi_e >= -b && yi_e <= +b )
-            {
+            if( xi_e >= -a && xi_e <= +a && yi_e >= -b && yi_e <= +b ){
                 tR = ((float) imgsyn->red[yi*_pTree->ncol + xi])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->r;
                 imgsyn->red[yi*_pTree->ncol + xi] = (int) tR;
 
@@ -1178,6 +1126,8 @@ void TreeOfShapes::synshapeRect(Shape pShape,
             }
         }
 }
+
+
 /*=== Synthesis by Shape Shaking ===*/
 /*=== Before the Shaking, smooth the shape with a gaussian kernel or a median filter ===*/
 void TreeOfShapes::synshapeEllipse(Shape pShape,
@@ -1188,8 +1138,7 @@ void TreeOfShapes::synshapeEllipse(Shape pShape,
                                    int *median,
                                    float *alpha,
                                    int *relief,
-                                   float *reliefOrentation, float *reliefHeight)
-{
+                                   float *reliefOrentation, float *reliefHeight){
 
     int xi, yi, x, y, iKer, jKer, KerSize, MedSize, xKer, yKer, numMedain;
     float xr, yr, ALPHA, BETA, a, b, x0temp, y0temp, top, right, left, bottom;
@@ -1220,13 +1169,11 @@ void TreeOfShapes::synshapeEllipse(Shape pShape,
     TG  = ((Info*)(pShape->data))->g;
     TB  = ((Info*)(pShape->data))->b;
     for( xi= ceil(left); xi<= right; xi++)
-        for( yi= ceil(top); yi<= bottom; yi++)
-        {
+        for( yi= ceil(top); yi<= bottom; yi++){
             xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
             yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
 
             if( xi_e*xi_e/(a*a) + yi_e*yi_e/(b*b) <= 1 ){
-
                 if(xi<0 || xi>= imgsyn->ncol ||
                         yi<0 || yi>= imgsyn->nrow )
                     continue;
@@ -1243,12 +1190,10 @@ void TreeOfShapes::synshapeEllipse(Shape pShape,
     /*=== Median Filter ===*/
     MedSize = (int)((*median)/2.0);
     for(x = left; x <= right; x++)
-        for(y = top; y <= bottom; y++)
-        {
+        for(y = top; y <= bottom; y++){
             numMedain = 0;
             for(iKer = - MedSize; iKer <= MedSize; iKer++)
-                for(jKer = - MedSize; jKer <= MedSize; jKer++)
-                {
+                for(jKer = - MedSize; jKer <= MedSize; jKer++){
                     xKer = x + iKer;
                     yKer = y + jKer;
 
@@ -1267,22 +1212,17 @@ void TreeOfShapes::synshapeEllipse(Shape pShape,
         }
 
     for(x = left; x <= right; x++)
-        for(y = top; y <= bottom; y++)
-        {
-            imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] =
-                    (int) imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
-
+        for(y = top; y <= bottom; y++){
+            imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] = (int) imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
             imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
         }
 
     /*=== Add Gaussian Bulr ===*/
     KerSize = (int) ( sqrt( (double) gaussKernel->size) /2.0 );
     for(x = left; x <= right; x++)
-        for(y = top; y <= bottom; y++)
-        {
+        for(y = top; y <= bottom; y++){
             for(iKer = -KerSize; iKer <= KerSize; iKer++)
-                for(jKer = -KerSize; jKer <= KerSize; jKer++)
-                {
+                for(jKer = -KerSize; jKer <= KerSize; jKer++){
                     xKer = x + iKer;
                     yKer = y + jKer;
 
@@ -1297,8 +1237,7 @@ void TreeOfShapes::synshapeEllipse(Shape pShape,
         }
 
     /*=== Synthesis ===*/
-    if(*relief == 1 && pShape->area > 10)
-    {
+    if(*relief == 1 && pShape->area > 10){
         float shLambda, shTR, shTG, shTB;
         int xsh, ysh, shiftsh;
         if(pShape->area > 10)
@@ -1308,8 +1247,7 @@ void TreeOfShapes::synshapeEllipse(Shape pShape,
 
         shLambda = 0.3;
         for(x = ceil(left); x <= right; x++)
-            for(y = ceil(top); y <= bottom; y++)
-            {
+            for(y = ceil(top); y <= bottom; y++){
                 if(imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] == 0)
                     continue;
 
@@ -1339,13 +1277,11 @@ void TreeOfShapes::synshapeEllipse(Shape pShape,
 
                 tB = ((float) imgsyn->blue[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*tb;
                 imgsyn->blue[ysh*imgsyn->ncol + xsh]  = (int) tB;
-
             }
     }
 
     for(x = left; x <= right; x++)
-        for(y = top; y <= bottom; y++)
-        {
+        for(y = top; y <= bottom; y++){
             if(imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] == 0)
                 continue;
 
@@ -1369,6 +1305,7 @@ void TreeOfShapes::synshapeEllipse(Shape pShape,
         }
 }
 
+
 /*=== Synthesis by Shape Shaking ===*/
 /*=== Before the Shaking, smooth the shape with a gaussian kernel or a median filter ===*/
 void TreeOfShapes::synshapeCircle(Shape pShape,
@@ -1379,8 +1316,7 @@ void TreeOfShapes::synshapeCircle(Shape pShape,
                                   int *median,
                                   float *alpha,
                                   int *relief,
-                                  float *reliefOrentation, float *reliefHeight)
-{
+                                  float *reliefOrentation, float *reliefHeight){
 
     int xi, yi, x, y, iKer, jKer, KerSize, MedSize, xKer, yKer, numMedain;
     float xr, yr, ALPHA, BETA, a, b, x0temp, y0temp, top, right, left, bottom;
@@ -1411,15 +1347,12 @@ void TreeOfShapes::synshapeCircle(Shape pShape,
     TG  = ((Info*)(pShape->data))->g;
     TB  = ((Info*)(pShape->data))->b;
     for( xi= ceil(left); xi<= right; xi++)
-        for( yi= ceil(top); yi<= bottom; yi++)
-        {
+        for( yi= ceil(top); yi<= bottom; yi++){
             xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
             yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
 
             if( xi_e*xi_e/(b*b) + yi_e*yi_e/(b*b) <= 1 ){
-
-                if(xi<0 || xi>= imgsyn->ncol ||
-                        yi<0 || yi>= imgsyn->nrow )
+                if(xi<0 || xi>= imgsyn->ncol || yi<0 || yi>= imgsyn->nrow )
                     continue;
 
                 imgShapeLabelSyn->gray[yi*imgShapeLabelSyn->ncol + xi] = 1;
@@ -1434,12 +1367,10 @@ void TreeOfShapes::synshapeCircle(Shape pShape,
     /*=== Median Filter ===*/
     MedSize = (int)((*median)/2.0);
     for(x = left; x <= right; x++)
-        for(y = top; y <= bottom; y++)
-        {
+        for(y = top; y <= bottom; y++){
             numMedain = 0;
             for(iKer = - MedSize; iKer <= MedSize; iKer++)
-                for(jKer = - MedSize; jKer <= MedSize; jKer++)
-                {
+                for(jKer = - MedSize; jKer <= MedSize; jKer++){
                     xKer = x + iKer;
                     yKer = y + jKer;
 
@@ -1458,22 +1389,17 @@ void TreeOfShapes::synshapeCircle(Shape pShape,
         }
 
     for(x = left; x <= right; x++)
-        for(y = top; y <= bottom; y++)
-        {
-            imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] =
-                    (int) imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
-
+        for(y = top; y <= bottom; y++){
+            imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] = (int) imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
             imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
         }
 
     /*=== Add Gaussian Bulr ===*/
     KerSize = (int) ( sqrt( (double) gaussKernel->size) /2.0 );
     for(x = left; x <= right; x++)
-        for(y = top; y <= bottom; y++)
-        {
+        for(y = top; y <= bottom; y++){
             for(iKer = -KerSize; iKer <= KerSize; iKer++)
-                for(jKer = -KerSize; jKer <= KerSize; jKer++)
-                {
+                for(jKer = -KerSize; jKer <= KerSize; jKer++){
                     xKer = x + iKer;
                     yKer = y + jKer;
 
@@ -1488,8 +1414,7 @@ void TreeOfShapes::synshapeCircle(Shape pShape,
         }
 
     /*=== Synthesis ===*/
-    if(*relief == 1 && pShape->area > 10)
-    {
+    if(*relief == 1 && pShape->area > 10){
         float shLambda, shTR, shTG, shTB;
         int xsh, ysh, shiftsh;
         if(pShape->area > 10)
@@ -1499,8 +1424,7 @@ void TreeOfShapes::synshapeCircle(Shape pShape,
 
         shLambda = 0.3;
         for(x = ceil(left); x <= right; x++)
-            for(y = ceil(top); y <= bottom; y++)
-            {
+            for(y = ceil(top); y <= bottom; y++){
                 if(imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] == 0)
                     continue;
 
@@ -1509,7 +1433,6 @@ void TreeOfShapes::synshapeCircle(Shape pShape,
                 shTR = TR* shLambda;
                 shTG = TG* shLambda;
                 shTB = TB* shLambda;
-
 
                 xsh = x + shiftsh*cos( PI*(*reliefOrentation)/180.0 );
                 ysh = y - shiftsh*sin( PI*(*reliefOrentation)/180.0 );
@@ -1530,13 +1453,11 @@ void TreeOfShapes::synshapeCircle(Shape pShape,
 
                 tB = ((float) imgsyn->blue[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*tb;
                 imgsyn->blue[ysh*imgsyn->ncol + xsh]  = (int) tB;
-
             }
     }
 
     for(x = left; x <= right; x++)
-        for(y = top; y <= bottom; y++)
-        {
+        for(y = top; y <= bottom; y++){
             if(imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] == 0)
                 continue;
 
@@ -1560,13 +1481,12 @@ void TreeOfShapes::synshapeCircle(Shape pShape,
         }
 }
 
-/*=== Synthesis a shape using a ellipse with the same parameters (second-order moments) ===*/
+// Synthesis a shape using a ellipse with the same parameters (second-order moments)
 void TreeOfShapes::synshapeCircle(Shape pShape,
                                   Ccimage imgsyn,
                                   float *alpha,
                                   int *relief,
-                                  float *reliefOrentation, float *reliefHeight)
-{
+                                  float *reliefOrentation, float *reliefHeight){
     int xi, yi;
     float a, b, x0temp, y0temp, top, right, left, bottom, ALPHA;
     float phi, xi_e, yi_e;
@@ -1597,8 +1517,7 @@ void TreeOfShapes::synshapeCircle(Shape pShape,
     TB  = ((Info*)(pShape->data))->b;
 
     /*=== Synthesis ===*/
-    if(*relief == 1 && pShape->area > 10)
-    {
+    if(*relief == 1 && pShape->area > 10){
         float shLambda, shTR, shTG, shTB;
         int xsh, ysh, shiftsh;
         if(pShape->area > 10)
@@ -1608,8 +1527,7 @@ void TreeOfShapes::synshapeCircle(Shape pShape,
 
         shLambda = 0.3;
         for( xi= ceil(left); xi<= right; xi++)
-            for( yi= ceil(top); yi<= bottom; yi++)
-            {
+            for( yi= ceil(top); yi<= bottom; yi++){
                 xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
                 yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
 
@@ -1622,7 +1540,6 @@ void TreeOfShapes::synshapeCircle(Shape pShape,
                     shTR = TR* shLambda;
                     shTG = TG* shLambda;
                     shTB = TB* shLambda;
-
 
                     xsh = xi + shiftsh*cos( PI*(*reliefOrentation)/180.0 );
                     ysh = yi - shiftsh*sin( PI*(*reliefOrentation)/180.0 );
@@ -1644,8 +1561,7 @@ void TreeOfShapes::synshapeCircle(Shape pShape,
     }
 
     for( xi= ceil(left); xi<= right; xi++)
-        for( yi= ceil(top); yi<= bottom; yi++)
-        {
+        for( yi= ceil(top); yi<= bottom; yi++){
             xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
             yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
 
@@ -1664,13 +1580,13 @@ void TreeOfShapes::synshapeCircle(Shape pShape,
 }
 
 
-/*=== Synthesis a shape using a ellipse with the same parameters (second-order moments) ===*/
+// Synthesis a shape using a ellipse with the same parameters (second-order moments)
 void TreeOfShapes::synshapeEllipse(Shape pShape,
                                    Ccimage imgsyn,
                                    float *alpha,
                                    int *relief,
-                                   float *reliefOrentation, float *reliefHeight)
-{
+                                   float *reliefOrentation, float *reliefHeight){
+    
     int xi, yi;
     float a, b, x0temp, y0temp, top, right, left, bottom, ALPHA;
     float phi, xi_e, yi_e;
@@ -1712,21 +1628,18 @@ void TreeOfShapes::synshapeEllipse(Shape pShape,
 
         shLambda = 0.3;
         for( xi= ceil(left); xi<= right; xi++)
-            for( yi= ceil(top); yi<= bottom; yi++)
-            {
+            for( yi= ceil(top); yi<= bottom; yi++){
                 xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
                 yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
 
                 if( xi_e*xi_e/(a*a) + yi_e*yi_e/(b*b) <= 1 ){
 
-                    if(xi<0 || xi>= imgsyn->ncol ||
-                            yi<0 || yi>= imgsyn->nrow )
+                    if(xi<0 || xi>= imgsyn->ncol || yi<0 || yi>= imgsyn->nrow )
                         continue;
 
                     shTR = TR* shLambda;
                     shTG = TG* shLambda;
                     shTB = TB* shLambda;
-
 
                     xsh = xi + shiftsh*cos( PI*(*reliefOrentation)/180.0 );
                     ysh = yi - shiftsh*sin( PI*(*reliefOrentation)/180.0 );
@@ -1748,8 +1661,7 @@ void TreeOfShapes::synshapeEllipse(Shape pShape,
     }
 
     for( xi= ceil(left); xi<= right; xi++)
-        for( yi= ceil(top); yi<= bottom; yi++)
-        {
+        for( yi= ceil(top); yi<= bottom; yi++){
             xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
             yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
 
@@ -1780,9 +1692,8 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                                 Cimage imgShapeLabel, Cimage imgShapeLabelSyn,
                                 float *alpha,
                                 int *equal, int *mcolor, int *relief,
-                                float *reliefOrentation, float *reliefHeight)
-{
-#if 1
+                                float *reliefOrentation, float *reliefHeight){
+
     int i, x, y,  xi, yi;
     float xr, yr, xt, yt, x0temp, y0temp, x0tempDict, y0tempDict, x0tempTransformed, y0tempTransformed;
     float tR, tG, tB, ALPHA, TR, TG, TB;
@@ -1798,24 +1709,20 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
     yBound_b = (int) ((Info*)(pShapeDict->data))->boundingbox[3];
 
     /*=== begin=== Label pShapeDict ========*/
-    for(i=0; i < pShapeDict->area; i++)
-    {
+    for(i=0; i < pShapeDict->area; i++){
         x = (pShapeDict->pixels+i)->x;
         y = (pShapeDict->pixels+i)->y;
         imgShapeLabel->gray[y*imgShapeLabel->ncol + x] = 1;
     }
 
     srand( time(NULL) );
-    if(*mcolor == 1)
-    {
+    if(*mcolor == 1){
         tempx = (rand()%10);
         TR = ((Info*)(pShapeDict->data))->r + tempx*0;
         TG = ((Info*)(pShapeDict->data))->g + tempx*0;
         TB = ((Info*)(pShapeDict->data))->b + tempx*0;
     }
-
-    else
-    {
+    else{
         TR  = ((Info*)(pShape->data))->r + tempx*0;
         TG  = ((Info*)(pShape->data))->g + tempx*0;
         TB  = ((Info*)(pShape->data))->b + tempx*0;
@@ -1827,13 +1734,11 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
         TB  = ((Info*)(pShapeDict->data))->b;
     }
 
-    if(*equal == 1)
-    {
+    if(*equal == 1){
         SCALEx = sqrt( (double) pShape->area / (double) pShapeDict->area );
         SCALEy = SCALEx;
     }
-    else
-    {
+    else{
         SCALEx =  sqrt( ((Info*)(pShape->data))->lambda1) /  sqrt(((Info*)(pShapeDict->data))->lambda1 );
         SCALEy =  sqrt( ((Info*)(pShape->data))->lambda2) /  sqrt(((Info*)(pShapeDict->data))->lambda2 );
     }
@@ -1862,11 +1767,9 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
     top    = _MAX(0, y0temp - bLimit);
     bottom = _MIN(imgsyn->nrow - 1, y0temp + bLimit);
 
-
     /*=== Transformation ===*/
     for(x = ceil(left); x <= right; x++)
-        for(y = ceil(top); y <= bottom; y++)
-        {
+        for(y = ceil(top); y <= bottom; y++){
             xt = (x - x0temp);
             yt = (y - y0temp);
 
@@ -1882,10 +1785,8 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                     yr <0 || yr >=imgShapeLabel->nrow)
                 continue;
 
-            if( imgShapeLabel->gray[(int)(yr)*imgShapeLabel->ncol + (int)(xr)] == 1 )
-            {
+            if( imgShapeLabel->gray[(int)(yr)*imgShapeLabel->ncol + (int)(xr)] == 1 ){
                 imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] = 1;
-
                 imgShapeColorSyn->red[y*imgShapeLabelSyn->ncol + x]   =  imgDict->red[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
                 imgShapeColorSyn->green[y*imgShapeLabelSyn->ncol + x] =  imgDict->green[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
                 imgShapeColorSyn->blue[y*imgShapeLabelSyn->ncol + x]  =  imgDict->blue[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
@@ -1895,8 +1796,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
     x0tempTransformed = (x0tempDict - x0temp)*cos(theta) + (y0tempDict - y0temp)*sin(theta) +x0temp;
     y0tempTransformed = (y0tempDict - y0temp)*cos(theta) - (x0tempDict - x0temp)*sin(theta) +y0temp;
 
-    if(*relief == 1 && pShape->area > 30)
-    {
+    if(*relief == 1 && pShape->area > 30){
         float shLambda, shTR, shTG, shTB;
         int xsh, ysh, shiftsh;
         if(pShape->area > 30)
@@ -1906,8 +1806,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
 
         shLambda = 0.3;
         for(x = ceil(left); x <= right; x++)
-            for(y = ceil(top); y <= bottom; y++)
-            {
+            for(y = ceil(top); y <= bottom; y++){
                 if(imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] == 0)
                     continue;
 
@@ -1927,7 +1826,6 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 shTG = TG* shLambda;
                 shTB = TB* shLambda;
 
-
                 xsh = xi + shiftsh*cos( PI*(*reliefOrentation)/180.0 );
                 ysh = yi - shiftsh*sin( PI*(*reliefOrentation)/180.0 );
                 xsh = _MAX(0, xsh);
@@ -1935,8 +1833,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 ysh = _MAX(0, ysh);
                 ysh = _MIN(imgsyn->nrow - 1, ysh);
 
-                if(xsh>= 0 && xsh< _pTree->ncol &&
-                        ysh>= 0 && ysh< _pTree->nrow){
+                if(xsh>= 0 && xsh< _pTree->ncol && ysh>= 0 && ysh< _pTree->nrow){
                     tR = ((float) imgsyn->red[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*shTR;
                     imgsyn->red[ysh*imgsyn->ncol + xsh]   = (int) tR; 
 
@@ -1946,7 +1843,6 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                     tB = ((float) imgsyn->blue[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*shTB;
                     imgsyn->blue[ysh*imgsyn->ncol + xsh]  = (int) tB;  
                 }
-
             }
     }
 
@@ -1960,8 +1856,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
         TB  = ((Info*)(pShapeDict->data))->b;
     }
     for(x = ceil(left); x <= right; x++)
-        for(y = ceil(top); y <= bottom; y++)
-        {
+        for(y = ceil(top); y <= bottom; y++){
             if(imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] == 0)
                 continue;
 
@@ -1971,15 +1866,13 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 TB  = imgShapeColorSyn->blue[y*imgShapeLabelSyn->ncol + x];
             }
 
-
             xr = (x - x0tempTransformed)*cos(rotation) + (y - y0tempTransformed)*sin(rotation);
             yr = (y - y0tempTransformed)*cos(rotation) - (x - x0tempTransformed)*sin(rotation);
 
             xi = floor(xShift + x0tempTransformed + xr);
             yi = floor(yShift + y0tempTransformed + yr);
 
-            if(xi>= 0 && xi< _pTree->ncol &&
-                    yi>= 0 && yi< _pTree->nrow){
+            if(xi>= 0 && xi< _pTree->ncol && yi>= 0 && yi< _pTree->nrow){
                 tR = ((float) imgsyn->red[yi*_pTree->ncol + xi])*ALPHA + (1-ALPHA)*TR;
                 imgsyn->red[yi*_pTree->ncol + xi] = (int)rint((double) tR);
 
@@ -1990,181 +1883,8 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 imgsyn->blue[yi*_pTree->ncol + xi] = (int)rint((double) tB);
             }
         }
-#else
-
-    int i, x, y;
-    float xi, yi, xr, yr, xt, yt, x0temp, y0temp, x0tempDict, y0tempDict;
-    float tR, tG, tB, ALPHA, TR, TG, TB;
-    float xBound_l, xBound_r, yBound_t, yBound_b;
-    float SCALEx, SCALEy, theta, thetaDict;
-    float top, right, left, bottom;
-    float a, b, bLimit, tempx;
-    ALPHA = *alpha;
-
-    xBound_l = (int) ((Info*)(pShapeDict->data))->boundingbox[0];
-    xBound_r = (int) ((Info*)(pShapeDict->data))->boundingbox[1];
-    yBound_t = (int) ((Info*)(pShapeDict->data))->boundingbox[2];
-    yBound_b = (int) ((Info*)(pShapeDict->data))->boundingbox[3];
-
-    /*=== begin=== Label pShapeDict ========*/
-    for(i=0; i < pShapeDict->area; i++)
-    {
-        x = (pShapeDict->pixels+i)->x;
-        y = (pShapeDict->pixels+i)->y;
-        imgShapeLabel->gray[y*imgShapeLabel->ncol + x] = 1;
-    }
-
-    srand( time(NULL) );
-    if(*mcolor == 1)
-    {
-        tempx = (rand()%10);
-        TR = ((Info*)(pShapeDict->data))->r + tempx*0;
-        TG = ((Info*)(pShapeDict->data))->g + tempx*0;
-        TB = ((Info*)(pShapeDict->data))->b + tempx*0;
-    }
-
-    else
-    {
-        TR  = ((Info*)(pShape->data))->r + tempx*0;
-        TG  = ((Info*)(pShape->data))->g + tempx*0;
-        TB  = ((Info*)(pShape->data))->b + tempx*0;
-    }
-
-    if(*equal == 1)
-    {
-        SCALEx = sqrt( (double) pShape->area / (double) pShapeDict->area );
-        SCALEy = SCALEx;
-    }
-    else
-    {
-        SCALEx =  sqrt( ((Info*)(pShape->data))->lambda1) /  sqrt(((Info*)(pShapeDict->data))->lambda1 );
-        SCALEy =  sqrt( ((Info*)(pShape->data))->lambda2) /  sqrt(((Info*)(pShapeDict->data))->lambda2 );
-    }
-
-    a = SCALEx * (xBound_r - xBound_l);
-    b = SCALEy * (yBound_b - yBound_t);
-
-    bLimit = (1.0*sqrt(a*a + b*b)/2.0);
-
-    x0temp = ((Info*)(pShape->data))->x0;
-    y0temp = ((Info*)(pShape->data))->y0;
-    x0tempDict =  ((Info*)(pShapeDict->data))->x0;
-    y0tempDict =  ((Info*)(pShapeDict->data))->y0;
-
-    theta  = ((Info*)(pShape->data))->oren;
-    thetaDict = ((Info*)(pShapeDict->data))->oren;
-
-    left   = _MAX(0, x0temp - bLimit);
-    right  = _MIN(imgsyn->ncol - 1, x0temp + bLimit );
-    top    = _MAX(0, y0temp - bLimit);
-    bottom = _MIN(imgsyn->nrow - 1, y0temp + bLimit);
-
-
-    /*=== Transformation ===*/
-    for(x = ceil(left); x <= right; x++)
-        for(y = ceil(top); y <= bottom; y++)
-        {
-            xt = (x - x0temp);
-            yt = (y - y0temp);
-
-            /*====  Rotate to the major axis for scaling    ====*/
-            xi = ( (1/SCALEx)* (xt*cos(theta) + yt*sin(theta)));
-            yi = ( (1/SCALEy)* (yt*cos(theta) - xt*sin(theta)));
-
-            /*====  Inverse-transformation    ====*/
-            xr = ( (xi*cos(thetaDict) - yi*sin(thetaDict)) + x0tempDict);
-            yr = ( (yi*cos(thetaDict) + xi*sin(thetaDict)) + y0tempDict);
-
-            if(xr <0 || xr >=imgShapeLabel->ncol ||
-                    yr <0 || yr >=imgShapeLabel->nrow)
-                continue;
-
-            if( imgShapeLabel->gray[(int)(yr)*imgShapeLabel->ncol + (int)(xr)] == 1 )
-            {
-                imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] = 1;
-
-                imgShapeColorSyn->red[y*imgShapeLabelSyn->ncol + x]   =  imgDict->red[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
-                imgShapeColorSyn->green[y*imgShapeLabelSyn->ncol + x] =  imgDict->green[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
-                imgShapeColorSyn->blue[y*imgShapeLabelSyn->ncol + x]  =  imgDict->blue[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
-            }
-        }
-
-
-    if(*relief == 1 && pShape->area > 30)
-    {
-        float shLambda, shTR, shTG, shTB;
-        int xsh, ysh, shiftsh;
-        if(pShape->area > 30)
-            shiftsh = (*reliefHeight);
-        else
-            shiftsh = (*reliefHeight)*( (float) pShape->area /30.0);;
-
-        shLambda = 0.3;
-        for(x = ceil(left); x <= right; x++)
-            for(y = ceil(top); y <= bottom; y++)
-            {
-                if(imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] == 0)
-                    continue;
-
-                if(*mcolor == 1){
-                    TR  = imgShapeColorSyn->red[y*imgShapeLabelSyn->ncol + x];
-                    TG  = imgShapeColorSyn->green[y*imgShapeLabelSyn->ncol + x];
-                    TB  = imgShapeColorSyn->blue[y*imgShapeLabelSyn->ncol + x];
-                }
-
-                shTR = TR* shLambda;
-                shTG = TG* shLambda;
-                shTB = TB* shLambda;
-
-                xsh = x + shiftsh*cos( PI*(*reliefOrentation)/180.0 );
-                ysh = y - shiftsh*sin( PI*(*reliefOrentation)/180.0 );
-                xsh = _MAX(0, xsh);
-                xsh = _MIN(imgsyn->ncol - 1, xsh);
-                ysh = _MAX(0, ysh);
-                ysh = _MIN(imgsyn->nrow - 1, ysh);
-
-                if(xsh>= 0 && xsh< _pTree->ncol &&
-                        ysh>= 0 && ysh< _pTree->nrow){
-                    tR = ((float) imgsyn->red[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*shTR;
-                    imgsyn->red[ysh*imgsyn->ncol + xsh]   = (int) tR; 
-
-                    tG = ((float) imgsyn->green[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*shTG;
-                    imgsyn->green[ysh*imgsyn->ncol + xsh] = (int) tG;  
-
-                    tB = ((float) imgsyn->blue[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*shTB;
-                    imgsyn->blue[ysh*imgsyn->ncol + xsh]  = (int) tB;  
-                }
-
-            }
-    }
-
-    TR  = ((Info*)(pShape->data))->r + tempx*0;
-    TG  = ((Info*)(pShape->data))->g + tempx*0;
-    TB  = ((Info*)(pShape->data))->b + tempx*0;
-
-    for(x = ceil(left); x <= right; x++)
-        for(y = ceil(top); y <= bottom; y++)
-        {
-            if(imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] == 0)
-                continue;
-
-            if(*mcolor == 1){
-                TR  = imgShapeColorSyn->red[y*imgShapeLabelSyn->ncol + x];
-                TG  = imgShapeColorSyn->green[y*imgShapeLabelSyn->ncol + x];
-                TB  = imgShapeColorSyn->blue[y*imgShapeLabelSyn->ncol + x];
-            }
-
-            tR = ((float) imgsyn->red[y*_pTree->ncol + x])*ALPHA + (1-ALPHA)*TR;
-            imgsyn->red[y*_pTree->ncol + x] = (int)rint((double) tR);
-
-            tG = ((float) imgsyn->green[y*_pTree->ncol + x])*ALPHA + (1-ALPHA)*TG;
-            imgsyn->green[y*_pTree->ncol + x] = (int)rint((double) tG);
-
-            tB = ((float) imgsyn->blue[y*_pTree->ncol + x])*ALPHA + (1-ALPHA)*TB;
-            imgsyn->blue[y*_pTree->ncol + x] = (int)rint((double) tB);
-        }
-#endif
 }
+
 
 void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                                 Ccimage imgsyn,
@@ -2175,201 +1895,8 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                                 int *median,
                                 float *alpha,
                                 int *equal, int *mcolor, int *relief,
-                                float *reliefOrentation, float *reliefHeight)
-{
-#if 0
-    int i, x, y,  xi, yi;
-    float xr, yr, xt, yt, x0temp, y0temp, x0tempDict, y0tempDict, x0tempTransformed, y0tempTransformed;
-    float tR, tG, tB, ALPHA, TR, TG, TB;
-    float xBound_l, xBound_r, yBound_t, yBound_b;
-    float SCALEx, SCALEy, theta, thetaDict, rotation, xShift, yShift;
-    float top, right, left, bottom;
-    float a, b, bLimit, tempx;
-    ALPHA = *alpha;
+                                float *reliefOrentation, float *reliefHeight){
 
-    xBound_l = (int) ((Info*)(pShapeDict->data))->boundingbox[0];
-    xBound_r = (int) ((Info*)(pShapeDict->data))->boundingbox[1];
-    yBound_t = (int) ((Info*)(pShapeDict->data))->boundingbox[2];
-    yBound_b = (int) ((Info*)(pShapeDict->data))->boundingbox[3];
-
-    /*=== begin=== Label pShapeDict ========*/
-    for(i=0; i < pShapeDict->area; i++)
-    {
-        x = (pShapeDict->pixels+i)->x;
-        y = (pShapeDict->pixels+i)->y;
-        imgShapeLabel->gray[y*imgShapeLabel->ncol + x] = 1;
-    }
-
-    srand( time(NULL) );
-    if(*mcolor == 1)
-    {
-        tempx = (rand()%10);
-        TR = ((Info*)(pShapeDict->data))->r + tempx*0;
-        TG = ((Info*)(pShapeDict->data))->g + tempx*0;
-        TB = ((Info*)(pShapeDict->data))->b + tempx*0;
-    }
-
-    else
-    {
-        TR  = ((Info*)(pShape->data))->r + tempx*0;
-        TG  = ((Info*)(pShape->data))->g + tempx*0;
-        TB  = ((Info*)(pShape->data))->b + tempx*0;
-    }
-
-    if(*equal == 1)
-    {
-        SCALEx = sqrt( (double) pShape->area / (double) pShapeDict->area );
-        SCALEy = SCALEx;
-    }
-    else
-    {
-        SCALEx =  sqrt( ((Info*)(pShape->data))->lambda1) /  sqrt(((Info*)(pShapeDict->data))->lambda1 );
-        SCALEy =  sqrt( ((Info*)(pShape->data))->lambda2) /  sqrt(((Info*)(pShapeDict->data))->lambda2 );
-    }
-
-    a = SCALEx * (xBound_r - xBound_l);
-    b = SCALEy * (yBound_b - yBound_t);
-
-    bLimit = (1.0*sqrt(a*a + b*b)/2.0);
-
-    x0temp = ((Info*)(pShape->data))->x0;
-    y0temp = ((Info*)(pShape->data))->y0;
-
-    x0tempDict =  ((Info*)(pShapeDict->data))->x0;
-    y0tempDict =  ((Info*)(pShapeDict->data))->y0;
-
-    theta  = ((Info*)(pShape->data))->oren;
-    thetaDict = ((Info*)(pShapeDict->data))->oren;
-
-    xShift = (((Info*)(pShape->data))->xShift);
-    yShift = (((Info*)(pShape->data))->yShift);
-
-    rotation  = (((Info*)(pShape->data))->rotation);
-
-    left   = _MAX(0, x0temp - bLimit);
-    right  = _MIN(imgsyn->ncol - 1, x0temp + bLimit );
-    top    = _MAX(0, y0temp - bLimit);
-    bottom = _MIN(imgsyn->nrow - 1, y0temp + bLimit);
-
-
-    /*=== Transformation ===*/
-    for(x = ceil(left); x <= right; x++)
-        for(y = ceil(top); y <= bottom; y++)
-        {
-            xt = (x - x0temp);
-            yt = (y - y0temp);
-
-            /*====  Rotate to the major axis for scaling    ====*/
-            xi = ( (1/SCALEx)* (xt*cos(theta) + yt*sin(theta)));
-            yi = ( (1/SCALEy)* (yt*cos(theta) - xt*sin(theta)));
-
-            /*====  Inverse-transformation    ====*/
-            xr = ( (xi*cos(thetaDict) - yi*sin(thetaDict)) + x0tempDict);
-            yr = ( (yi*cos(thetaDict) + xi*sin(thetaDict)) + y0tempDict);
-
-            if(xr <0 || xr >=imgShapeLabel->ncol ||
-                    yr <0 || yr >=imgShapeLabel->nrow)
-                continue;
-
-            if( imgShapeLabel->gray[(int)(yr)*imgShapeLabel->ncol + (int)(xr)] == 1 )
-            {
-                imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] = 1;
-
-                imgShapeColorSyn->red[y*imgShapeLabelSyn->ncol + x]   =  imgDict->red[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
-                imgShapeColorSyn->green[y*imgShapeLabelSyn->ncol + x] =  imgDict->green[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
-                imgShapeColorSyn->blue[y*imgShapeLabelSyn->ncol + x]  =  imgDict->blue[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
-            }
-        }
-
-    x0tempTransformed = (x0tempDict - x0temp)*cos(theta) + (y0tempDict - y0temp)*sin(theta) +x0temp;
-    y0tempTransformed = (y0tempDict - y0temp)*cos(theta) - (x0tempDict - x0temp)*sin(theta) +y0temp;
-
-    if(*relief == 1 && pShape->area > 30)
-    {
-        float shLambda, shTR, shTG, shTB;
-        int xsh, ysh, shiftsh;
-        if(pShape->area > 30)
-            shiftsh = (*reliefHeight);
-        else
-            shiftsh = (*reliefHeight)*( (float) pShape->area /30.0);;
-
-        shLambda = 0.3;
-        for(x = ceil(left); x <= right; x++)
-            for(y = ceil(top); y <= bottom; y++)
-            {
-                if(imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] == 0)
-                    continue;
-
-                if(*mcolor == 1){
-                    TR  = imgShapeColorSyn->red[y*imgShapeLabelSyn->ncol + x];
-                    TG  = imgShapeColorSyn->green[y*imgShapeLabelSyn->ncol + x];
-                    TB  = imgShapeColorSyn->blue[y*imgShapeLabelSyn->ncol + x];
-                }
-
-                xr = (x - x0tempTransformed)*cos(rotation) + (y - y0tempTransformed)*sin(rotation);
-                yr = (y - y0tempTransformed)*cos(rotation) - (x - x0tempTransformed)*sin(rotation);
-
-                xi = floor(xShift + x0tempTransformed + xr);
-                yi = floor(yShift + y0tempTransformed + yr);
-
-                shTR = TR* shLambda;
-                shTG = TG* shLambda;
-                shTB = TB* shLambda;
-
-                xsh = xi + shiftsh*cos( PI*(*reliefOrentation)/180.0 );
-                ysh = yi - shiftsh*sin( PI*(*reliefOrentation)/180.0 );
-                xsh = _MAX(0, xsh);
-                xsh = _MIN(imgsyn->ncol - 1, xsh);
-                ysh = _MAX(0, ysh);
-                ysh = _MIN(imgsyn->nrow - 1, ysh);
-
-                if(xsh>= 0 && xsh< _pTree->ncol &&
-                        ysh>= 0 && ysh< _pTree->nrow){
-                    tR = ((float) imgsyn->red[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*shTR;
-                    imgsyn->red[ysh*imgsyn->ncol + xsh]   = (int) tR; 
-
-                    tG = ((float) imgsyn->green[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*shTG;
-                    imgsyn->green[ysh*imgsyn->ncol + xsh] = (int) tG;  
-
-                    tB = ((float) imgsyn->blue[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*shTB;
-                    imgsyn->blue[ysh*imgsyn->ncol + xsh]  = (int) tB;  
-                }
-
-            }
-    }
-
-    TR  = ((Info*)(pShape->data))->r + tempx*0;
-    TG  = ((Info*)(pShape->data))->g + tempx*0;
-    TB  = ((Info*)(pShape->data))->b + tempx*0;
-
-    for(x = ceil(left); x <= right; x++)
-        for(y = ceil(top); y <= bottom; y++)
-        {
-            if(imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] == 0)
-                continue;
-
-            if(*mcolor == 1){
-                TR  = imgShapeColorSyn->red[y*imgShapeLabelSyn->ncol + x];
-                TG  = imgShapeColorSyn->green[y*imgShapeLabelSyn->ncol + x];
-                TB  = imgShapeColorSyn->blue[y*imgShapeLabelSyn->ncol + x];
-            }
-
-            xr = (x - x0tempTransformed)*cos(rotation) + (y - y0tempTransformed)*sin(rotation);
-            yr = (y - y0tempTransformed)*cos(rotation) - (x - x0tempTransformed)*sin(rotation);
-
-            xi = floor(xShift + x0tempTransformed + xr);
-            yi = floor(yShift + y0tempTransformed + yr);
-
-            tR = ((float) imgsyn->red[yi*_pTree->ncol + xi])*ALPHA + (1-ALPHA)*TR;
-            imgsyn->red[yi*_pTree->ncol + xi] = (int)rint((double) tR);
-
-            tG = ((float) imgsyn->green[yi*_pTree->ncol + xi])*ALPHA + (1-ALPHA)*TG;
-            imgsyn->green[yi*_pTree->ncol + xi] = (int)rint((double) tG);
-
-            tB = ((float) imgsyn->blue[yi*_pTree->ncol + xi])*ALPHA + (1-ALPHA)*TB;
-            imgsyn->blue[yi*_pTree->ncol + xi] = (int)rint((double) tB);
-        }
-#else
     int i, x, y, iKer, jKer, KerSize, MedSize, xKer, yKer, numMedain;
     float xi, yi, xr, yr, xt, yt, x0temp, y0temp, x0tempDict, y0tempDict;
     float tR, tG, tB, ALPHA, tr, tg, tb, BETA, TR, TG, TB;
@@ -2385,43 +1912,36 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
     yBound_b = (int) ((Info*)(pShapeDict->data))->boundingbox[3];
 
     /*=== begin=== Label pShapeDict ========*/
-    for(i=0; i < pShapeDict->area; i++)
-    {
+    for(i=0; i < pShapeDict->area; i++){
         x = (pShapeDict->pixels+i)->x;
         y = (pShapeDict->pixels+i)->y;
         imgShapeLabel->gray[y*imgShapeLabel->ncol + x] = 1;
     }
 
     srand( time(NULL) );
-    if(*mcolor == 1)
-    {
+    if(*mcolor == 1){
         tempx = (rand()%10);
         TR = ((Info*)(pShapeDict->data))->r + tempx*0;
         TG = ((Info*)(pShapeDict->data))->g + tempx*0;
         TB = ((Info*)(pShapeDict->data))->b + tempx*0;
     }
-
-    else
-    {
+    else{
         TR  = ((Info*)(pShape->data))->r + tempx*0;
         TG  = ((Info*)(pShape->data))->g + tempx*0;
         TB  = ((Info*)(pShape->data))->b + tempx*0;
     }
 
-    if(*mcolor == 2)
-    {
+    if(*mcolor == 2){
         TR = ((Info*)(pShapeDict->data))->r ;
         TG = ((Info*)(pShapeDict->data))->g;
         TB = ((Info*)(pShapeDict->data))->b;
     }
 
-    if(*equal == 1)
-    {
+    if(*equal == 1){
         SCALEx = sqrt( (double) pShape->area / (double) pShapeDict->area );
         SCALEy = SCALEx;
     }
-    else
-    {
+    else{
         SCALEx =  sqrt( ((Info*)(pShape->data))->lambda1) /  sqrt(((Info*)(pShapeDict->data))->lambda1 );
         SCALEy =  sqrt( ((Info*)(pShape->data))->lambda2) /  sqrt(((Info*)(pShapeDict->data))->lambda2 );
     }
@@ -2446,8 +1966,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
 
     /*=== Transformation ===*/
     for(x = ceil(left); x <= right; x++)
-        for(y = ceil(top); y <= bottom; y++)
-        {
+        for(y = ceil(top); y <= bottom; y++){
             xt = (x - x0temp);
             yt = (y - y0temp);
 
@@ -2459,14 +1978,11 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
             xr = ( (xi*cos(thetaDict) - yi*sin(thetaDict)) + x0tempDict);
             yr = ( (yi*cos(thetaDict) + xi*sin(thetaDict)) + y0tempDict);
 
-            if(xr <0 || xr >=imgShapeLabel->ncol ||
-                    yr <0 || yr >=imgShapeLabel->nrow)
+            if(xr <0 || xr >=imgShapeLabel->ncol || yr <0 || yr >=imgShapeLabel->nrow)
                 continue;
 
-            if( imgShapeLabel->gray[(int)(yr)*imgShapeLabel->ncol + (int)(xr)] == 1 )
-            {
+            if( imgShapeLabel->gray[(int)(yr)*imgShapeLabel->ncol + (int)(xr)] == 1 ){
                 imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] = 1;
-
                 imgShapeColorSyn->red[y*imgShapeLabelSyn->ncol + x]   =  imgDict->red[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
                 imgShapeColorSyn->green[y*imgShapeLabelSyn->ncol + x] =  imgDict->green[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
                 imgShapeColorSyn->blue[y*imgShapeLabelSyn->ncol + x]  =  imgDict->blue[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
@@ -2476,36 +1992,30 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
     /*=== Median Filter ===*/
     MedSize = (int)((*median)/2.0);
     for(x = ceil(left); x <= right; x++)
-        for(y = ceil(top); y <= bottom; y++)
-        {
+        for(y = ceil(top); y <= bottom; y++){
             numMedain = 0;
             for(iKer = - MedSize; iKer <= MedSize; iKer++)
-                for(jKer = - MedSize; jKer <= MedSize; jKer++)
-                {
+                for(jKer = - MedSize; jKer <= MedSize; jKer++){
                     xKer = x + iKer;
                     yKer = y + jKer;
 
-                    if(xKer<0 || xKer>= imgShapeLabelSyn->ncol ||
-                            yKer<0 || yKer>= imgShapeLabelSyn->nrow )
+                    if(xKer<0 || xKer>= imgShapeLabelSyn->ncol || yKer<0 || yKer>= imgShapeLabelSyn->nrow )
                         continue;
 
                     imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] +=
                             (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
                     numMedain++;
                 }
-            if( imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] < ((float) numMedain)/2.0 )
-            {
+            if( imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] < ((float) numMedain)/2.0 ){
                 imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
             }
-            else
-            {
+            else{
                 imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 1.0;
             }
         }
 
     for(x = ceil(left); x <= right; x++)
-        for(y = ceil(top); y <= bottom; y++)
-        {
+        for(y = ceil(top); y <= bottom; y++){
             if( imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] == 0  ){
                 xt = (x - x0temp);
                 yt = (y - y0temp);
@@ -2522,20 +2032,17 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 imgShapeColorSyn->green[y*imgShapeLabelSyn->ncol + x] =  imgDict->green[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
                 imgShapeColorSyn->blue[y*imgShapeLabelSyn->ncol + x]  =  imgDict->blue[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
             }
-            (imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x]) =
-                    (int) imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
 
+            (imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x]) = (int) imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
             imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
         }
 
     /*=== Add Gaussian Bulr ===*/
     KerSize = (int) ( sqrt( (double) gaussKernel->size) /2.0 );
     for(x = ceil(left); x <= right; x++)
-        for(y = ceil(top); y <= bottom; y++)
-        {
+        for(y = ceil(top); y <= bottom; y++){
             for(iKer = -KerSize; iKer <= KerSize; iKer++)
-                for(jKer = -KerSize; jKer <= KerSize; jKer++)
-                {
+                for(jKer = -KerSize; jKer <= KerSize; jKer++){
                     xKer = x + iKer;
                     yKer = y + jKer;
 
@@ -2567,9 +2074,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
 
         }
 
-
-    if(*relief == 1 && pShape->area > 30)
-    {
+    if(*relief == 1 && pShape->area > 30){
         float shLambda, shTR, shTG, shTB;
         int xsh, ysh, shiftsh;
         if(pShape->area > 30)
@@ -2579,15 +2084,13 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
 
         shLambda = 0.3;
         for(x = ceil(left); x <= right; x++)
-            for(y = ceil(top); y <= bottom; y++)
-            {
+            for(y = ceil(top); y <= bottom; y++){
                 if(imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] == 0)
                     continue;
 
                 BETA = imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
 
                 if(*mcolor == 1){
-
                     TR  = imgShapeColorSyn->red[y*imgShapeLabelSyn->ncol + x];
                     TG  = imgShapeColorSyn->green[y*imgShapeLabelSyn->ncol + x];
                     TB  = imgShapeColorSyn->blue[y*imgShapeLabelSyn->ncol + x];
@@ -2616,7 +2119,6 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
 
                 tB = ((float) imgsyn->blue[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*tb;
                 imgsyn->blue[ysh*imgsyn->ncol + xsh]  = (int) tB;  
-
             }
     }
 
@@ -2624,16 +2126,14 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
     TG  = ((Info*)(pShape->data))->g + tempx*0;
     TB  = ((Info*)(pShape->data))->b + tempx*0;
 
-    if(*mcolor == 2)
-    {
+    if(*mcolor == 2){
         TR = ((Info*)(pShapeDict->data))->r ;
         TG = ((Info*)(pShapeDict->data))->g;
         TB = ((Info*)(pShapeDict->data))->b;
     }
 
     for(x = ceil(left); x <= right; x++)
-        for(y = ceil(top); y <= bottom; y++)
-        {
+        for(y = ceil(top); y <= bottom; y++){
             if(imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] == 0)
                 continue;
 
@@ -2661,13 +2161,11 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
             imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] = 0;
         }
 
-    for(i=0; i < pShapeDict->area; i++)
-    {
+    for(i=0; i < pShapeDict->area; i++){
         x = (pShapeDict->pixels+i)->x;
         y = (pShapeDict->pixels+i)->y;
         imgShapeLabel->gray[y*imgShapeLabel->ncol + x] = 0;
     }
-#endif
 }
 
 /*=== Synthesis by Shape Shaking ===*/
@@ -2680,8 +2178,8 @@ void TreeOfShapes::synshapeOriginal(Shape pShape,
                                     int *median,
                                     float *alpha,
                                     int *relief,
-                                    float *reliefOrentation, float *reliefHeight)
-{
+                                    float *reliefOrentation, float *reliefHeight){
+
     int i, xi, yi, x, y, iKer, jKer, KerSize, MedSize, xKer, yKer, numMedain;
     float xr, yr, x0temp, y0temp, ALPHA, BETA, a, b;
     float xShift, yShift, theta, tR, tG, tB, tr, tg, tb, TR, TG, TB;
@@ -2703,8 +2201,7 @@ void TreeOfShapes::synshapeOriginal(Shape pShape,
     right = 0.0;  bottom= 0.0;
     left = (float)(imgShapeLabelSyn->ncol-1);
     top  = (float)(imgShapeLabelSyn->nrow-1);
-    for(i=0; i< pShape->area; i++)
-    {
+    for(i=0; i< pShape->area; i++){
         x = (pShape->pixels+i)->x;
         y = (pShape->pixels+i)->y;
 
@@ -2729,12 +2226,10 @@ void TreeOfShapes::synshapeOriginal(Shape pShape,
     /*=== Median Filter ===*/
     MedSize = (int)((*median)/2.0);
     for(x = left; x <= right; x++)
-        for(y = top; y <= bottom; y++)
-        {
+        for(y = top; y <= bottom; y++){
             numMedain = 0;
             for(iKer = - MedSize; iKer <= MedSize; iKer++)
-                for(jKer = - MedSize; jKer <= MedSize; jKer++)
-                {
+                for(jKer = - MedSize; jKer <= MedSize; jKer++){
                     xKer = x + iKer;
                     yKer = y + jKer;
 
@@ -2753,22 +2248,17 @@ void TreeOfShapes::synshapeOriginal(Shape pShape,
         }
 
     for(x = left; x <= right; x++)
-        for(y = top; y <= bottom; y++)
-        {
-            imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] =
-                    (int) imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
-
+        for(y = top; y <= bottom; y++){
+            imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] = (int) imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
             imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
         }
 
     /*=== Add Gaussian Bulr ===*/
     KerSize = (int) ( sqrt( (double) gaussKernel->size) /2.0 );
     for(x = left; x <= right; x++)
-        for(y = top; y <= bottom; y++)
-        {
+        for(y = top; y <= bottom; y++){
             for(iKer = -KerSize; iKer <= KerSize; iKer++)
-                for(jKer = -KerSize; jKer <= KerSize; jKer++)
-                {
+                for(jKer = -KerSize; jKer <= KerSize; jKer++){
                     xKer = x + iKer;
                     yKer = y + jKer;
 
@@ -2783,8 +2273,7 @@ void TreeOfShapes::synshapeOriginal(Shape pShape,
         }
 
     /*=== Synthesis ===*/
-    if(*relief == 1 && pShape->area > 10)
-    {
+    if(*relief == 1 && pShape->area > 10){
         float shLambda, shTR, shTG, shTB;
         int xsh, ysh, shiftsh;
         if(pShape->area > 10)
@@ -2794,8 +2283,7 @@ void TreeOfShapes::synshapeOriginal(Shape pShape,
 
         shLambda = 0.3;
         for(x = ceil(left); x <= right; x++)
-            for(y = ceil(top); y <= bottom; y++)
-            {
+            for(y = ceil(top); y <= bottom; y++){
                 if(imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] == 0)
                     continue;
 
@@ -2804,7 +2292,6 @@ void TreeOfShapes::synshapeOriginal(Shape pShape,
                 shTR = TR* shLambda;
                 shTG = TG* shLambda;
                 shTB = TB* shLambda;
-
 
                 xsh = x + shiftsh*cos( PI*(*reliefOrentation)/180.0 );
                 ysh = y - shiftsh*sin( PI*(*reliefOrentation)/180.0 );
@@ -2825,13 +2312,11 @@ void TreeOfShapes::synshapeOriginal(Shape pShape,
 
                 tB = ((float) imgsyn->blue[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*tb;
                 imgsyn->blue[ysh*imgsyn->ncol + xsh]  = (int) tB;  
-
             }
     }
 
     for(x = left; x <= right; x++)
-        for(y = top; y <= bottom; y++)
-        {
+        for(y = top; y <= bottom; y++){
             if(imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] == 0)
                 continue;
 
@@ -2859,8 +2344,8 @@ void TreeOfShapes::synshapeOriginal( Shape pShape,
                                      Ccimage imgsyn,
                                      float *alpha,
                                      int *relief,
-                                     float *reliefOrentation, float *reliefHeight)
-{
+                                     float *reliefOrentation, float *reliefHeight){
+    
     int i, xi, yi;
     float x, y, xr, yr, x0temp, y0temp, ALPHA;
     float xShift, yShift, theta, tR, tG, tB, tb, TR, TG, TB;
@@ -2873,14 +2358,12 @@ void TreeOfShapes::synshapeOriginal( Shape pShape,
     yShift = (((Info*)(pShape->data))->yShift);
     theta  = (((Info*)(pShape->data))->rotation);
 
-
     TR  = ((Info*)(pShape->data))->r;
     TG  = ((Info*)(pShape->data))->g;
     TB  = ((Info*)(pShape->data))->b;
 
     /*=== Synthesis ===*/
-    if(*relief == 1 && pShape->area > 10)
-    {
+    if(*relief == 1 && pShape->area > 10){
         float shLambda, shTR, shTG, shTB;
         int xsh, ysh, shiftsh;
         if(pShape->area > 10)
@@ -2980,11 +2463,11 @@ void TreeOfShapes::sortShapes(Fsignal t2b_index){
     std::cout << "***************************" << std::endl << std::endl << std::endl;
 }
 
+
 /*Index the tree in coast-to-fine order*/
 /*Buuble sorting of integer array */
-void TreeOfShapes::Bubble( Fsignal t2b_index)
-{
-#if 1
+void TreeOfShapes::Bubble( Fsignal t2b_index){
+
     int i,j, a, b;
     Shape pShape;
 
@@ -3003,38 +2486,11 @@ void TreeOfShapes::Bubble( Fsignal t2b_index)
             a = j-1; b = j;
             Order(t2b_index, &a, &b);
         }
-#else
-    int i,j, a, b;
-    Shape pShape;
-    mw_change_fsignal(t2b_index, pTree->nb_shapes);
-
-    for(i=0; i< pTree->nb_shapes; i++)
-    {
-        pShape = pTree->the_shapes + i;
-        ((Info*)(pShape->data))->index = i;
-        t2b_index->values[i] = i;
-    }
-
-    for (i = 0; i< pTree->nb_shapes-1; i++)
-        for (j = i+1; j< pTree->nb_shapes; j++)
-        {
-            a = i; b = j;
-            Order_v4(pTree, t2b_index, &a, &b);
-        }
-
-    for(i=0; i< pTree->nb_shapes; i++)
-    {
-        pShape = pTree->the_shapes + (int) t2b_index->values[i];
-        printf("%d \n", pShape->area);
-    }
-#endif
 }
 
-/*=== Generate a 1D Gaussian kernel ===*/
-Fsignal TreeOfShapes::sgauss(float *std,
-                             Fsignal out,
-                             int *size)
-{
+// Generate a 1D Gaussian kernel
+Fsignal TreeOfShapes::sgauss(float *std, Fsignal out, int *size){
+    
     int i,n;
     double sum, v;
 
@@ -3047,15 +2503,12 @@ Fsignal TreeOfShapes::sgauss(float *std,
 
     out->shift = -0.5*(float)(n-1);
 
-    if (n==1)
-    {
+    if (n==1){
         out->values[0]=1.0;
     }
-    else
-    {
+    else{
         /*=== store Gaussian signal ===*/
-        for(i=(n+1)/2; i--; )
-        {
+        for(i=(n+1)/2; i--; ){
             v = ((double)i+(double)out->shift)/(double)(*std);
             out->values[i] = out->values[n-1-i] = (float)exp(-0.5*v*v);
         }
@@ -3063,17 +2516,15 @@ Fsignal TreeOfShapes::sgauss(float *std,
         for (sum=0.0,i=n; i--; )
             sum += (double)out->values[i];
         for (i=n; i--; )
-        {
             out->values[i] /= (float)sum;
-        }
     }
 
     return(out);
 }
 
-/*=== Generate a 2D Gaussian kernel ===*/
-Fsignal TreeOfShapes::Sgauss(float *std, Fsignal out, int *size)
-{
+
+//Generate a 2D Gaussian kernel
+Fsignal TreeOfShapes::Sgauss(float *std, Fsignal out, int *size){
     Fsignal sgaussX, sgaussY;
     int i, j, n;
     float sum;
@@ -3091,8 +2542,7 @@ Fsignal TreeOfShapes::Sgauss(float *std, Fsignal out, int *size)
 
     out = mw_change_fsignal(out, n*n);
     for (i = 0; i<n; i++)
-        for (j = i; j<n; j++)
-        {
+        for (j = i; j<n; j++){
             out->values[j*n + i] = sgaussX->values[i] * sgaussY->values[j];
             out->values[i*n + j] = out->values[j*n + i];
         }
@@ -3108,9 +2558,7 @@ Fsignal TreeOfShapes::Sgauss(float *std, Fsignal out, int *size)
     return(out);
 }
 
-void TreeOfShapes::get_shapes_truearea(Shape s, Shape root,
-                                       int *truearea)
-{
+void TreeOfShapes::get_shapes_truearea(Shape s, Shape root, int *truearea){
     int index;
     Shape t;
 
@@ -3125,10 +2573,8 @@ void TreeOfShapes::get_shapes_truearea(Shape s, Shape root,
 }
 
 
-void TreeOfShapes::filter_shapes( Cfimage out,
-                                  char *local,
-                                  float *eps)
-{
+void TreeOfShapes::filter_shapes( Cfimage out, char *local, float *eps){
+
     std::cout <<"TreeOfShapes::filter_shapes()::begin"<< std::endl;
     Fimage Fv;
     float lgeo,step,hstep,tcleanup,farea, std;
@@ -3162,7 +2608,7 @@ void TreeOfShapes::filter_shapes( Cfimage out,
     if(!(gray && red  && green && blue))
         mwerror(FATAL,1,"Not enough memory.\n");
 
-    /* integrate grey level saturation and hue */
+    // integrate grey level saturation and hue
     for(i=0;i<ncol;i++)
         for(j=0;j<nrow;j++){
             s = mw_get_smallest_shape(tree,i,j);
@@ -3260,36 +2706,34 @@ void TreeOfShapes::filter_image(int *ns,
         if(pShape->area <= *mpixel || *maxpixel < pShape->area
                 || (((Info*)(pShape->data))->attribute[0])*CONTR<= thre
                 || Dist*CONTR < 0.
-                )
-        {
+                ){
             lableTemp = 1;
             pShape->removed = 1;
             kl++;
-        } else
+        } 
+        else
             pShape->removed = 0;
 
-        if(i ==0 )
+        if(i ==0)
             pShape->removed = 0;
     }
 }
 
-int TreeOfShapes::random_number(int *M)
-{
+int TreeOfShapes::random_number(int *M){
+
     int i, size, select_i;
     float pb_sum, temp;
     Fsignal pb=0;
 
     size = *M;
-
     select_i = size-1;
 
     pb_sum = 0.0;
     pb = mw_change_fsignal(pb,size);
     mw_clear_fsignal(pb,0.0);
 
-    for(i=0; i< size; i++)
-    {
-        /*// sampling by uniform distribution; */
+    for(i=0; i< size; i++){
+        // sampling by uniform distribution;
         pb->values[i] = 1;
         pb_sum += pb->values[i];
     }
@@ -3302,10 +2746,8 @@ int TreeOfShapes::random_number(int *M)
 
     temp = ((float)rand())/RAND_MAX;
 
-    for(i= 0; i< size; i++)
-    {
-        if( temp <= pb->values[i])
-        {
+    for(i= 0; i< size; i++){
+        if( temp <= pb->values[i]){
             select_i = i;
             break;
         }
@@ -3315,6 +2757,7 @@ int TreeOfShapes::random_number(int *M)
     return select_i;
 }
 
+
 void TreeOfShapes::computeKdTree(float average_r, float average_g, float average_b ){
     _use_kdtree = false;
 
@@ -3323,13 +2766,11 @@ void TreeOfShapes::computeKdTree(float average_r, float average_g, float average
         _annTree = BasicANNkdTree(6);
         Shape pShape;
 
-
         std::vector<std::vector<float>> values;
-        for(int i=1; i < _pTree->nb_shapes; i++)  {
+        for(int i=1; i < _pTree->nb_shapes; i++){
             pShape = _pTree->the_shapes + i;
 
             float lambda1, lambda2;
-
             float elong, kappa, elongDict, kappaDict, Dist, minDist;
             float sca, scaDict, pa;
             int mn, temp;
@@ -3350,9 +2791,7 @@ void TreeOfShapes::computeKdTree(float average_r, float average_g, float average
             values.push_back(value);
         }
 
-
         _annTree.build(values);
-
         _use_kdtree = true;
     }
 
@@ -3375,8 +2814,8 @@ Shape TreeOfShapes::selectShapeDict(Shape pShape,
                                     int &index,
                                     float average_r,
                                     float average_g,
-                                    float average_b)
-{
+                                    float average_b){
+
     Shape pShapeDict, pShapeTemp;
     float lambda1, lambda2;
 
@@ -3390,18 +2829,14 @@ Shape TreeOfShapes::selectShapeDict(Shape pShape,
     kappa = ((float) pShape->area)/(sqrt(lambda2*lambda1)*4*PI);
     sca = ((float) pShape->area);
 
-
     index = 1; minDist = 10000.0;
-    if(*randS == 0)
-    {
+    if(*randS == 0){
         temp = _pTree->nb_shapes -1;
         index = random_number(&temp) + 1;
     }
-    else
-    {
+    else{
         if (!_use_kdtree){
-            for(i= 1; i<_pTree->nb_shapes; i++)
-            {
+            for(i= 1; i<_pTree->nb_shapes; i++){
                 pShapeDict = _pTree->the_shapes + i;
 
                 mn=3;
@@ -3421,8 +2856,7 @@ Shape TreeOfShapes::selectShapeDict(Shape pShape,
                         pow((kappa - kappaDict), 2.0) +
                         pow((1 - _MIN(sca/scaDict, scaDict/sca)), 2.0);
 
-                if(*randS == 2)
-                {
+                if(*randS == 2){
                     Dist +=  ( pow((1 - _MIN(((Info*)(pShape->data))->r/((Info*)(pShapeDict->data))->r,
                                              ((Info*)(pShapeDict->data))->r/((Info*)(pShape->data))->r)), 2.0) +
                                pow((1 - _MIN(((Info*)(pShape->data))->g/((Info*)(pShapeDict->data))->g,
@@ -3431,13 +2865,13 @@ Shape TreeOfShapes::selectShapeDict(Shape pShape,
                                              ((Info*)(pShapeDict->data))->b/((Info*)(pShape->data))->b)), 2.0) )/3.0;
                 }
 
-                if(minDist > Dist)
-                {
+                if(minDist > Dist){
                     minDist = Dist;
                     index = i;
                 }
             }
-        }else{
+        }
+        else{
             std::vector<float> value;
             value.push_back(elong);
             value.push_back(kappa);
@@ -3451,8 +2885,7 @@ Shape TreeOfShapes::selectShapeDict(Shape pShape,
             ANNdistArray neighbors_sqr_dists= new ANNdist[ k ];
             _annTree.knearest(value, k, neighbors, neighbors_sqr_dists);
 
-            for(i= 1; i<k; i++)
-            {
+            for(i= 1; i<k; i++){
                 pShapeDict = _pTree->the_shapes + (int)neighbors[i];
 
                 mn=3;
@@ -3472,8 +2905,7 @@ Shape TreeOfShapes::selectShapeDict(Shape pShape,
                         pow((kappa - kappaDict), 2.0) +
                         pow((1 - _MIN(sca/scaDict, scaDict/sca)), 2.0);
 
-                if(*randS == 2)
-                {
+                if(*randS == 2){
                     Dist +=  ( pow((1 - _MIN(((Info*)(pShape->data))->r/((Info*)(pShapeDict->data))->r,
                                              ((Info*)(pShapeDict->data))->r/((Info*)(pShape->data))->r)), 2.0) +
                                pow((1 - _MIN(((Info*)(pShape->data))->g/((Info*)(pShapeDict->data))->g,
@@ -3482,29 +2914,26 @@ Shape TreeOfShapes::selectShapeDict(Shape pShape,
                                              ((Info*)(pShapeDict->data))->b/((Info*)(pShape->data))->b)), 2.0) )/3.0;
                 }
 
-                if(minDist > Dist)
-                {
+                if(minDist > Dist){
                     minDist = Dist;
                     index = (int)neighbors[i];
                 }
             }
-
         }
-
     }
 
-
     pShapeDict = _pTree->the_shapes + index;
-
     return pShapeDict;
 }
 
+
 Shape TreeOfShapes::getShape(int index){
-    if( index < _pTree->nb_shapes ){
+    if( index < _pTree->nb_shapes )
         return _pTree->the_shapes + index;
-    }
     return NULL;
 }
+
+
 void TreeOfShapes::compute_tree( TOSParameters tosParameters, bool dictionary ){
     struct timeval start, end;
     gettimeofday(&start, NULL);
@@ -3515,9 +2944,7 @@ void TreeOfShapes::compute_tree( TOSParameters tosParameters, bool dictionary ){
             ( _tosParameters.color_sketch == 1 & _tosParameters.eps != tosParameters.eps ) ){
 
         if( tosParameters.color_sketch == 1 ){
-
             char local=NULL ; //"local boundaries, default NULL",
-
             Cfimage out = mw_change_cfimage(NULL,_imgin->nrow,_imgin->ncol);
             filter_shapes(out,
                           &local,
@@ -3526,34 +2953,32 @@ void TreeOfShapes::compute_tree( TOSParameters tosParameters, bool dictionary ){
             init(out, _pTree);
             mw_delete_cfimage(out);
 
-        } else if( _tosParameters.color_sketch == 1 & tosParameters.color_sketch == 0 || !_tree_computed){
+        } 
+        else if( _tosParameters.color_sketch == 1 & tosParameters.color_sketch == 0 || !_tree_computed)
             init(_imgin, _pTree);
-        }
+
         _tree_computed = true;
         _tree_recomputed = true;
         _use_kdtree = false;
+
         if( _large_to_small_index_computed )
             mw_delete_fsignal(_large_to_small_index);
 
-        for (std::map<int, Fsignal>::iterator it = _dictionary_selections.begin(); it !=  _dictionary_selections.end(); ++it){
+        for (std::map<int, Fsignal>::iterator it = _dictionary_selections.begin(); it !=  _dictionary_selections.end(); ++it)
             mw_delete_fsignal( it->second );
-        }
+        
         _dictionary_selections.clear();
 
         _large_to_small_index_computed = false;
 
         gettimeofday(&end, NULL);
-        current_time = (end.tv_sec  - start.tv_sec) +
-                (end.tv_usec - start.tv_usec) / 1.e6;
+        current_time = (end.tv_sec  - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1.e6;
         std::cout << std::endl<<"TreeOfShapes::Tree of " << _pTree->nb_shapes << " shapes computed : " << current_time - elapsedTime <<" seconds"<< std::endl;
         elapsedTime = current_time;
     }
 
     if( dictionary ){
-        /*=======================================*/
-        /*====   Compute shape attribute     === */
-        /*=======================================*/
-
+        //  Compute shape attribute
         std::cout << "Compute shape attributes" << std::endl;
         compute_shape_attribute();
         tree_boundingbox();
@@ -3561,55 +2986,7 @@ void TreeOfShapes::compute_tree( TOSParameters tosParameters, bool dictionary ){
 }
 
 
-void TreeOfShapes::save_shapes( QString folder_name, bool average_color ){
-
-    Fsignal t2b_index = NULL;
-    Shape pShape;
-    std::cout << "folder_name " << folder_name.toStdString() << std::endl;
-    int x, y, i, j ;
-
-    if  ( ((t2b_index = mw_new_fsignal()) == NULL) ||
-          (mw_alloc_fsignal(t2b_index,_pTree->nb_shapes) == NULL) )
-        mwerror(FATAL,1,"Not enough memory.\n");
-
-    top2bottom_index_tree(t2b_index);
-    for(i= 1; i<_pTree->nb_shapes; i++)
-    {
-        QString image_name(folder_name);
-        QImage result_image( QSize(_imgin->ncol, _imgin->nrow), QImage::Format_ARGB32);
-        result_image.fill(QColor(255,255,255, 0.));
-        pShape = _pTree->the_shapes + (int)t2b_index->values[i];
-
-        for(j=0; j< pShape->area; j++){
-
-            x = ((pShape->pixels+j)->x);
-            y = ((pShape->pixels+j)->y);
-
-            QColor color;
-            if( average_color )
-                color = QColor (((Info*)(pShape->data))->r, ((Info*)(pShape->data))->g, ((Info*)(pShape->data))->b);
-            else
-                color = QColor((float) _imgin->red[y*_pTree->ncol + x], (float) _imgin->green[y*_pTree->ncol + x], (float) _imgin->blue[y*_pTree->ncol + x]);
-
-
-            result_image.setPixel(x, y, qRgb(color.red(), color.green(), color.blue()));
-        }
-        image_name.append(QString ( "/" ));
-        QString num;
-        num.setNum(i);
-        num.append(QString(".png"));
-
-        image_name.append(num);
-
-        result_image.save(image_name);
-    }
-
-    mw_delete_fsignal(t2b_index);
-    std::cout << "Saved" << std::endl;
-}
-
-
-QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, TreeOfShapes *tosDictionary, DictionaryParameters dictionaryParameters, bool save_shapes, QString folder_name ){
+QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, TreeOfShapes *tosDictionary, DictionaryParameters dictionaryParameters ){
     
     struct timeval start, end;
     gettimeofday(&start, NULL);
@@ -3656,13 +3033,11 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         mwerror(FATAL,1,"Not enough memory.\n");
 
     for( i= 0; i< _pTree->ncol; i++)
-        for( j= 0; j< _pTree->nrow; j++)
-        {
+        for( j= 0; j< _pTree->nrow; j++){
             imgsyn->red[j*_pTree->ncol + i] = 1;
             imgsyn->green[j*_pTree->ncol + i] = 1;
             imgsyn->blue[j*_pTree->ncol + i] = 1;
         }
-
 
     /*=======================================*/
     /*==   Image filtering                 ==*/
@@ -3678,24 +3053,23 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
             (end.tv_usec - start.tv_usec) / 1.e6;
     std::cout << std::endl<<"TreeOfShapes::Image filtered: " << current_time - elapsedTime<<" seconds"<< std::endl;
     elapsedTime = current_time;
-    /*=======================================*/
-    /*==   Select the rendering order *\/ ===*/
-    /*=======================================*/
+
+    //  Select the rendering order
     std::cout << "Rendering order " << tosParameters.order <<std::endl;
     if(tosParameters.order == 0)
         top2bottom_index_tree(t2b_index);
     else if(tosParameters.order == 1){
         if( !_large_to_small_index_computed ){
-
             if  ( ((_large_to_small_index = mw_new_fsignal()) == NULL) ||
                   (mw_alloc_fsignal(_large_to_small_index,_pTree->nb_shapes) == NULL) )
                 mwerror(FATAL,1,"Not enough memory.\n");
             sortShapes(_large_to_small_index);
             _large_to_small_index_computed = true;
         }
-        mw_copy_fsignal_values(_large_to_small_index, t2b_index);
 
-    } else if(tosParameters.order == 2)
+        mw_copy_fsignal_values(_large_to_small_index, t2b_index);
+    } 
+    else if(tosParameters.order == 2)
         random_tree_order(t2b_index);
     else
         top2bottom_index_tree(t2b_index);
@@ -3733,11 +3107,9 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     gaussKernel = Sgauss(&tosParameters.kerStd, gaussKernel, &tosParameters.kerSize);
 
     gettimeofday(&end, NULL);
-    current_time = (end.tv_sec  - start.tv_sec) +
-            (end.tv_usec - start.tv_usec) / 1.e6;
+    current_time = (end.tv_sec  - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1.e6;
     std::cout << std::endl<<"TreeOfShapes::Kernel generated: " << current_time - elapsedTime<<" seconds"<< std::endl;
     elapsedTime = current_time;
-
 
     Fsignal dictionary_correspondance;
     if  ( ((dictionary_correspondance = mw_new_fsignal()) == NULL) ||
@@ -3752,7 +3124,8 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         if( it != _dictionary_selections.end() ){
             mw_copy_fsignal_values(it->second, dictionary_correspondance);
             correspondance_computed = true;
-        } else {
+        } 
+        else {
             if  ( ((_dictionary_selections[ tosDictionary->getTreeId() ] = mw_new_fsignal()) == NULL) ||
                   (mw_alloc_fsignal(_dictionary_selections[ tosDictionary->getTreeId() ],_pTree->nb_shapes) == NULL) )
                 mwerror(FATAL,1,"Not enough memory.\n");
@@ -3782,7 +3155,8 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                 ((Info*)(pShape->data))->g = g;
                 ((Info*)(pShape->data))->b = b;
             }
-        } else if(pShape->removed != 1){
+        } 
+        else if(pShape->removed != 1){
 
             /*=======================================*/
             /*====     Attribute filtering       === */
@@ -3794,16 +3168,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
             if(pa < tosParameters.kappa)
                 continue;
 
-            if(save_shapes){
-
-                for( int x= 0; x< _pTree->ncol; x++)
-                    for( int y= 0; y< _pTree->nrow; y++)
-                    {
-                        imgsyn->red[y*_pTree->ncol + x] = 1;
-                        imgsyn->green[y*_pTree->ncol + x] = 2;
-                        imgsyn->blue[y*_pTree->ncol + x] = 3;
-                    }
-            }
             /*=======================================*/
             /*===  Select the rendering model    === */
             /*=======================================*/
@@ -3862,11 +3226,11 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                     if ( shape_id >= 0 )
                         pShapeDict = tosDictionary->getShape(shape_id);
                     if ( pShapeDict == NULL || shape_id < 0 ){
-
                         pShapeDict = tosDictionary->selectShapeDict(pShape, &dictionaryParameters.kappaDict, &dictionaryParameters.randS, shape_id, _average_r, _average_g, _average_b);
                         _dictionary_selections[ tosDictionary->getTreeId() ]->values[(int)t2b_index->values[i]] = shape_id;
                     }
-                } else {
+                } 
+                else{
                     int shape_id;
                     pShapeDict = tosDictionary->selectShapeDict(pShape, &dictionaryParameters.kappaDict, &dictionaryParameters.randS, shape_id, _average_r, _average_g, _average_b);
                     dictionary_correspondance->values[(int)t2b_index->values[i]] = shape_id;
@@ -3882,7 +3246,8 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                 mw_delete_cimage(imgShapeLabel);
                 mw_delete_cimage(imgShapeLabelSyn);
                 mw_delete_fimage(imgShapeBlurSyn);
-            } else if(tosParameters.model == 5){
+            } 
+            else if(tosParameters.model == 5){
                 mn = rand()%10;
                 if(mn<=4)
                     synshapeEllipse(pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
@@ -3890,7 +3255,8 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                     synshapeRect(pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
                 else
                     synshapeOriginal(pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-            } else if(tosParameters.model == 6){
+            } 
+            else if(tosParameters.model == 6){
                 if( ((float)pShape->area) / ((float)(imgsyn->nrow*imgsyn->ncol)) > 0.2 ||
                         ((float) pShape->area)/(sqrt(((Info*)(pShape->data))->lambda1 * ((Info*)(pShape->data))->lambda2)*4*PI) <0.5)
                     synshapeOriginal(pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
@@ -3900,34 +3266,8 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
             else
                 synshapeEllipse(pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
 
-            if( save_shapes ){
-
-                QString image_name(folder_name);
-                QImage result_image( QSize(_imgin->ncol, _imgin->nrow), QImage::Format_ARGB32);
-                result_image.fill(QColor(255,255,255, 0.));
-
-
-                for( int y= 0; y< imgsyn->nrow; y++)
-                    for( int x= 0; x< imgsyn->ncol; x++)
-                    {
-                        int comp = y*imgsyn->ncol + x;
-
-                        QColor color (imgsyn->red[comp], imgsyn->green[comp], imgsyn->blue[comp]);
-
-                        if( imgsyn->red[comp] != 1 || imgsyn->green[comp] != 2 || imgsyn->blue[comp] != 3)
-                            result_image.setPixel(x, y , qRgb(color.red(), color.green(), color.blue()));
-                    }
-                QString num;
-                num.setNum(i);
-                num.append(QString(".png"));
-                image_name.append(QString ( "/" ));
-                image_name.append(num);
-                
-                result_image.save(image_name);
-            }
         }
     }
-
 
     gettimeofday(&end, NULL);
     elapsedTime = (end.tv_sec  - start.tv_sec) +
@@ -3940,9 +3280,8 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     mw_delete_fimage(imgShapeBlur);
     mw_delete_fsignal(gaussKernel);
 
-    if( tosParameters.model == 4 && !correspondance_computed ){
+    if( tosParameters.model == 4 && !correspondance_computed )
         mw_copy_fsignal_values( dictionary_correspondance, _dictionary_selections[ tosDictionary->getTreeId() ]);
-    }
 
     _tosParameters = tosParameters;
     _tree_recomputed = false;
