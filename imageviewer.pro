@@ -25,7 +25,6 @@ HEADERS       =  src/flst/*.h \
     src/segment/*.h \
     src/kdtree/*.h \
     src/kdtree/ann/include/ANN/*.h \
-    AbstractionProcess.h \
     Segmentation.h \
     TreeOfShapes.h
 SOURCES       = main.cpp \
@@ -34,7 +33,6 @@ SOURCES       = main.cpp \
     src/synth/*.c \
     src/kdtree/ann/src/*.cpp \
     src/segment/*.cpp \
-    AbstractionProcess.cpp \
     Segmentation.cpp \
     TreeOfShapes.cpp
 LIBS = -L/usr/lib/x86_64-linux-gnu/

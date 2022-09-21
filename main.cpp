@@ -11,7 +11,6 @@ You should have received a copy of the GNU Affero General Public License along w
 */
 
 #include "Segmentation.h"
-//#include "AbstractionProcess.h"
 #include "TreeOfShapes.h"
 #include <iostream>
 #include <QImage>
@@ -71,8 +70,7 @@ int main(int argc, char *argv[])
        image = segmentation->getResult();
        image.save("After_Segment.png");
     };
-    
-    //AbstractionProcess * imageAbstractionProcess = new AbstractionProcess(image);    
+       
     TreeOfShapes * TOS = new TreeOfShapes(cfimages_from_qimage(image));
 
     QImage resulting_image;
@@ -102,7 +100,6 @@ int main(int argc, char *argv[])
         QImage image_dict(style_fileName);
         TreeOfShapes * dictionary = new TreeOfShapes(cfimages_from_qimage(image_dict));
         dictionary->compute_tree( getDefaultTOSParameters(), true);
-        //resulting_image = imageAbstractionProcess->render(_TOSParameters, tree_recomputed, _dictionaryParameters, dictionary);
         resulting_image = TOS->render(_TOSParameters, tree_recomputed,  dictionary, _dictionaryParameters);
     };
      
@@ -110,7 +107,6 @@ int main(int argc, char *argv[])
     if (mode!=4){
        // Select model
        _TOSParameters.model = model;  
-       //resulting_image = imageAbstractionProcess->render(_TOSParameters, tree_recomputed);
        resulting_image = TOS->render(_TOSParameters, tree_recomputed);
     };
     
