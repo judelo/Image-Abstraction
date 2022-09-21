@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
         TreeOfShapes * dictionary = new TreeOfShapes(cfimages_from_qimage(image_dict));
         dictionary->compute_tree( getDefaultTOSParameters(), true);
         //resulting_image = imageAbstractionProcess->render(_TOSParameters, tree_recomputed, _dictionaryParameters, dictionary);
-        resulting_image = TOS->render(_TOSParameters, tree_recomputed, _dictionaryParameters, dictionary);
+        resulting_image = TOS->render(_TOSParameters, tree_recomputed,  dictionary, _dictionaryParameters);
     };
      
 
