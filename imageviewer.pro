@@ -19,7 +19,6 @@ DEPENDPATH += src/flst \
     src/kdtree/ann/include
 
 HEADERS       =  src/flst/*.h \
-    src/iio/*.h \
     src/mw3/*.h \
     src/synth/*.h \
     src/segment/*.h \
