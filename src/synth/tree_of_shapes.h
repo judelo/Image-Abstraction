@@ -97,4 +97,4 @@ void shapeInitialize(Shapes pTree);
 }
 #endif
 
-#endif /* !_TREE_OF_SHAPES_H_ */
+#endif // !_TREE_OF_SHAPES_H_
