@@ -43,29 +43,6 @@ TreeOfShapes::TreeOfShapes( Cfimage imageIn ){
 }
 
 
-TreeOfShapes::TreeOfShapes( Cfimage imageIn, Cfimage texture_image ){
-
-    // Read input image
-    _imgin = imageIn;
-    _texture_image = texture_image;
-    if( imageIn->nrow != texture_image->nrow || imageIn->ncol != texture_image->ncol )
-        mwerror(FATAL,1,"TreeOfShapes()::Texture image of different size than input image.\n");
-
-    _texture_image_loaded = true;
-
-    // Set default input options
-    _tosParameters = getDefaultTOSParameters();
-    _dictionaryParameters = getDefaultDictionaryParameters();
-    _tree_computed = false;
-    _tree_recomputed = false;
-    _tree_id = _tree_count++;
-    _large_to_small_index = NULL;
-    _large_to_small_index_computed = false;
-    _use_kdtree = false;
-
-}
-
-
 void TreeOfShapes::init(Cfimage inputImg, Shapes &pTree){
 
     std::cout << "TreeOfShapes::init(Cfimage inputImg, Shapes &pTree)" << std::endl;
@@ -84,7 +61,6 @@ void TreeOfShapes::init(Cfimage inputImg, Shapes &pTree){
           (mw_alloc_fimage(_NormOfDu,inputImg->nrow,inputImg->ncol) == NULL) )
         mwerror(FATAL,1,"Not enough memory.\n");
 
-     
     // Compute Intensity imag
     for( int i= 0; i< inputImg->ncol; i++)
         for( int j= 0; j< inputImg->nrow; j++){
@@ -95,20 +71,13 @@ void TreeOfShapes::init(Cfimage inputImg, Shapes &pTree){
 
     float fzero = 0.; int nsize = 3;
     fderiv(imgIntensity,NULL,NULL,NULL,NULL,NULL,NULL,_NormOfDu,NULL,&fzero,&nsize);
-
      
-    // Compute FLST on Intensity image  
-     
+    // Compute FLST on Intensity image   
     int minArea = 5;
     flst(&minArea, imgIntensity, pTree);
 
-     
     // Initialization                 
-     
-    shapeInitialize(pTree);
-
-     
-    // Assign color to each shape      
+    shapeInitialize(pTree);  
      
     // Assign color to each shape
     Shape * ppShapeOfPixel = pTree->smallest_shape;
@@ -129,13 +98,11 @@ void TreeOfShapes::init(Cfimage inputImg, Shapes &pTree){
     }
 
     mw_delete_fimage(imgIntensity);
-
      
     // Compute shape attribute
-     
-
     std::cout << "Compute shape attributes" << std::endl;
     compute_shape_attribute();
+
     // Synthesize the image
     printf("---1---- Synthesize the image ..........\n");
 }
@@ -3032,7 +2999,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                 else
                     synshapeCircle(pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
             } else if(tosParameters.model == 4){
-                
+
                 // Dictionary
                 Cfimage imgDict = tosDictionary->getCfImage();
                 Cfimage imgShapeColorSyn;
@@ -3088,22 +3055,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                 mw_delete_cimage(imgShapeLabelSyn);
                 mw_delete_fimage(imgShapeBlurSyn);
             } 
-            else if(tosParameters.model == 5){
-                mn = rand()%10;
-                if(mn<=4)
-                    synshapeEllipse(pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-                else if(mn<=9)
-                    synshapeRect(pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-                else
-                    synshapeOriginal(pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-            } 
-            else if(tosParameters.model == 6){
-                if( ((float)pShape->area) / ((float)(imgsyn->nrow*imgsyn->ncol)) > 0.2 ||
-                        ((float) pShape->area)/(sqrt(((Info*)(pShape->data))->lambda1 * ((Info*)(pShape->data))->lambda2)*4*PI) <0.5)
-                    synshapeOriginal(pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-                else
-                    synshapeEllipse(pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-            }
             else
                 synshapeEllipse(pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
 
@@ -3133,7 +3084,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         for( int i= 0; i< imgsyn->ncol; i++)
         {
             int comp = j*imgsyn->ncol + i;
-
             QColor color (imgsyn->red[comp], imgsyn->green[comp], imgsyn->blue[comp]);
             result_image.setPixel(i, j , qRgb(color.red(), color.green(), color.blue()));
         }

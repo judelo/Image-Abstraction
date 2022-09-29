@@ -32,7 +32,6 @@ public:
 
     static int _tree_count;
     TreeOfShapes( Cfimage imageIn );
-    TreeOfShapes( Cfimage imageIn, Cfimage texture_image );
     ~TreeOfShapes();
     QImage render(TOSParameters tosParameters, bool &tree_recomputed, TreeOfShapes *tosDictionary=NULL, DictionaryParameters dictionaryParameters=getDefaultDictionaryParameters() );
     void compute_tree( TOSParameters tosParameters, bool dictionary=false );
