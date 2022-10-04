@@ -243,7 +243,7 @@ TOSParameters getDictionaryTOSParameters (){
 TOSParameters getShapeSmoothingTOSParameters (){
 
     TOSParameters tosParam;
-    tosParam.order=10; // rendering order of the shapes: top->down: o=0 ; large->small: o=1; random: o=2"
+    tosParam.order=0; // rendering order of the shapes: top->down: o=0 ; large->small: o=1; random: o=2"
     tosParam.model=0; // synthesis model: rectangle: m=0; ellipse: m=1; orignal shape: m=2
     tosParam.alpha=0.; // alpha for transparent",
     tosParam.ns=3; // "scale ratio order for color filtering",

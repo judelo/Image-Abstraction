@@ -50,19 +50,27 @@ int main(int argc, char *argv[])
     // Read input parameters
     char * file_name = argv[1];          // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/bordeauxResize.jpg"
     char * mode_char = argv[2];         // Task Abstraction: 0; Watercolor:1; Shaking: 2; Shape smoothing:3; Style transfer:4;
-    char * model_char = argv[3];        // Synthesis model: orignal shape: m=0; ellipse: m=1; rectangle: m=2; circle m=3,  dictionary m=4 (use just for styletransfer), random: m=5 (not use);
-    char * seg_char = argv[4];          // Segmentation of input image: No 0, Yes 1;
-    char * style_file_name = argv[5];    // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/VanGogh.jpg"
+    char * model_char = argv[3];        // Synthesis model: orignal shape: m=0; ellipse: m=1; rectangle: m=2; circle m=3,  dictionary m=4, random: m=5 (not use);
+    char * options_char = argv[4];            // AdvanceOptions: Use Defaults: 0, Use AdvanceOptions: 1
+    char * seg_char = argv[5];                // Segmentation of input image: No 0, Yes 1;
+    char * color_sketch_char = argv[6];       // Keep meaningful boundaries: No 0, Yes 1;
+    char * renderOrder_char = argv[7];        //rendering order of the shapes: top->down: o=0 ; large->small: o=1; random: o=2"
+    char * alpha_char = argv[8];              // Transparency (between 0 and 1)
+    char * dictionary_file_name = argv[9];    // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/VanGogh.jpg"
     
     int mode = atoi(mode_char);
     int model = atoi(model_char);
+    int AdvanceOptions = atoi(options_char);
     int seg = atoi(seg_char);
+    int renderOrder = atoi(renderOrder_char);
+    int alpha = atoi(alpha_char);
+    int color_sketch = atoi(color_sketch_char);
     
     // Load Image
     QImage image(file_name);
     
     // Update image if segmentation is selected. 
-    if (seg==1){
+    if (AdvanceOptions==1 and seg==1){
        Segmentation * segmentation = new Segmentation (image);
        image = segmentation->segment( 0.5, 500, 50); // segParameters.c = 500;  segParameters.min_size = 50; segParameters.sigma = 0.5;
        image.save("Segment.png");
@@ -93,20 +101,32 @@ int main(int argc, char *argv[])
     } else if( mode==4 ){
         std::cout << "Style transfer " << std::endl;
         TOSParameters =  getStyleTransferTOSParameters();
-        DictionaryParameters dictionaryParameters = getDefaultDictionaryParameters();
+        if (model!=4)
+           std::cout << "Model has to be dictionary" << std::endl; 
+    };
 
-        // Load dictionary of Style image
-        QImage image_dict(style_file_name);
+    TOSParameters.model = model; 
+
+    if (AdvanceOptions==1){
+       TOSParameters.renderOrder = renderOrder;
+       TOSParameters.alpha = alpha;
+       TOSParameters.color_sketch = color_sketch; 
+    };
+    
+    if (model == 4) { 
+        std::cout << "Model Dictionary" << std::endl; 
+        // Load default dictionary parameters
+        DictionaryParameters dictionaryParameters = getDefaultDictionaryParameters();
+        // Load dictionary of dictionary image
+        QImage image_dict(dictionary_file_name);
         TreeOfShapes * dictionary = new TreeOfShapes(cfimages_from_qimage(image_dict));
         dictionary->compute_tree( getDefaultTOSParameters(), true);
+        // Run abstraction
         resulting_image = TOS->render(TOSParameters, tree_recomputed,  dictionary, dictionaryParameters);
-    };
-     
-    if (mode!=4){
-       // Select model
-       TOSParameters.model = model;  
-       resulting_image = TOS->render(TOSParameters, tree_recomputed);
-    };
+    } else {
+        // Run abstraction
+        resulting_image = TOS->render(TOSParameters, tree_recomputed);
+    }
     
     resulting_image.save("result.png");
 }
