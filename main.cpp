@@ -56,11 +56,12 @@ int main(int argc, char *argv[])
     char * color_sketch_char = argv[6];       // Keep meaningful boundaries: No 0, Yes 1;
     char * renderOrder_char = argv[7];        //rendering order of the shapes: top->down: o=0 ; large->small: o=1; random: o=2"
     char * alpha_char = argv[8];              // Transparency (between 0 and 1)
-    char * dictionary_file_name = argv[9];    // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/VanGogh.jpg"
-    char * modelDictionary_char = argv[3];    // Selection model: randS=0, randomly select shapes; randS=1, select shapes according to elongation, compactness and scale; randS=2, select shapes according to elongation, compactness, scale and color",
-    char * mcolor_char = argv[3];             // Select de source of color
-    char * equal_char = argv[3];              // Scaling shape with equal aspect ratio or not
-    char * kappaDict_char = argv[3];          // Compactness parameter of the attribute filtering on the transferred image
+    char * modelDictionary_char = argv[9];    // Selection model: randS=0, randomly select shapes; randS=1, select shapes according to elongation, compactness and scale; randS=2, select shapes according to elongation, compactness, scale and color",
+    char * mcolor_char = argv[10];             // Select de source of color
+    char * equal_char = argv[11];              // Scaling shape with equal aspect ratio or not
+    char * kappaDict_char = argv[12];          // Compactness parameter of the attribute filtering on the transferred image
+    char * dictionary_file_name = argv[13];    // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/VanGogh.jpg"
+    
     
     int mode = atoi(mode_char);
     int model = atoi(model_char);
