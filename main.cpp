@@ -48,15 +48,19 @@ int main(int argc, char *argv[])
 {
     
     // Read input parameters
-    char * file_name = argv[1];          // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/bordeauxResize.jpg"
-    char * mode_char = argv[2];         // Task Abstraction: 0; Watercolor:1; Shaking: 2; Shape smoothing:3; Style transfer:4;
-    char * model_char = argv[3];        // Synthesis model: orignal shape: m=0; ellipse: m=1; rectangle: m=2; circle m=3,  dictionary m=4, random: m=5 (not use);
+    char * file_name = argv[1];               // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/bordeauxResize.jpg"
+    char * mode_char = argv[2];               // Task Abstraction: 0; Watercolor:1; Shaking: 2; Shape smoothing:3; Style transfer:4;
+    char * model_char = argv[3];              // Synthesis model: orignal shape: m=0; ellipse: m=1; rectangle: m=2; circle m=3,  dictionary m=4, random: m=5 (not use);
     char * options_char = argv[4];            // AdvanceOptions: Use Defaults: 0, Use AdvanceOptions: 1
     char * seg_char = argv[5];                // Segmentation of input image: No 0, Yes 1;
     char * color_sketch_char = argv[6];       // Keep meaningful boundaries: No 0, Yes 1;
     char * renderOrder_char = argv[7];        //rendering order of the shapes: top->down: o=0 ; large->small: o=1; random: o=2"
     char * alpha_char = argv[8];              // Transparency (between 0 and 1)
     char * dictionary_file_name = argv[9];    // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/VanGogh.jpg"
+    char * modelDictionary_char = argv[3];    // Selection model: randS=0, randomly select shapes; randS=1, select shapes according to elongation, compactness and scale; randS=2, select shapes according to elongation, compactness, scale and color",
+    char * mcolor_char = argv[3];             // Select de source of color
+    char * equal_char = argv[3];              // Scaling shape with equal aspect ratio or not
+    char * kappaDict_char = argv[3];          // Compactness parameter of the attribute filtering on the transferred image
     
     int mode = atoi(mode_char);
     int model = atoi(model_char);
@@ -65,6 +69,10 @@ int main(int argc, char *argv[])
     int renderOrder = atoi(renderOrder_char);
     int alpha = atoi(alpha_char);
     int color_sketch = atoi(color_sketch_char);
+    int modelDictionary = atoi(modelDictionary_char); 
+    int mcolor = atoi(mcolor_char);
+    int equal = atoi(equal_char);
+    int kappaDict = atoi(kappaDict_char);
     
     // Load Image
     QImage image(file_name);
@@ -115,8 +123,16 @@ int main(int argc, char *argv[])
     
     if (model == 4) { 
         std::cout << "Model Dictionary" << std::endl; 
-        // Load default dictionary parameters
+        // Load dictionary parameters
         DictionaryParameters dictionaryParameters = getDefaultDictionaryParameters();
+
+        if (AdvanceOptions==1){
+            dictionaryParameters.randS = modelDictionary;
+            dictionaryParameters.mcolor = mcolor;
+            dictionaryParameters.equal = equal; 
+            dictionaryParameters.kappaDict = kappaDict; 
+        };
+
         // Load dictionary of dictionary image
         QImage image_dict(dictionary_file_name);
         TreeOfShapes * dictionary = new TreeOfShapes(cfimages_from_qimage(image_dict));
