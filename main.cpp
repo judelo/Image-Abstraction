@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
     TOSParameters.model = model; 
 
     if (AdvanceOptions==1){
-       TOSParameters.renderOrder = renderOrder;
+       TOSParameters.order = renderOrder;
        TOSParameters.alpha = alpha;
        TOSParameters.color_sketch = color_sketch; 
     };
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
     } else {
         // Run abstraction
         resulting_image = TOS->render(TOSParameters, tree_recomputed);
-    }
+    };
     
     resulting_image.save("result.png");
 }
