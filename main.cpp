@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
         TOSParameters =  getStyleTransferTOSParameters();
         if (model!=4){
            std::cout << "Model has to be dictionary" << std::endl; 
-           return;
+           return 0;
         };
     };
 
@@ -141,12 +141,12 @@ int main(int argc, char *argv[])
 
         if (image_dict.isNull()){
            std::cout << "A image for dictionary it is necessary" << std::endl; 
-           return;
+           return 0;
         };
 
         TreeOfShapes * dictionary = new TreeOfShapes(cfimages_from_qimage(image_dict));
         dictionary->compute_tree( getDefaultTOSParameters(), true);
-        
+
         // Run abstraction
         resulting_image = TOS->render(TOSParameters, tree_recomputed,  dictionary, dictionaryParameters);
     } else {
