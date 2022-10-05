@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
         QImage image_dict(dictionary_file_name);
 
         if (image_dict.isNull()){
-           std::cout << "A image for dictionary it is necessary" << std::endl; 
+           std::cout << "An image for dictionary it is necessary" << std::endl; 
            return 0;
         };
 
