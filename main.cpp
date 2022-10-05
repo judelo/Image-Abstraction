@@ -62,24 +62,12 @@ int main(int argc, char *argv[])
     char * kappaDict_char = argv[12];          // Compactness parameter of the attribute filtering on the transferred image
     char * dictionary_file_name = argv[13];    // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/VanGogh.jpg"
     
-    std::cout << file_name << std::endl; 
-    std::cout << mode_char << std::endl; 
-    std::cout << model_char << std::endl; 
-    std::cout << options_char << std::endl; 
-    std::cout << seg_char << std::endl; 
-    std::cout << color_sketch_char << std::endl; 
-    std::cout << renderOrder_char << std::endl; 
-    std::cout << alpha_char << std::endl; 
-    std::cout << modelDictionary_char << std::endl; 
-    std::cout << mcolor_char << std::endl; 
-    std::cout << equal_char << std::endl; 
-    std::cout << kappaDict_char << std::endl; 
-    std::cout << dictionary_file_name << std::endl; 
 
+    std::cout << options_char << std::endl; 
 
     int mode = atoi(mode_char);
     int model = atoi(model_char);
-    bool AdvanceOptions = bool(options_char);
+    bool AdvanceOptions = bool.Parse(options_char);
     int seg = atoi(seg_char);
     int renderOrder = atoi(renderOrder_char);
     int alpha = atoi(alpha_char);
@@ -88,6 +76,8 @@ int main(int argc, char *argv[])
     int mcolor = atoi(mcolor_char);
     int equal = atoi(equal_char);
     int kappaDict = atoi(kappaDict_char);
+
+    std::cout << AdvanceOptions << std::endl; 
     
     // Load Image
     QImage image(file_name);
