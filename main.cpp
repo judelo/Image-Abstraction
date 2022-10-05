@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     char * file_name = argv[1];               // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/bordeauxResize.jpg"
     char * mode_char = argv[2];               // Task Abstraction: 0; Watercolor:1; Shaking: 2; Shape smoothing:3; Style transfer:4;
     char * model_char = argv[3];              // Synthesis model: orignal shape: m=0; ellipse: m=1; rectangle: m=2; circle m=3,  dictionary m=4, random: m=5 (not use);
-    char * options_char = argv[4];            // AdvanceOptions: Use Defaults: false, Use AdvanceOptions: true
+    char * options_char = argv[4];            // advanceOptions: Use Defaults: false, Use advanceOptions: true
     char * seg_char = argv[5];                // Segmentation of input image: No 0, Yes 1;
     char * color_sketch_char = argv[6];       // Keep meaningful boundaries: No 0, Yes 1;
     char * renderOrder_char = argv[7];        //rendering order of the shapes: top->down: o=0 ; large->small: o=1; random: o=2"
@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
     QImage image(file_name);
     
     // Update image if segmentation is selected. 
-    if (AdvanceOptions and seg==1){
+    if (advanceOptions and seg==1){
        Segmentation * segmentation = new Segmentation (image);
        image = segmentation->segment( 0.5, 500, 50); // segParameters.c = 500;  segParameters.min_size = 50; segParameters.sigma = 0.5;
        image.save("Segment.png");
