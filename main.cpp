@@ -111,7 +111,8 @@ int main(int argc, char *argv[])
         std::cout << "Style transfer " << std::endl;
         TOSParameters =  getStyleTransferTOSParameters();
         if (model!=4){
-           std::cout << "Model has to be dictionary" << std::endl; 
+           std::cout << "Model has to be dictionary" << std::endl;
+           image.save("result.png"); 
            return 0;
         };
     };
@@ -141,6 +142,7 @@ int main(int argc, char *argv[])
 
         if (image_dict.isNull()){
            std::cout << "A image for dictionary it is necessary" << std::endl; 
+           image.save("result.png"); 
            return 0;
         };
 
