@@ -63,9 +63,6 @@ int main(int argc, char *argv[])
     char * equal_char = argv[11];              // Scaling shape with equal aspect ratio or not
     char * kappaDict_char = argv[12];          // Compactness parameter of the attribute filtering on the transferred image
     char * dictionary_file_name = argv[13];    // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/VanGogh.jpg"
-    
-
-    std::cout << options_char << std::endl; 
 
     int mode = atoi(mode_char);
     int model = atoi(model_char);
