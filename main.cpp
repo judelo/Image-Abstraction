@@ -52,7 +52,6 @@ int main(int argc, char *argv[])
     char * file_name = argv[1];               // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/bordeauxResize.jpg"
     char * mode_char = argv[2];               // Task Abstraction: 0; Watercolor:1; Shaking: 2; Shape smoothing:3; Style transfer:4;
     char * model_char = argv[3];              // Synthesis model: orignal shape: m=0; ellipse: m=1; rectangle: m=2; circle m=3,  dictionary m=4, random: m=5 (not use);
-    //char * options_char = argv[4];            // advanceOptions: Use Defaults: false, Use advanceOptions: true
     std::stringstream ss(argv[4]);
     char * seg_char = argv[5];                // Segmentation of input image: No 0, Yes 1;
     char * color_sketch_char = argv[6];       // Keep meaningful boundaries: No 0, Yes 1;
@@ -62,7 +61,8 @@ int main(int argc, char *argv[])
     char * mcolor_char = argv[10];             // Select de source of color
     char * equal_char = argv[11];              // Scaling shape with equal aspect ratio or not
     char * kappaDict_char = argv[12];          // Compactness parameter of the attribute filtering on the transferred image
-    char * dictionary_file_name = argv[13];    // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/VanGogh.jpg"
+    char * minSize_char = argv[13];          // Min Size for segmentation
+    char * dictionary_file_name = argv[14];    // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/VanGogh.jpg"
 
     int mode = atoi(mode_char);
     int model = atoi(model_char);
@@ -74,10 +74,9 @@ int main(int argc, char *argv[])
     int mcolor = atoi(mcolor_char);
     int equal = atoi(equal_char);
     int kappaDict = atoi(kappaDict_char);
+    int minSize = atoi(minSize_char);
     bool advanceOptions;
     ss >> std::boolalpha >> advanceOptions;
-
-    std::cout << advanceOptions << std::endl; 
     
     // Load Image
     QImage image(file_name);
@@ -85,7 +84,7 @@ int main(int argc, char *argv[])
     // Update image if segmentation is selected. 
     if (advanceOptions and seg==1){
        Segmentation * segmentation = new Segmentation (image);
-       image = segmentation->segment( 0.5, 500, 50); // segParameters.c = 500;  segParameters.min_size = 50; segParameters.sigma = 0.5;
+       image = segmentation->segment( 0.5, 500, minSize); // segParameters.sigma = 0.5; segParameters.c = 500;  segParameters.min_size = 50 (default) 
        image.save("Segment.png");
        image = segmentation->getResult();
        image.save("After_Segment.png");
@@ -123,7 +122,6 @@ int main(int argc, char *argv[])
     TOSParameters.model = model; 
 
     if (advanceOptions){
-       std::cout << "Advace Options" << std::endl; 
        TOSParameters.order = renderOrder;
        TOSParameters.alpha = alpha;
        TOSParameters.color_sketch = color_sketch; 
@@ -135,7 +133,6 @@ int main(int argc, char *argv[])
         DictionaryParameters dictionaryParameters = getDefaultDictionaryParameters();
 
         if (advanceOptions){
-            std::cout << "Advace Dictionary Options" << std::endl; 
             dictionaryParameters.randS = modelDictionary;
             dictionaryParameters.mcolor = mcolor;
             dictionaryParameters.equal = equal; 
