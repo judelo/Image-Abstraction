@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
 
     int mode = atoi(mode_char);
     int model = atoi(model_char);
-    bool AdvanceOptions = bool.Parse(options_char);
+    bool advanceOptions = (options_char == "true");
     int seg = atoi(seg_char);
     int renderOrder = atoi(renderOrder_char);
     int alpha = atoi(alpha_char);
@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
     int equal = atoi(equal_char);
     int kappaDict = atoi(kappaDict_char);
 
-    std::cout << AdvanceOptions << std::endl; 
+    std::cout << advanceOptions << std::endl; 
     
     // Load Image
     QImage image(file_name);
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
 
     TOSParameters.model = model; 
 
-    if (AdvanceOptions){
+    if (advanceOptions){
        std::cout << "Advace Options" << std::endl; 
        TOSParameters.order = renderOrder;
        TOSParameters.alpha = alpha;
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
         // Load dictionary parameters
         DictionaryParameters dictionaryParameters = getDefaultDictionaryParameters();
 
-        if (AdvanceOptions){
+        if (advanceOptions){
             std::cout << "Advace Dictionary Options" << std::endl; 
             dictionaryParameters.randS = modelDictionary;
             dictionaryParameters.mcolor = mcolor;
