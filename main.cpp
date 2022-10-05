@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
 
     int mode = atoi(mode_char);
     int model = atoi(model_char);
-    bool advanceOptions = (options_char == "true");
+    bool advanceOptions = options_char.compare("true");
     int seg = atoi(seg_char);
     int renderOrder = atoi(renderOrder_char);
     int alpha = atoi(alpha_char);
