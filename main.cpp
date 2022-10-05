@@ -118,7 +118,10 @@ int main(int argc, char *argv[])
 
     TOSParameters.model = model; 
 
-    if (AdvanceOptions==1){
+    std::cout << AdvanceOptions << std::endl; 
+
+    if (AdvanceOptions){
+       std::cout << "Advace Options" << std::endl; 
        TOSParameters.order = renderOrder;
        TOSParameters.alpha = alpha;
        TOSParameters.color_sketch = color_sketch; 
@@ -130,6 +133,7 @@ int main(int argc, char *argv[])
         DictionaryParameters dictionaryParameters = getDefaultDictionaryParameters();
 
         if (AdvanceOptions){
+            std::cout << "Advace Dictionary Options" << std::endl; 
             dictionaryParameters.randS = modelDictionary;
             dictionaryParameters.mcolor = mcolor;
             dictionaryParameters.equal = equal; 
