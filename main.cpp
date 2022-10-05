@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     char * file_name = argv[1];               // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/bordeauxResize.jpg"
     char * mode_char = argv[2];               // Task Abstraction: 0; Watercolor:1; Shaking: 2; Shape smoothing:3; Style transfer:4;
     char * model_char = argv[3];              // Synthesis model: orignal shape: m=0; ellipse: m=1; rectangle: m=2; circle m=3,  dictionary m=4, random: m=5 (not use);
-    char * options_char = argv[4];            // AdvanceOptions: Use Defaults: 0, Use AdvanceOptions: 1
+    char * options_char = argv[4];            // AdvanceOptions: Use Defaults: false, Use AdvanceOptions: true
     char * seg_char = argv[5];                // Segmentation of input image: No 0, Yes 1;
     char * color_sketch_char = argv[6];       // Keep meaningful boundaries: No 0, Yes 1;
     char * renderOrder_char = argv[7];        //rendering order of the shapes: top->down: o=0 ; large->small: o=1; random: o=2"
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
     
     int mode = atoi(mode_char);
     int model = atoi(model_char);
-    int AdvanceOptions = atoi(options_char);
+    int AdvanceOptions = bool(options_char);
     int seg = atoi(seg_char);
     int renderOrder = atoi(renderOrder_char);
     int alpha = atoi(alpha_char);
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
     QImage image(file_name);
     
     // Update image if segmentation is selected. 
-    if (AdvanceOptions==1 and seg==1){
+    if (AdvanceOptions and seg==1){
        Segmentation * segmentation = new Segmentation (image);
        image = segmentation->segment( 0.5, 500, 50); // segParameters.c = 500;  segParameters.min_size = 50; segParameters.sigma = 0.5;
        image.save("Segment.png");
@@ -110,8 +110,10 @@ int main(int argc, char *argv[])
     } else if( mode==4 ){
         std::cout << "Style transfer " << std::endl;
         TOSParameters =  getStyleTransferTOSParameters();
-        if (model!=4)
+        if (model!=4){
            std::cout << "Model has to be dictionary" << std::endl; 
+           return;
+        };
     };
 
     TOSParameters.model = model; 
@@ -127,7 +129,7 @@ int main(int argc, char *argv[])
         // Load dictionary parameters
         DictionaryParameters dictionaryParameters = getDefaultDictionaryParameters();
 
-        if (AdvanceOptions==1){
+        if (AdvanceOptions){
             dictionaryParameters.randS = modelDictionary;
             dictionaryParameters.mcolor = mcolor;
             dictionaryParameters.equal = equal; 
@@ -136,8 +138,15 @@ int main(int argc, char *argv[])
 
         // Load dictionary of dictionary image
         QImage image_dict(dictionary_file_name);
+
+        if (image_dict.isNull()){
+           std::cout << "A image for dictionary it is necessary" << std::endl; 
+           return;
+        };
+
         TreeOfShapes * dictionary = new TreeOfShapes(cfimages_from_qimage(image_dict));
         dictionary->compute_tree( getDefaultTOSParameters(), true);
+        
         // Run abstraction
         resulting_image = TOS->render(TOSParameters, tree_recomputed,  dictionary, dictionaryParameters);
     } else {
