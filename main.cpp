@@ -63,7 +63,8 @@ int main(int argc, char *argv[])
     char * kappaDict_char = argv[12];          // Compactness parameter of the attribute filtering on the transferred image
     char * minSize_char = argv[13];            // Min Size for segmentation
     char * mpixel_char = argv[14];             // minimal area (in pixel) for FLST
-    char * dictionary_file_name = argv[15];    // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/VanGogh.jpg"
+    char * maxarea_char = argv[15];             // maximal area (in pixel) for FLST
+    char * dictionary_file_name = argv[16];    // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/VanGogh.jpg"
 
     int mode = atoi(mode_char);
     int model = atoi(model_char);
@@ -77,6 +78,7 @@ int main(int argc, char *argv[])
     float kappaDict = atof(kappaDict_char);
     int minSize = atoi(minSize_char);
     int mpixel = atoi(mpixel_char);
+    int maxarea = atoi(maxarea_char);
     bool advanceOptions;
     ss >> std::boolalpha >> advanceOptions;
     
@@ -128,6 +130,7 @@ int main(int argc, char *argv[])
        TOSParameters.alpha = alpha;
        TOSParameters.color_sketch = color_sketch; 
        TOSParameters.mpixel = mpixel;
+       TOSParameters.maxarea = maxarea;
     };
     
     if (model == 4) { 
