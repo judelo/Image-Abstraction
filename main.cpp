@@ -79,9 +79,6 @@ int main(int argc, char *argv[])
     int mpixel = atoi(mpixel_char);
     bool advanceOptions;
     ss >> std::boolalpha >> advanceOptions;
-
-    std::cout << "Alpha atoi o atof?" << std::endl;
-    std::cout << alpha << std::endl;
     
     // Load Image
     QImage image(file_name);
@@ -160,8 +157,6 @@ int main(int argc, char *argv[])
         resulting_image = TOS->render(TOSParameters, tree_recomputed,  dictionary, dictionaryParameters);
     } else {
         // Run abstraction
-        std::cout << "Alpha" << std::endl;
-        std::cout << TOSParameters.alpha << std::endl;
         resulting_image = TOS->render(TOSParameters, tree_recomputed);
     };
     
