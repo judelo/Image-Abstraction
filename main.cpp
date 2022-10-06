@@ -61,8 +61,9 @@ int main(int argc, char *argv[])
     char * mcolor_char = argv[10];             // Select de source of color
     char * equal_char = argv[11];              // Scaling shape with equal aspect ratio or not
     char * kappaDict_char = argv[12];          // Compactness parameter of the attribute filtering on the transferred image
-    char * minSize_char = argv[13];          // Min Size for segmentation
-    char * dictionary_file_name = argv[14];    // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/VanGogh.jpg"
+    char * minSize_char = argv[13];            // Min Size for segmentation
+    char * mpixel_char = argv[14];             // minimal area (in pixel) for FLST
+    char * dictionary_file_name = argv[15];    // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/VanGogh.jpg"
 
     int mode = atoi(mode_char);
     int model = atoi(model_char);
@@ -75,8 +76,12 @@ int main(int argc, char *argv[])
     int equal = atoi(equal_char);
     int kappaDict = atoi(kappaDict_char);
     int minSize = atoi(minSize_char);
+    int mpixel = atoi(mpixel_char);
     bool advanceOptions;
     ss >> std::boolalpha >> advanceOptions;
+
+    std::cout << "Alpha" << std::endl;
+    std::cout << alpha << std::endl;
     
     // Load Image
     QImage image(file_name);
@@ -125,6 +130,7 @@ int main(int argc, char *argv[])
        TOSParameters.order = renderOrder;
        TOSParameters.alpha = alpha;
        TOSParameters.color_sketch = color_sketch; 
+       TOSParameters.mpixel = mpixel;
     };
     
     if (model == 4) { 
@@ -154,6 +160,8 @@ int main(int argc, char *argv[])
         resulting_image = TOS->render(TOSParameters, tree_recomputed,  dictionary, dictionaryParameters);
     } else {
         // Run abstraction
+        std::cout << "Alpha" << std::endl;
+        std::cout << TOSParameters.alpha << std::endl;
         resulting_image = TOS->render(TOSParameters, tree_recomputed);
     };
     
