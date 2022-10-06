@@ -69,12 +69,12 @@ int main(int argc, char *argv[])
     int model = atoi(model_char);
     int seg = atoi(seg_char);
     int renderOrder = atoi(renderOrder_char);
-    int alpha = atof(alpha_char);
+    float alpha = atof(alpha_char);
     int color_sketch = atoi(color_sketch_char);
     int modelDictionary = atoi(modelDictionary_char); 
     int mcolor = atoi(mcolor_char);
     int equal = atoi(equal_char);
-    int kappaDict = atof(kappaDict_char);
+    float kappaDict = atof(kappaDict_char);
     int minSize = atoi(minSize_char);
     int mpixel = atoi(mpixel_char);
     bool advanceOptions;
