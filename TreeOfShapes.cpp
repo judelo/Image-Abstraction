@@ -2853,6 +2853,11 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     // Image filtering    
     std::cout << "Image filtering" << std::endl;
     int max_area = tosParameters.maxarea;
+
+    std::cout << std::endl<<"Max Area: " << max_area << std::endl;
+    std::cout << std::endl<<"_tree_recomputed " << _tree_recomputed << std::endl;
+    std::cout << std::endl<<"_large_to_small_index_computed " << _large_to_small_index_computed << std::endl;
+
     if( _tree_recomputed ) max_area = INT_MAX;
     filter_image(&tosParameters.ns,&tosParameters.threshold, &tosParameters.mpixel, &max_area);
 
