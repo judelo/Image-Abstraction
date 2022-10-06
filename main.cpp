@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
     bool advanceOptions;
     ss >> std::boolalpha >> advanceOptions;
 
-    std::cout << "Alpha" << std::endl;
+    std::cout << "Alpha atoi o atof?" << std::endl;
     std::cout << alpha << std::endl;
     
     // Load Image
