@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
         TOSParameters =  getStyleTransferTOSParameters();
         if (model!=4){
            std::cout << "For Style Transfer, model has to be dictionary." << std::endl;
-           ofstream demo_failure;
+           fstream demo_failure;
            demo_failure.open ("demo_failure.txt");
            demo_failure << "For Style Transfer, model has to be dictionary.\n";
            demo_failure.close();
@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
 
         if (image_dict.isNull()){
            std::cout << "An image for dictionary it is necessary" << std::endl; 
-           ofstream demo_failure;
+           fstream demo_failure;
            demo_failure.open ("demo_failure.txt");
            demo_failure << "An image for dictionary it is necessary.\n";
            demo_failure.close();
