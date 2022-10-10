@@ -13,6 +13,7 @@ You should have received a copy of the GNU Affero General Public License along w
 #include "Segmentation.h"
 #include "TreeOfShapes.h"
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <QImage>
 
@@ -118,7 +119,11 @@ int main(int argc, char *argv[])
         std::cout << "Style transfer " << std::endl;
         TOSParameters =  getStyleTransferTOSParameters();
         if (model!=4){
-           std::cout << "Model has to be dictionary" << std::endl;
+           std::cout << "For Style Transfer, model has to be dictionary." << std::endl;
+           ofstream demo_failure;
+           demo_failure.open ("demo_failure.txt");
+           demo_failure << "For Style Transfer, model has to be dictionary.\n";
+           demo_failure.close();
            return 0;
         };
     };
@@ -143,6 +148,7 @@ int main(int argc, char *argv[])
             dictionaryParameters.mcolor = mcolor;
             dictionaryParameters.equal = equal; 
             dictionaryParameters.kappaDict = kappaDict; 
+            std::cout << "mcolor " << mcolor << std::endl;
         };
 
         // Load dictionary of dictionary image
@@ -150,6 +156,11 @@ int main(int argc, char *argv[])
 
         if (image_dict.isNull()){
            std::cout << "An image for dictionary it is necessary" << std::endl; 
+           ofstream demo_failure;
+           demo_failure.open ("demo_failure.txt");
+           demo_failure << "An image for dictionary it is necessary.\n";
+           demo_failure.close();
+           return 0;
            return 0;
         };
 
