@@ -62,10 +62,12 @@ int main(int argc, char *argv[])
     char * mcolor_char = argv[10];             // Select de source of color
     char * equal_char = argv[11];              // Scaling shape with equal aspect ratio or not
     char * kappaDict_char = argv[12];          // Compactness parameter of the attribute filtering on the transferred image
-    char * minSize_char = argv[13];            // Min Size for segmentation
+    char * minSize_char = argv[13];            // Min Size for segmentation image
     char * mpixel_char = argv[14];             // minimal area (in pixel) for FLST
     char * maxarea_char = argv[15];             // maximal area (in pixel) for FLST
-    char * dictionary_file_name = argv[16];    // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/VanGogh.jpg"
+    char * segDict_char = argv[16];             // Segmentation of dict image: No 0, Yes 1;
+    char * minSizeDict_char = argv[17];             // Min Size for segmentation dict image
+    char * dictionary_file_name = argv[18];    // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/VanGogh.jpg"
 
     int mode = atoi(mode_char);
     int model = atoi(model_char);
@@ -80,6 +82,8 @@ int main(int argc, char *argv[])
     int minSize = atoi(minSize_char);
     int mpixel = atoi(mpixel_char);
     int maxarea = atoi(maxarea_char);
+    int segDict = atoi(segDict_char);
+    int minSizeDict = atoi(minSizeDict_char);
     bool advanceOptions;
     ss >> std::boolalpha >> advanceOptions;
     
@@ -146,10 +150,17 @@ int main(int argc, char *argv[])
             dictionaryParameters.equal = equal; 
             dictionaryParameters.kappaDict = kappaDict; 
             std::cout << "mcolor " << mcolor << std::endl;
+
         };
 
         // Load dictionary of dictionary image
         QImage image_dict(dictionary_file_name);
+
+        // Update image if segmentation for dict is selected. 
+        if (advanceOptions and segDict==1){
+            Segmentation * segmentationDict = new Segmentation (image_dict);
+            image_dict = segmentationDict->segment( 0.5, 500, minSizeDict); // segParameters.sigma = 0.5; segParameters.c = 500;  segParameters.min_size = 50 (default) 
+        };
 
         if (image_dict.isNull()){
            std::cout << "An image for dictionary it is necessary" << std::endl; 
