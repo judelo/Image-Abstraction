@@ -15,8 +15,8 @@ kappaDict=${11}
 minSize=${12}
 mpixel=${13}
 maxarea=${14}
-segDict=${13}
-minSizeDict=${14}
+segDict=${15}
+minSizeDict=${16}
 
 echo $bin/image_abstraction input_0.png $task $model $options $segmentation $color_sketch $renderOrder $alpha $modelDictionary $mcolor $equal $kappaDict $minSize $mpixel $maxarea $segDict $minSizeDict input_1.png
 
