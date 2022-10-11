@@ -91,8 +91,6 @@ int main(int argc, char *argv[])
        Segmentation * segmentation = new Segmentation (image);
        image = segmentation->segment( 0.5, 500, minSize); // segParameters.sigma = 0.5; segParameters.c = 500;  segParameters.min_size = 50 (default) 
        image.save("Segment.png");
-       image = segmentation->getResult();
-       image.save("After_Segment.png");
     };
        
     TreeOfShapes * TOS = new TreeOfShapes(cfimages_from_qimage(image));

@@ -1,27 +1,47 @@
 /*
- Module to implement segmentation on input image.
+Copyright (C) 2006 Pedro Felzenszwalb
 
-Copyright (C) 2022, noura.faraj@umontpellier.fr, lucia.bouza-heguerte@u-paris.fr, julie.delon@u-paris.fr
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
 
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License along with this program. If not, see <http://www.gnu.org/licenses/>
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 */
 
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
-#include "segment-image.h"
 #include "Segmentation.h"
 #include <QColor>
+#include <image.h>
+#include <misc.h>
+#include <filter.h>
+#include "segment-graph.h"
+
+
+// dissimilarity measure between pixels
+static inline float diff(image<float> *r, image<float> *g, image<float> *b,
+                         int x1, int y1, int x2, int y2) {
+    return sqrt(square(imRef(r, x1, y1)-imRef(r, x2, y2)) +
+                square(imRef(g, x1, y1)-imRef(g, x2, y2)) +
+                square(imRef(b, x1, y1)-imRef(b, x2, y2)));
+}
+
 
 Segmentation::Segmentation(const QImage & input_image )
 {
 
     int width = input_image.width();
     int height = input_image.height();
+
     input = new image<rgb> ( width, height );
 
     // smooth each color channel
@@ -43,6 +63,16 @@ Segmentation::~Segmentation(){
     delete [] u;
 }
 
+/*
+ * Segment an image
+ *
+ * Returns a color image representing the segmentation.
+ *
+ * im: image to segment.
+ * sigma: to smooth the image.
+ * c: constant for treshold function.
+ * min_size: minimum component size (enforced by post-processing stage).
+ */
 QImage Segmentation::segment(float sigma, float c, int min_size) {
     int width = input->width();
     int height = input->height();
@@ -113,12 +143,13 @@ QImage Segmentation::segment(float sigma, float c, int min_size) {
         int b = u->find(edges[i].b);
         if ((a != b) && ((u->size(a) < min_size) || (u->size(b) < min_size)))
             u->join(a, b);
-    }
+    } 
 
     int num_ccs = u->num_sets();
+
     segmentation = new image<rgb>(width, height);
 
-    // pick random colors for each component
+    //colors for each component
     std::map<int, float> average_r;
     std::map<int, float> average_g;
     std::map<int, float> average_b;
@@ -136,71 +167,19 @@ QImage Segmentation::segment(float sigma, float c, int min_size) {
         }
     }
 
-    // pick random colors for each component
-    rgb *colors = new rgb[width*height];
-    for (int i = 0; i < width*height; i++)
-        colors[i] = random_rgb();
-
     std::cout << "Num ccs "<< num_ccs << " and " << nb_pixels.size() << std::endl;
 
     for( std::map<int, int>::iterator it = nb_pixels.begin() ; it != nb_pixels.end() ; it++ ){
         int comp = it->first;
-        component_colors[comp] = QColor(int(float(average_r[comp])/nb_pixels[comp]), int(float(average_g[comp])/nb_pixels[comp]), int(float(average_b[comp])/nb_pixels[comp]));
-        removed_regions[comp] = false;
+        component_colors[comp] = QColor(int(float(average_r[comp])/nb_pixels[comp]), int(float(average_g[comp])/nb_pixels[comp]), int(float(average_b[comp])/nb_pixels[comp]));       
     }
 
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
             int comp = u->find(y * width + x);
-
-            imRef(segmentation, x, y) = colors[comp];
-            QColor color (colors[comp].r, colors[comp].g, colors[comp].b);
-            result.setPixel(x, y , qRgb(color.red(), color.green(), color.blue()));
+            result.setPixel(x, y , qRgb(component_colors[comp].red(), component_colors[comp].green(), component_colors[comp].blue()));
         }
     }
 
-    return result;
-}
-
-
-QImage Segmentation::getResult( ){
-
-    int width = input->width();
-    int height = input->height();
-
-    // pick random colors for each component
-    float average_r =0.;
-    float average_g =0.;
-    float average_b =0.;
-
-    int nb_pixels = 0;
-
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            int comp = u->find(y * width + x);
-            if( removed_regions[comp] ){
-                average_r += imRef(input, x, y).r;
-                average_g += imRef(input, x, y).g;
-                average_b += imRef(input, x, y).b;
-                nb_pixels++;
-            }
-        }
-    }
-
-    average_r = int(average_r/nb_pixels);
-    average_g = int(average_g/nb_pixels);
-    average_b = int(average_b/nb_pixels);
-
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            int comp = u->find(y * width + x);
-            if( ! removed_regions[comp] ){
-
-                rgb color = imRef(input, x, y);
-                result.setPixel(x, y , qRgb(color.r, color.g, color.b));
-            } else
-                result.setPixel(x, y , qRgb(average_r, average_g, average_b));
-        }
-    }
     return result;
 }
