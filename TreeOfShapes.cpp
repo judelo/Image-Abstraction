@@ -2853,8 +2853,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     // Image filtering    
     std::cout << "Image filtering" << std::endl;
     int max_area = tosParameters.maxarea;
-
-    if( _tree_recomputed ) max_area = INT_MAX;
     filter_image(&tosParameters.ns,&tosParameters.threshold, &tosParameters.mpixel, &max_area);
 
     gettimeofday(&end, NULL);
