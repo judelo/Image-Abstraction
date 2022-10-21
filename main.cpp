@@ -10,7 +10,6 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU Affero General Public License along with this program. If not, see <http://www.gnu.org/licenses/>
 */
 
-#include "Segmentation.h"
 #include "TreeOfShapes.h"
 #include <iostream>
 #include <fstream>
@@ -54,24 +53,19 @@ int main(int argc, char *argv[])
     char * mode_char = argv[2];               // Task Abstraction: 0; Watercolor:1; Shaking: 2; Shape smoothing:3; Style transfer:4;
     char * model_char = argv[3];              // Synthesis model: orignal shape: m=0; ellipse: m=1; rectangle: m=2; circle m=3,  dictionary m=4, random: m=5 (not use);
     std::stringstream ss(argv[4]);
-    char * seg_char = argv[5];                // Segmentation of input image: No 0, Yes 1;
-    char * color_sketch_char = argv[6];       // Keep meaningful boundaries: No 0, Yes 1;
-    char * renderOrder_char = argv[7];        //rendering order of the shapes: top->down: o=0 ; large->small: o=1; random: o=2"
-    char * alpha_char = argv[8];              // Transparency (between 0 and 1)
-    char * modelDictionary_char = argv[9];    // Selection model: randS=0, randomly select shapes; randS=1, select shapes according to elongation, compactness and scale; randS=2, select shapes according to elongation, compactness, scale and color",
-    char * mcolor_char = argv[10];             // Select de source of color
-    char * equal_char = argv[11];              // Scaling shape with equal aspect ratio or not
-    char * kappaDict_char = argv[12];          // Compactness parameter of the attribute filtering on the transferred image
-    char * minSize_char = argv[13];            // Min Size for segmentation image
-    char * mpixel_char = argv[14];             // minimal area (in pixel) for FLST
-    char * maxarea_char = argv[15];             // maximal area (in pixel) for FLST
-    char * segDict_char = argv[16];             // Segmentation of dict image: No 0, Yes 1;
-    char * minSizeDict_char = argv[17];             // Min Size for segmentation dict image
-    char * dictionary_file_name = argv[18];    // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/VanGogh.jpg"
+    char * color_sketch_char = argv[5];       // Keep meaningful boundaries: No 0, Yes 1;
+    char * renderOrder_char = argv[6];        //rendering order of the shapes: top->down: o=0 ; large->small: o=1; random: o=2"
+    char * alpha_char = argv[7];              // Transparency (between 0 and 1)
+    char * modelDictionary_char = argv[8];    // Selection model: randS=0, randomly select shapes; randS=1, select shapes according to elongation, compactness and scale; randS=2, select shapes according to elongation, compactness, scale and color",
+    char * mcolor_char = argv[9];             // Select de source of color
+    char * equal_char = argv[10];              // Scaling shape with equal aspect ratio or not
+    char * kappaDict_char = argv[11];          // Compactness parameter of the attribute filtering on the transferred image
+    char * mpixel_char = argv[12];             // minimal area (in pixel) for FLST
+    char * maxarea_char = argv[13];             // maximal area (in pixel) for FLST
+    char * dictionary_file_name = argv[14];    // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/VanGogh.jpg"
 
     int mode = atoi(mode_char);
     int model = atoi(model_char);
-    int seg = atoi(seg_char);
     int renderOrder = atoi(renderOrder_char);
     float alpha = atof(alpha_char);
     int color_sketch = atoi(color_sketch_char);
@@ -79,23 +73,13 @@ int main(int argc, char *argv[])
     int mcolor = atoi(mcolor_char);
     int equal = atoi(equal_char);
     float kappaDict = atof(kappaDict_char);
-    int minSize = atoi(minSize_char);
     int mpixel = atoi(mpixel_char);
     int maxarea = atoi(maxarea_char);
-    int segDict = atoi(segDict_char);
-    int minSizeDict = atoi(minSizeDict_char);
     bool advanceOptions;
     ss >> std::boolalpha >> advanceOptions;
     
     // Load Image
     QImage image(file_name);
-    
-    // Update image if segmentation is selected. 
-    if (advanceOptions and seg==1){
-       Segmentation * segmentation = new Segmentation (image);
-       image = segmentation->segment( 0.5, 500, minSize); // segParameters.sigma = 0.5; segParameters.c = 500;  segParameters.min_size = 50 (default) 
-       image.save("Segment.png");
-    };
        
     TreeOfShapes * TOS = new TreeOfShapes(cfimages_from_qimage(image));
 
@@ -141,6 +125,15 @@ int main(int argc, char *argv[])
     
     if (model == 4) { 
         std::cout << "Model Dictionary" << std::endl; 
+
+        if (mode!=4){
+           std::cout << "Use Dictionary only for Style transfer." << std::endl;
+           std::ofstream demo_failure("demo_failure.txt");
+           demo_failure << "Use Dictionary only for Style transfer.\n";
+           demo_failure.close();
+           return 0;
+        };
+
         // Load dictionary parameters
         DictionaryParameters dictionaryParameters = getDefaultDictionaryParameters();
 
@@ -155,12 +148,6 @@ int main(int argc, char *argv[])
 
         // Load dictionary of dictionary image
         QImage image_dict(dictionary_file_name);
-
-        // Update image if segmentation for dict is selected. 
-        if (advanceOptions and segDict==1){
-            Segmentation * segmentationDict = new Segmentation (image_dict);
-            image_dict = segmentationDict->segment( 0.5, 500, minSizeDict); // segParameters.sigma = 0.5; segParameters.c = 500;  segParameters.min_size = 50 (default) 
-        };
 
         if (image_dict.isNull()){
            std::cout << "An image for dictionary it is necessary" << std::endl; 
