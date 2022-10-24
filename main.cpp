@@ -62,7 +62,10 @@ int main(int argc, char *argv[])
     char * kappaDict_char = argv[11];          // Compactness parameter of the attribute filtering on the transferred image
     char * mpixel_char = argv[12];             // minimal area (in pixel) for FLST
     char * maxarea_char = argv[13];             // maximal area (in pixel) for FLST
-    char * dictionary_file_name = argv[14];    // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/VanGogh.jpg"
+    char * ScaleRatio_char = argv[14];          // "scale ratio order for color filtering",
+    char * Threshold_char = argv[15];           // "threshold for color filtering",
+    char * eps_char = argv[16];                 // "-log10(max number of false alarms)",
+    char * dictionary_file_name = argv[17];    // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/VanGogh.jpg"
 
     int mode = atoi(mode_char);
     int model = atoi(model_char);
@@ -75,6 +78,9 @@ int main(int argc, char *argv[])
     float kappaDict = atof(kappaDict_char);
     int mpixel = atoi(mpixel_char);
     int maxarea = atoi(maxarea_char);
+    int ScaleRatio = atoi(ScaleRatio_char);
+    int Threshold = atoi(Threshold_char);
+    int eps = atoi(eps_char);
     bool advanceOptions;
     ss >> std::boolalpha >> advanceOptions;
     
@@ -121,6 +127,9 @@ int main(int argc, char *argv[])
        TOSParameters.color_sketch = color_sketch; 
        TOSParameters.mpixel = mpixel;
        TOSParameters.maxarea = maxarea;
+       TOSParameters.eps = eps;
+       TOSParameters.threshold = Threshold;
+       TOSParameters.ns = ScaleRatio;
     };
     
     if (model == 4) { 
