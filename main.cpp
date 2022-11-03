@@ -66,6 +66,7 @@ int main(int argc, char *argv[])
     char * Threshold_char = argv[15];           // "threshold for color filtering",
     char * eps_char = argv[16];                 // "-log10(max number of false alarms)",
     char * dictionary_file_name = argv[17];    // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/VanGogh.jpg"
+    char * mask_file_name = argv[18];    
 
     int mode = atoi(mode_char);
     int model = atoi(model_char);
@@ -152,7 +153,6 @@ int main(int argc, char *argv[])
             dictionaryParameters.equal = equal; 
             dictionaryParameters.kappaDict = kappaDict; 
             std::cout << "mcolor " << mcolor << std::endl;
-
         };
 
         // Load dictionary of dictionary image
@@ -177,6 +177,24 @@ int main(int argc, char *argv[])
         // Run abstraction
         resulting_image = TOS->render(TOSParameters, tree_recomputed);
     };
+
+    // Run abstraction with original shapes
+    TOSParameters = getAbstractionTOSParameters();
+    OriginalShapes_image = TOS->render(TOSParameters, tree_recomputed);
+
+    // Load Mask
+    QImage image_mask(mask_file_name);
+
+    QColor white(Qt::white);
+
+    for( int j= 0; j< resulting_image->nrow; j++)
+        for( int i= 0; i< resulting_image->ncol; i++){
+            if (image_mask.pixel(i,j) != white.rgb()){
+                Qrgb pixelOriginalShapes = OriginalShapes_image.pixel(i,j);
+                resulting_image.setPixel(i, j, pixelOriginalShapes);
+            };
+        };
     
     resulting_image.save("result.png");
+    
 }
