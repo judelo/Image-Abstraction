@@ -191,8 +191,8 @@ int main(int argc, char *argv[])
     for( int j= 0; j< resulting_image.width() ; j++)
         for( int i= 0; i< resulting_image.height(); i++){
             if (image_mask.pixel(i,j) != white.rgb()){
-                Qrgb pixelOriginalShapes = OriginalShapes_image.pixel(i,j);
-                resulting_image.setPixel(i, j, pixelOriginalShapes);
+                //QRgb pixelOriginalShapes = OriginalShapes_image.pixel(i,j);
+                resulting_image.setPixel(i, j, OriginalShapes_image.pixel(i,j));
             };
         };
     
