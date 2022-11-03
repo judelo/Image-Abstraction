@@ -179,12 +179,12 @@ int main(int argc, char *argv[])
     };
 
     // Run abstraction with original shapes
-    TOSParameters TOSParameters2 = getAbstractionTOSParameters();
+    TOSParameters = getAbstractionTOSParameters();
     TreeOfShapes * TOS2 = new TreeOfShapes(cfimages_from_qimage(image));
-    TOSParameters2.model = 2; 
+    TOSParameters.model = 2; 
     bool tree_recomputed2 = false;
     QImage OriginalShapes_image;
-    OriginalShapes_image = TOS2->render(TOSParameters2, tree_recomputed2);
+    OriginalShapes_image = TOS2->render(TOSParameters, tree_recomputed2);
 
     // Load Mask
     QImage image_mask(mask_file_name);
