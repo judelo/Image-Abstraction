@@ -190,15 +190,16 @@ int main(int argc, char *argv[])
 
     for( int i= 0; i< resulting_image.width() ; i++)
         for( int j= 0; j< resulting_image.height(); j++){
+            QColor color_ij =image_mask.pixel( i, j );
             if ((i==0) && (j==10)){
-                std::cout << "image_mask.pixel(i,j) " << image_mask.pixel(i,j).rgb() << std::endl;
-                std::cout << "white.rgb() " << white.rgb() << std::endl;
+                std::cout << "color_ij " << color_ij << std::endl;
+                std::cout << "white " << white << std::endl;
             };
               
-            if (image_mask.pixel(i,j).rgb() == white.rgb()){
+            if (color_ij == white){
                 std::cout << "IGUALES" << std::endl;
-                std::cout << "image_mask.pixel(i,j) " << image_mask.pixel(i,j) << std::endl;
-                std::cout << "white.rgb() " << white.rgb() << std::endl;
+                std::cout << "color_ij " << color_ij << std::endl;
+                std::cout << "white " << white << std::endl;
                 //QRgb pixelOriginalShapes = OriginalShapes_image.pixel(i,j);
                 //std::cout << "cambioPIXEL " << i << j << std::endl;
                 //resulting_image.setPixel(i, j, OriginalShapes_image.pixel(i,j));
