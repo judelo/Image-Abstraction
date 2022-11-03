@@ -180,6 +180,7 @@ int main(int argc, char *argv[])
 
     // Run abstraction with original shapes
     TOSParameters = getAbstractionTOSParameters();
+    QImage OriginalShapes_image;
     OriginalShapes_image = TOS->render(TOSParameters, tree_recomputed);
 
     // Load Mask
@@ -187,8 +188,8 @@ int main(int argc, char *argv[])
 
     QColor white(Qt::white);
 
-    for( int j= 0; j< resulting_image->nrow; j++)
-        for( int i= 0; i< resulting_image->ncol; i++){
+    for( int j= 0; j< resulting_image.width() ; j++)
+        for( int i= 0; i< resulting_image.height(); i++){
             if (image_mask.pixel(i,j) != white.rgb()){
                 Qrgb pixelOriginalShapes = OriginalShapes_image.pixel(i,j);
                 resulting_image.setPixel(i, j, pixelOriginalShapes);
