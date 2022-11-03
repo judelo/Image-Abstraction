@@ -188,15 +188,20 @@ int main(int argc, char *argv[])
 
     QColor white(Qt::white);
 
-    std::cout << "resulting_image.width() " << resulting_image.width() << std::endl;
-    std::cout << "resulting_image.height() " << resulting_image.height() << std::endl;
-
-    for( int j= 0; j< resulting_image.width() ; j++)
-        for( int i= 0; i< resulting_image.height(); i++){
-            if (image_mask.pixel(i,j) != white.rgb()){
+    for( int i= 0; i< resulting_image.width() ; i++)
+        for( int j= 0; j< resulting_image.height(); j++){
+            if ((i==0) && (j==0)){
+                std::cout << "image_mask.pixel(i,j) " << image_mask.pixel(i,j) << std::endl;
+                std::cout << "white.rgb() " << white.rgb() << std::endl;
+            };
+              
+            if (image_mask.pixel(i,j) == white.rgb()){
+                std::cout << "IGUALES" << std::endl;
+                std::cout << "image_mask.pixel(i,j) " << image_mask.pixel(i,j) << std::endl;
+                std::cout << "white.rgb() " << white.rgb() << std::endl;
                 //QRgb pixelOriginalShapes = OriginalShapes_image.pixel(i,j);
-                std::cout << "cambioPIXEL " << i << j << std::endl;
-                resulting_image.setPixel(i, j, OriginalShapes_image.pixel(i,j));
+                //std::cout << "cambioPIXEL " << i << j << std::endl;
+                //resulting_image.setPixel(i, j, OriginalShapes_image.pixel(i,j));
             };
         };
     
