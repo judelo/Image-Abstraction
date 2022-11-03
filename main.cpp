@@ -179,17 +179,18 @@ int main(int argc, char *argv[])
     };
 
     // Run abstraction with original shapes
-    TOSParameters = getAbstractionTOSParameters();
+    TOSParameters2 = getAbstractionTOSParameters();
+    TreeOfShapes * TOS2 = new TreeOfShapes(cfimages_from_qimage(image));
+    TOSParameters2.model = 2; 
+    bool tree_recomputed2 = false;
     QImage OriginalShapes_image;
-    OriginalShapes_image = TOS->render(TOSParameters, tree_recomputed);
+    OriginalShapes_image = TOS2->render(TOSParameters2, tree_recomputed2);
 
     // Load Mask
     QImage image_mask(mask_file_name);
 
     //result image to return
     QImage result( QSize(resulting_image.width(), resulting_image.height()), QImage::Format_RGB32 );
-
-    //QColor white(Qt::white);
 
     for( int i= 0; i< resulting_image.width() ; i++)
         for( int j= 0; j< resulting_image.height(); j++){
