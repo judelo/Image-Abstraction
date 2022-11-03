@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
     };
 
     // Run abstraction with original shapes
-    TOSParameters2 = getAbstractionTOSParameters();
+    TOSParameters TOSParameters2 = getAbstractionTOSParameters();
     TreeOfShapes * TOS2 = new TreeOfShapes(cfimages_from_qimage(image));
     TOSParameters2.model = 2; 
     bool tree_recomputed2 = false;
