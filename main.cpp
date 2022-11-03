@@ -186,6 +186,9 @@ int main(int argc, char *argv[])
     // Load Mask
     QImage image_mask(mask_file_name);
 
+    //result image to return
+    QImage result;
+
     //QColor white(Qt::white);
 
     for( int i= 0; i< resulting_image.width() ; i++)
@@ -196,10 +199,14 @@ int main(int argc, char *argv[])
                 std::cout << "Diferentes" << std::endl;
                 std::cout << " color_ij.blue() " << color_ij.blue() << std::endl; 
                 QColor colorOS = OriginalShapes_image.pixel(i,j);
-                resulting_image.setPixel(i, j, qRgb(colorOS.red(), colorOS.green(), colorOS.blue()));
+                result.setPixel(i, j, qRgb(colorOS.red(), colorOS.green(), colorOS.blue()));
+            }
+            else{
+                QColor colorOS = resulting_image.pixel(i,j);
+                result.setPixel(i, j, qRgb(colorOS.red(), colorOS.green(), colorOS.blue()));
             };
         };
     
-    resulting_image.save("result.png");
+    result.save("result.png");
     
 }
