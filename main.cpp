@@ -188,10 +188,14 @@ int main(int argc, char *argv[])
 
     QColor white(Qt::white);
 
+    std::cout << "resulting_image.width() " << resulting_image.width() << std::endl;
+    std::cout << "resulting_image.height() " << resulting_image.height() << std::endl;
+
     for( int j= 0; j< resulting_image.width() ; j++)
         for( int i= 0; i< resulting_image.height(); i++){
             if (image_mask.pixel(i,j) != white.rgb()){
                 //QRgb pixelOriginalShapes = OriginalShapes_image.pixel(i,j);
+                std::cout << "cambioPIXEL " << i << j << std::endl;
                 resulting_image.setPixel(i, j, OriginalShapes_image.pixel(i,j));
             };
         };
