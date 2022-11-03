@@ -190,12 +190,12 @@ int main(int argc, char *argv[])
 
     for( int i= 0; i< resulting_image.width() ; i++)
         for( int j= 0; j< resulting_image.height(); j++){
-            if ((i==0) && (j==0)){
-                std::cout << "image_mask.pixel(i,j) " << image_mask.pixel(i,j) << std::endl;
+            if ((i==0) && (j==10)){
+                std::cout << "image_mask.pixel(i,j) " << image_mask.pixel(i,j).rgb() << std::endl;
                 std::cout << "white.rgb() " << white.rgb() << std::endl;
             };
               
-            if (image_mask.pixel(i,j) == white.rgb()){
+            if (image_mask.pixel(i,j).rgb() == white.rgb()){
                 std::cout << "IGUALES" << std::endl;
                 std::cout << "image_mask.pixel(i,j) " << image_mask.pixel(i,j) << std::endl;
                 std::cout << "white.rgb() " << white.rgb() << std::endl;
