@@ -192,10 +192,10 @@ int main(int argc, char *argv[])
         for( int j= 0; j< resulting_image.height(); j++){
             QColor color_ij =image_mask.pixel( i, j );
               
-            if (color_ij.r != 255 ||  color_ij.r != 255 || color_ij.r != 255){
+            if (color_ij.red() != 255 ||  color_ij.blue() != 255 || color_ij.green() != 255){
                 std::cout << "Diferentes" << std::endl;
                 QColor colorOS = OriginalShapes_image.pixel(i,j);
-                resulting_image.setPixel(i, j, qRgb(colorOS.r, colorOS.g, colorOS.b));
+                resulting_image.setPixel(i, j, qRgb(colorOS.red(), colorOS.green(), colorOS.blue()));
             };
         };
     
