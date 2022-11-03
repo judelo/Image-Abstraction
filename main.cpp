@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
     QImage image_mask(mask_file_name);
 
     //result image to return
-    QImage result;
+    QImage result( QSize(resulting_image.width(), resulting_image.height()), QImage::Format_RGB32 );
 
     //QColor white(Qt::white);
 
@@ -196,8 +196,6 @@ int main(int argc, char *argv[])
             QColor color_ij =image_mask.pixel( i, j );
               
             if (color_ij.red() != 0 ||  color_ij.blue() != 0 || color_ij.green() != 0){
-                std::cout << "Diferentes" << std::endl;
-                std::cout << " color_ij.blue() " << color_ij.blue() << std::endl; 
                 QColor colorOS = OriginalShapes_image.pixel(i,j);
                 result.setPixel(i, j, qRgb(colorOS.red(), colorOS.green(), colorOS.blue()));
             }
