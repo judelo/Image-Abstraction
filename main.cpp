@@ -194,6 +194,7 @@ int main(int argc, char *argv[])
               
             if (color_ij.red() != 255 ||  color_ij.blue() != 255 || color_ij.green() != 255){
                 std::cout << "Diferentes" << std::endl;
+                std::cout << " color_ij.blue() " << color_ij.blue() << std::endl; 
                 QColor colorOS = OriginalShapes_image.pixel(i,j);
                 resulting_image.setPixel(i, j, qRgb(colorOS.red(), colorOS.green(), colorOS.blue()));
             };
