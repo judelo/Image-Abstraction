@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
     // Load Mask
     QImage image_mask(mask_file_name);
 
-    #QColor white(Qt::white);
+    //QColor white(Qt::white);
 
     for( int i= 0; i< resulting_image.width() ; i++)
         for( int j= 0; j< resulting_image.height(); j++){
