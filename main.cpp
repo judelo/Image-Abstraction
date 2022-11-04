@@ -189,6 +189,6 @@ int main(int argc, char *argv[])
         resulting_image = TOS->render(TOSParameters, tree_recomputed);
     };
 
-    resulting_image.save("result.png");
+    image.save("result.png");
     
 }
