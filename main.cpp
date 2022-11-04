@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
     // Run abstraction with original shapes
     TOSParameters = getAbstractionTOSParameters();
     TreeOfShapes * TOS2 = new TreeOfShapes(cfimages_from_qimage(image));
-    TOSParameters.model = 2; 
+    TOSParameters.model = 0; 
     bool tree_recomputed2 = false;
     QImage OriginalShapes_image;
     OriginalShapes_image = TOS2->render(TOSParameters, tree_recomputed2);
@@ -192,14 +192,14 @@ int main(int argc, char *argv[])
     //result image to return
     QImage result( QSize(resulting_image.width(), resulting_image.height()), QImage::Format_RGB32 );
 
-    for( int i= 0; i< resulting_image.width() ; i++)
-        for( int j= 0; j< resulting_image.height(); j++){
+    for( int i= 0; i< result.width() ; i++)
+        for( int j= 0; j< result.height(); j++){
             QColor color_ij =image_mask.pixel( i, j );
               
             if (color_ij.red() == 0 &&  color_ij.blue() == 0 && color_ij.green() == 0){
-                //QColor colorOS = resulting_image.pixel(i,j);
-                //result.setPixel(i, j, qRgb(colorOS.red(), colorOS.green(), colorOS.blue()));
-                result.setPixel(i, j, qRgb(0, 0, 0));
+                QColor colorOS = resulting_image.pixel(i,j);
+                result.setPixel(i, j, qRgb(colorOS.red(), colorOS.green(), colorOS.blue()));
+                //result.setPixel(i, j, qRgb(0, 0, 0));
             }
             else{
                 QColor colorOS = OriginalShapes_image.pixel(i,j);
