@@ -196,12 +196,13 @@ int main(int argc, char *argv[])
         for( int j= 0; j< resulting_image.height(); j++){
             QColor color_ij =image_mask.pixel( i, j );
               
-            if (color_ij.red() != 0 ||  color_ij.blue() != 0 || color_ij.green() != 0){
-                QColor colorOS = OriginalShapes_image.pixel(i,j);
-                result.setPixel(i, j, qRgb(colorOS.red(), colorOS.green(), colorOS.blue()));
+            if (color_ij.red() == 0 &&  color_ij.blue() == 0 && color_ij.green() == 0){
+                //QColor colorOS = resulting_image.pixel(i,j);
+                //result.setPixel(i, j, qRgb(colorOS.red(), colorOS.green(), colorOS.blue()));
+                result.setPixel(i, j, qRgb(0, 0, 0));
             }
             else{
-                QColor colorOS = resulting_image.pixel(i,j);
+                QColor colorOS = OriginalShapes_image.pixel(i,j);
                 result.setPixel(i, j, qRgb(colorOS.red(), colorOS.green(), colorOS.blue()));
             };
         };
