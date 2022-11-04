@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
         for( int j= 0; j< image.height(); j++){
             QColor color_ij =image_mask.pixel( i, j );       
             if (!(color_ij.red() == 0 &&  color_ij.blue() == 0 && color_ij.green() == 0)){
-                image.setPixel(i, j, qRgb(color_ij.red(), color_ij.blue(), color_ij.green()));
+                image.setPixel(i, j, qRgb(color_ij.red(), color_ij.green(), color_ij.blue()));
             };
         };
        
@@ -189,6 +189,6 @@ int main(int argc, char *argv[])
         resulting_image = TOS->render(TOSParameters, tree_recomputed);
     };
 
-    image.save("result.png");
+    resulting_image.save("result.png");
     
 }
