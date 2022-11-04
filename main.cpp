@@ -90,7 +90,8 @@ int main(int argc, char *argv[])
 
     // Load Mask
     QImage image_mask(mask_file_name);
-
+    
+    /*
     for( int i= 0; i< image.width() ; i++)
         for( int j= 0; j< image.height(); j++){
             QColor color_ij =image_mask.pixel( i, j );       
@@ -98,6 +99,7 @@ int main(int argc, char *argv[])
                 image.setPixel(i, j, qRgb(color_ij.red(), color_ij.green(), color_ij.blue()));
             };
         };
+    */
        
     TreeOfShapes * TOS = new TreeOfShapes(cfimages_from_qimage(image));
 
@@ -183,10 +185,10 @@ int main(int argc, char *argv[])
         dictionary->compute_tree( getDefaultTOSParameters(), true);
 
         // Run abstraction
-        resulting_image = TOS->render(TOSParameters, tree_recomputed,  dictionary, dictionaryParameters);
+        resulting_image = TOS->render(TOSParameters, tree_recomputed,  image_mask, dictionary, dictionaryParameters);
     } else {
         // Run abstraction
-        resulting_image = TOS->render(TOSParameters, tree_recomputed);
+        resulting_image = TOS->render(TOSParameters, tree_recomputed, image_mask);
     };
 
     resulting_image.save("result.png");

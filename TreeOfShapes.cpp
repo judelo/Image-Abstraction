@@ -2096,7 +2096,7 @@ void TreeOfShapes::synshapeOriginal(Shape pShape,
             imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
         }
 
-    // Add Gaussian Bulr  
+    // Add Gaussian Blur  
     KerSize = (int) ( sqrt( (double) gaussKernel->size) /2.0 );
     for(x = left; x <= right; x++)
         for(y = top; y <= bottom; y++){
@@ -2798,7 +2798,7 @@ void TreeOfShapes::compute_tree( TOSParameters tosParameters, bool dictionary ){
 }
 
 
-QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, TreeOfShapes *tosDictionary, DictionaryParameters dictionaryParameters ){
+QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, QImage image_mask, TreeOfShapes *tosDictionary, DictionaryParameters dictionaryParameters ){
     
     struct timeval start, end;
     gettimeofday(&start, NULL);
@@ -2940,6 +2940,23 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         }
     }
  
+    // Compute List of pixels of mask (mask select parts to change by shapes)
+    Point_plane ArrayPixelsMask;
+    
+    int len_ArrayPixelsMask = 0;
+    for( int i= 0; i< image.width() ; i++)
+        for( int j= 0; j< image.height(); j++){
+            QColor color_ij =image_mask.pixel( i, j );       
+            if (!(color_ij.red() == 0 &&  color_ij.blue() == 0 && color_ij.green() == 0)){
+                //image.setPixel(i, j, qRgb(color_ij.red(), color_ij.green(), color_ij.blue()));
+                point_plane p = mw_new_point_plane();
+                p->x = i;
+                p->y = j;
+                ListPixelsMask[len_ArrayPixelsMask] = p;
+                len_ArrayPixelsMask = len_ArrayPixelsMask +1;
+            };
+        };
+
     // Shape Shaking Filtering
      
     for(i=0; i < _pTree->nb_shapes; i++)  {
@@ -2961,101 +2978,124 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                 ((Info*)(pShape->data))->b = b;
             }
         } 
-        else if(pShape->removed != 1){
+        else{
+           //Check if some point of the shape it's in the mask
+           for(i=0; i< pShape->area; i++){
+               x = (pShape->pixels+i)->x;
+               y = (pShape->pixels+i)->y;
+               
+               int ShapeInTheMask = 0;
+               
+               for (j=0; j<len_ArrayPixelsMask; j++){
+                   p = ListPixelsMask[j]
+                   if (p->x == x && p->y == y){
+                       std::cout << std::endl<<" Shape in the mask " << std::endl;
+                       ShapeInTheMask = 1;
+                       break;
+                   }; 
+                };
+               if (ShapeInTheMask == 1){
+                   break;
+                };
+            };
 
-             
-            // Attribute filtering
-             
-            mn=3;
-            pShapeTemp =  m_order_parent(pShape, &mn);
-            pa = ((float) pShape->area)/((float) pShapeTemp->area);
+            if (ShapeInTheMask == 0){
+               pShape->removed = 1;
+            };
+        
+           if(pShape->removed != 1){
 
-            if(pa < tosParameters.kappa)
-                continue;
+                // Attribute filtering
+                
+                mn=3;
+                pShapeTemp =  m_order_parent(pShape, &mn);
+                pa = ((float) pShape->area)/((float) pShapeTemp->area);
 
-             
-            // Select the rendering model
-             
-            if(tosParameters.model == 0){
-                if(tosParameters.blur == 1)
-                    synshapeOriginal(pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-                else
-                    synshapeOriginal(pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-            } else if(tosParameters.model == 1)
-                if(tosParameters.blur == 1)
-                    synshapeEllipse(pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
+                if(pa < tosParameters.kappa)
+                    continue;
+
+                // Select the rendering model
+                
+                if(tosParameters.model == 0){
+                    if(tosParameters.blur == 1)
+                        synshapeOriginal(pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
+                    else
+                        synshapeOriginal(pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
+                } else if(tosParameters.model == 1)
+                    if(tosParameters.blur == 1)
+                        synshapeEllipse(pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
+                    else
+                        synshapeEllipse(pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
+                else if(tosParameters.model == 2){
+                    if(tosParameters.blur == 1)
+                        synshapeRect(pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
+                    else
+                        synshapeRect(pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
+                } else if(tosParameters.model == 3){
+                    if(tosParameters.blur == 1)
+                        synshapeCircle(pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
+                    else
+                        synshapeCircle(pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
+                } else if(tosParameters.model == 4){
+
+                    // Dictionary
+                    Cfimage imgDict = tosDictionary->getCfImage();
+                    Cfimage imgShapeColorSyn;
+                    Cimage imgShapeLabel, imgShapeLabelSyn;
+                    Fimage imgShapeBlurSyn;
+
+                    if  ( ((imgShapeColorSyn = mw_new_cfimage()) == NULL) ||
+                        (mw_alloc_cfimage(imgShapeColorSyn, _imgin->nrow, _imgin->ncol) == NULL) )
+                        mwerror(FATAL,1,"Not enough memory.\n");
+                    if  ( ((imgShapeLabel = mw_new_cimage()) == NULL) ||
+                        (mw_alloc_cimage(imgShapeLabel, imgDict->nrow, imgDict->ncol) == NULL) )
+                        mwerror(FATAL,1,"Not enough memory.\n");
+
+                    if  ( ((imgShapeLabelSyn = mw_new_cimage()) == NULL) ||
+                        (mw_alloc_cimage(imgShapeLabelSyn, _imgin->nrow, _imgin->ncol) == NULL) )
+                        mwerror(FATAL,1,"Not enough memory.\n");
+                    if  ( ((imgShapeBlurSyn = mw_new_fimage()) == NULL) ||
+                        (mw_alloc_fimage(imgShapeBlurSyn, _imgin->nrow, _imgin->ncol) == NULL) )
+                        mwerror(FATAL,1,"Not enough memory.\n");
+
+                    imgShapeColorSyn = mw_change_cfimage(imgShapeColorSyn, _imgin->nrow, _imgin->ncol);
+                    imgShapeLabel = mw_change_cimage(imgShapeLabel, imgDict->nrow, imgDict->ncol);
+                    imgShapeLabelSyn = mw_change_cimage(imgShapeLabelSyn, _imgin->nrow, _imgin->ncol);
+                    imgShapeBlurSyn  = mw_change_fimage(imgShapeBlurSyn, _imgin->nrow, _imgin->ncol);
+
+                    mw_clear_cimage(imgShapeLabel,0);
+                    mw_clear_cimage(imgShapeLabelSyn,0);
+                    mw_clear_fimage(imgShapeBlurSyn,0.0);
+
+                    if( correspondance_computed ){
+                        int shape_id = (int)dictionary_correspondance->values[(int)t2b_index->values[i]];
+                        if ( shape_id >= 0 )
+                            pShapeDict = tosDictionary->getShape(shape_id);
+                        if ( pShapeDict == NULL || shape_id < 0 ){
+                            pShapeDict = tosDictionary->selectShapeDict(pShape, &dictionaryParameters.kappaDict, &dictionaryParameters.randS, shape_id, _average_r, _average_g, _average_b);
+                            _dictionary_selections[ tosDictionary->getTreeId() ]->values[(int)t2b_index->values[i]] = shape_id;
+                        }
+                    } 
+                    else{
+                        int shape_id;
+                        pShapeDict = tosDictionary->selectShapeDict(pShape, &dictionaryParameters.kappaDict, &dictionaryParameters.randS, shape_id, _average_r, _average_g, _average_b);
+                        dictionary_correspondance->values[(int)t2b_index->values[i]] = shape_id;
+                    }
+                    if( tosParameters.blur == 1 )
+                        synShapeDict( pShapeDict, pShape, imgsyn, imgDict, imgShapeColorSyn, imgShapeLabel, imgShapeLabelSyn, imgShapeBlurSyn, gaussKernel, &tosParameters.median, &tosParameters.alpha,
+                                    &dictionaryParameters.equal, &dictionaryParameters.mcolor,&tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
+                    else
+                        synShapeDict( pShapeDict, pShape, imgsyn, imgDict, imgShapeColorSyn, imgShapeLabel, imgShapeLabelSyn, &tosParameters.alpha,
+                                    &dictionaryParameters.equal, &dictionaryParameters.mcolor,&tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
+
+                    mw_delete_cfimage(imgShapeColorSyn);
+                    mw_delete_cimage(imgShapeLabel);
+                    mw_delete_cimage(imgShapeLabelSyn);
+                    mw_delete_fimage(imgShapeBlurSyn);
+                } 
                 else
                     synshapeEllipse(pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-            else if(tosParameters.model == 2){
-                if(tosParameters.blur == 1)
-                    synshapeRect(pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-                else
-                    synshapeRect(pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-            } else if(tosParameters.model == 3){
-                if(tosParameters.blur == 1)
-                    synshapeCircle(pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-                else
-                    synshapeCircle(pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-            } else if(tosParameters.model == 4){
-
-                // Dictionary
-                Cfimage imgDict = tosDictionary->getCfImage();
-                Cfimage imgShapeColorSyn;
-                Cimage imgShapeLabel, imgShapeLabelSyn;
-                Fimage imgShapeBlurSyn;
-
-                if  ( ((imgShapeColorSyn = mw_new_cfimage()) == NULL) ||
-                      (mw_alloc_cfimage(imgShapeColorSyn, _imgin->nrow, _imgin->ncol) == NULL) )
-                    mwerror(FATAL,1,"Not enough memory.\n");
-                if  ( ((imgShapeLabel = mw_new_cimage()) == NULL) ||
-                      (mw_alloc_cimage(imgShapeLabel, imgDict->nrow, imgDict->ncol) == NULL) )
-                    mwerror(FATAL,1,"Not enough memory.\n");
-
-                if  ( ((imgShapeLabelSyn = mw_new_cimage()) == NULL) ||
-                      (mw_alloc_cimage(imgShapeLabelSyn, _imgin->nrow, _imgin->ncol) == NULL) )
-                    mwerror(FATAL,1,"Not enough memory.\n");
-                if  ( ((imgShapeBlurSyn = mw_new_fimage()) == NULL) ||
-                      (mw_alloc_fimage(imgShapeBlurSyn, _imgin->nrow, _imgin->ncol) == NULL) )
-                    mwerror(FATAL,1,"Not enough memory.\n");
-
-                imgShapeColorSyn = mw_change_cfimage(imgShapeColorSyn, _imgin->nrow, _imgin->ncol);
-                imgShapeLabel = mw_change_cimage(imgShapeLabel, imgDict->nrow, imgDict->ncol);
-                imgShapeLabelSyn = mw_change_cimage(imgShapeLabelSyn, _imgin->nrow, _imgin->ncol);
-                imgShapeBlurSyn  = mw_change_fimage(imgShapeBlurSyn, _imgin->nrow, _imgin->ncol);
-
-                mw_clear_cimage(imgShapeLabel,0);
-                mw_clear_cimage(imgShapeLabelSyn,0);
-                mw_clear_fimage(imgShapeBlurSyn,0.0);
-
-                if( correspondance_computed ){
-                    int shape_id = (int)dictionary_correspondance->values[(int)t2b_index->values[i]];
-                    if ( shape_id >= 0 )
-                        pShapeDict = tosDictionary->getShape(shape_id);
-                    if ( pShapeDict == NULL || shape_id < 0 ){
-                        pShapeDict = tosDictionary->selectShapeDict(pShape, &dictionaryParameters.kappaDict, &dictionaryParameters.randS, shape_id, _average_r, _average_g, _average_b);
-                        _dictionary_selections[ tosDictionary->getTreeId() ]->values[(int)t2b_index->values[i]] = shape_id;
-                    }
-                } 
-                else{
-                    int shape_id;
-                    pShapeDict = tosDictionary->selectShapeDict(pShape, &dictionaryParameters.kappaDict, &dictionaryParameters.randS, shape_id, _average_r, _average_g, _average_b);
-                    dictionary_correspondance->values[(int)t2b_index->values[i]] = shape_id;
-                }
-                if( tosParameters.blur == 1 )
-                    synShapeDict( pShapeDict, pShape, imgsyn, imgDict, imgShapeColorSyn, imgShapeLabel, imgShapeLabelSyn, imgShapeBlurSyn, gaussKernel, &tosParameters.median, &tosParameters.alpha,
-                                  &dictionaryParameters.equal, &dictionaryParameters.mcolor,&tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-                else
-                    synShapeDict( pShapeDict, pShape, imgsyn, imgDict, imgShapeColorSyn, imgShapeLabel, imgShapeLabelSyn, &tosParameters.alpha,
-                                  &dictionaryParameters.equal, &dictionaryParameters.mcolor,&tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-
-                mw_delete_cfimage(imgShapeColorSyn);
-                mw_delete_cimage(imgShapeLabel);
-                mw_delete_cimage(imgShapeLabelSyn);
-                mw_delete_fimage(imgShapeBlurSyn);
-            } 
-            else
-                synshapeEllipse(pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-
+            }
         }
     }
 
