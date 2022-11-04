@@ -94,8 +94,8 @@ int main(int argc, char *argv[])
     for( int i= 0; i< image.width() ; i++)
         for( int j= 0; j< image.height(); j++){
             QColor color_ij =image_mask.pixel( i, j );       
-            if !(color_ij.red() == 0 &&  color_ij.blue() == 0 && color_ij.green() == 0){
-                image.setPixel(i, j, qRgb(0, 0, 0));
+            if (!(color_ij.red() == 0 &&  color_ij.blue() == 0 && color_ij.green() == 0)){
+                image.setPixel(i, j, qRgb(color_ij.red(), color_ij.blue(), color_ij.green()));
             };
         };
        
