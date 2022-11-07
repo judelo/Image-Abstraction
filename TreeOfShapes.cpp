@@ -2943,6 +2943,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     // Compute List of pixels of mask (mask select parts to change by shapes)
     Point_plane ArrayPixelsMask;
     Point_plane * p;
+    int ShapeInTheMask;
     
     int len_ArrayPixelsMask = 0;
     for( int i= 0; i< image_mask.width() ; i++)
@@ -2986,7 +2987,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                x = (pShape->pixels+i)->x;
                y = (pShape->pixels+i)->y;
                
-               int ShapeInTheMask = 0;
+               ShapeInTheMask = 0;
                
                for (j=0; j<len_ArrayPixelsMask; j++){
                    p = ArrayPixelsMask[j]
