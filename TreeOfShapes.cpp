@@ -2845,9 +2845,9 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
 
     for( i= 0; i< _pTree->ncol; i++)
         for( j= 0; j< _pTree->nrow; j++){
-            imgsyn->red[j*_pTree->ncol + i] = 1;
-            imgsyn->green[j*_pTree->ncol + i] = 1;
-            imgsyn->blue[j*_pTree->ncol + i] = 1;
+            imgsyn->red[j*_pTree->ncol + i] = 255;
+            imgsyn->green[j*_pTree->ncol + i] = 255;
+            imgsyn->blue[j*_pTree->ncol + i] = 255;
         }
 
     // Image filtering    
@@ -2957,7 +2957,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                 pCurrentPoint = &ArrayPixelsMask[len_ArrayPixelsMask];
                 pCurrentPoint->x = i;
                 pCurrentPoint->y = j;
-                //std::cout << std::endl<<"&ArrayPixelsMask[len_ArrayPixelsMask]->x " << &ArrayPixelsMask[len_ArrayPixelsMask]->x << std::endl;
                 len_ArrayPixelsMask = len_ArrayPixelsMask +1;    
             };
         };
