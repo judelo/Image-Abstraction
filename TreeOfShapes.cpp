@@ -2956,8 +2956,11 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                 pCurrentPoint->x = i;
                 pCurrentPoint->y = j;
                 len_ArrayPixelsMask = len_ArrayPixelsMask +1;
+                std::cout << std::endl<<" x " << pCurrentPoint->x << std::endl;
             };
         };
+
+    std::cout << std::endl<<" len mask in pixels " << len_ArrayPixelsMask << std::endl;
 
     // Shape Shaking Filtering
      
@@ -2986,7 +2989,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
            for(i=0; i< pShape->area; i++){
                x = (pShape->pixels+i)->x;
                y = (pShape->pixels+i)->y;
-               
+               std::cout << std::endl<<" entro IF" << std::endl;
                ShapeInTheMask = 0;
                
                for (j=0; j<len_ArrayPixelsMask; j++){
