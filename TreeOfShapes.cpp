@@ -2990,7 +2990,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                ShapeInTheMask = 0;
                
                for (j=0; j<len_ArrayPixelsMask; j++){
-                   p = &ArrayPixelsMask[j]
+                   p = &ArrayPixelsMask[j];
                    if (p->x == x && p->y == y){
                        std::cout << std::endl<<" Shape in the mask " << std::endl;
                        ShapeInTheMask = 1;
