@@ -2941,8 +2941,9 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     }
  
     // Compute List of pixels of mask (mask select parts to change by shapes)
-    Point_plane ArrayPixelsMask;
-    Point_plane * p;
+    Point_plane  ArrayPixelsMask = (Point_plane) malloc(pimage_mask.width() * image_mask.height() * sizeof(struct point_plane));
+    Point_plane p;
+    Point_plane pCurrentPoint;
     int ShapeInTheMask;
     
     int len_ArrayPixelsMask = 0;
@@ -2951,10 +2952,9 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
             QColor color_ij =image_mask.pixel( i, j );       
             if (!(color_ij.red() == 0 &&  color_ij.blue() == 0 && color_ij.green() == 0)){
                 //image.setPixel(i, j, qRgb(color_ij.red(), color_ij.green(), color_ij.blue()));
-                Point_plane * p = mw_new_point_plane();
-                p->x = i;
-                p->y = j;
-                ArrayPixelsMask[len_ArrayPixelsMask] = p;
+                pCurrentPoint = ArrayPixelsMask[len_ArrayPixelsMask];
+                pCurrentPoint->x = i;
+                pCurrentPoint->y = j;
                 len_ArrayPixelsMask = len_ArrayPixelsMask +1;
             };
         };
