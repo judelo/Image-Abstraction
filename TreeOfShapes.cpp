@@ -17,6 +17,7 @@ You should have received a copy of the GNU Affero General Public License along w
 #include <QColor>
 #include <queue>
 #include <algorithm>
+#include "flst_boundary.c"
 
 extern void flst();
 #define PI 3.1415926
@@ -2945,6 +2946,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     Point_plane p;
     Point_plane pCurrentPoint;
     int ShapeInTheMask;
+    short x, y;
     
     int len_ArrayPixelsMask = 0;
     for( int i= 0; i< image_mask.width() ; i++)
@@ -2966,6 +2968,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
      
     for(i=0; i < _pTree->nb_shapes; i++)  {
         pShape = _pTree->the_shapes + (int)t2b_index->values[i];
+        ShapeInTheMask = 0;
 
         if((int)t2b_index->values[i] == 0 ) {
             float r=((Info*)(pShape->data))->r, g= ((Info*)(pShape->data))->g, b= ((Info*)(pShape->data))->b;
@@ -2984,9 +2987,9 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
             }
         } 
         else{
-           short x, y;
-           ShapeInTheMask = 0;
-           //Check if some point of the shape it's in the mask
+           
+           //Check if some point of the shape is in the mask
+           /*
            for(i=0; i< pShape->area; i++){
                x = (pShape->pixels+i)->x;
                y = (pShape->pixels+i)->y;
@@ -2994,7 +2997,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                for (j=0; j<len_ArrayPixelsMask; j++){
                    p = &ArrayPixelsMask[j];
                    if (p->x == x && p->y == y){
-                       //std::cout << std::endl<<" Shape in the mask " << std::endl;
                        ShapeInTheMask = 1;
                        break;
                    }; 
@@ -3004,6 +3006,22 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                    std::cout << std::endl<<" Shape in the mask " << std::endl;
                 };
             };
+
+            if (ShapeInTheMask == 0){
+               pShape->removed = 1;
+               std::cout << std::endl<<" Shape removed " << std::endl;
+            };
+            */
+           
+           // Check if some point of the mask is in the shape
+           for (j=0; j<len_ArrayPixelsMask; j++){
+                   p = &ArrayPixelsMask[j];
+                   if (point_in_shape(p->x, p->y, pShape, _pTree)){
+                       ShapeInTheMask = 1;
+                       std::cout << std::endl<<" Point of mask is in shape " << std::endl;
+                       break;
+                   }; 
+                };
 
             if (ShapeInTheMask == 0){
                pShape->removed = 1;
