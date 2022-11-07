@@ -2955,7 +2955,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                 pCurrentPoint = &ArrayPixelsMask[len_ArrayPixelsMask];
                 pCurrentPoint->x = i;
                 pCurrentPoint->y = j;
-                std::cout << std::endl<<"ArrayPixelsMask[len_ArrayPixelsMask] " << ArrayPixelsMask[len_ArrayPixelsMask] << std::endl;
+                std::cout << std::endl<<"&ArrayPixelsMask[len_ArrayPixelsMask]->x " << &ArrayPixelsMask[len_ArrayPixelsMask]->x << std::endl;
                 len_ArrayPixelsMask = len_ArrayPixelsMask +1;    
             };
         };
