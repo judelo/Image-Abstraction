@@ -2985,27 +2985,29 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         } 
         else{
            short x, y;
+           ShapeInTheMask = 0;
            //Check if some point of the shape it's in the mask
            for(i=0; i< pShape->area; i++){
                x = (pShape->pixels+i)->x;
                y = (pShape->pixels+i)->y;
-               ShapeInTheMask = 0;
                
                for (j=0; j<len_ArrayPixelsMask; j++){
                    p = &ArrayPixelsMask[j];
                    if (p->x == x && p->y == y){
-                       std::cout << std::endl<<" Shape in the mask " << std::endl;
+                       //std::cout << std::endl<<" Shape in the mask " << std::endl;
                        ShapeInTheMask = 1;
                        break;
                    }; 
                 };
                if (ShapeInTheMask == 1){
                    break;
+                   std::cout << std::endl<<" Shape in the mask " << std::endl;
                 };
             };
 
             if (ShapeInTheMask == 0){
                pShape->removed = 1;
+               std::cout << std::endl<<" Shape removed " << std::endl;
             };
         
            if(pShape->removed != 1){
