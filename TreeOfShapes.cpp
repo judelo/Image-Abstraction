@@ -2955,8 +2955,8 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                 pCurrentPoint = &ArrayPixelsMask[len_ArrayPixelsMask];
                 pCurrentPoint->x = i;
                 pCurrentPoint->y = j;
-                len_ArrayPixelsMask = len_ArrayPixelsMask +1;
-                std::cout << std::endl<<" x " << pCurrentPoint->x << std::endl;
+                std::cout << std::endl<<"ArrayPixelsMask[len_ArrayPixelsMask] " << ArrayPixelsMask[len_ArrayPixelsMask] << std::endl;
+                len_ArrayPixelsMask = len_ArrayPixelsMask +1;    
             };
         };
 
@@ -2989,11 +2989,12 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
            for(i=0; i< pShape->area; i++){
                x = (pShape->pixels+i)->x;
                y = (pShape->pixels+i)->y;
-               std::cout << std::endl<<" entro IF" << std::endl;
                ShapeInTheMask = 0;
                
                for (j=0; j<len_ArrayPixelsMask; j++){
                    p = &ArrayPixelsMask[j];
+                   std::cout << std::endl<<" p->x " << p->x << std::endl;
+                   std::cout << std::endl<<" x " << (pShape->pixels+i)->x; << std::endl;
                    if (p->x == x && p->y == y){
                        std::cout << std::endl<<" Shape in the mask " << std::endl;
                        ShapeInTheMask = 1;
