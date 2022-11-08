@@ -2867,9 +2867,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
 
     // Compute List of pixels of mask (mask select parts to change by shapes)
     Point_plane  ArrayPixelsMask = (Point_plane) malloc(image_mask.width() * image_mask.height() * sizeof(struct point_plane));
-    //Point_plane p;
     Point_plane pCurrentPoint;
-    //int ShapeInTheMask;
     short x, y;
     QColor color_ij;
     
@@ -2970,13 +2968,13 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
             tosDictionary->computeKdTree(_average_r, _average_g, _average_b);
         }
     }
- 
+
     for( i= 0; i< _pTree->ncol; i++)
         for( j= 0; j< _pTree->nrow; j++){
-            imgsyn->red[j*_pTree->ncol + i] = 255;
+            imgsyn->red[j*_pTree->ncol + i] = 0;
             imgsyn->green[j*_pTree->ncol + i] = 255;
-            imgsyn->blue[j*_pTree->ncol + i] = 0;
-        };
+            imgsyn->blue[j*_pTree->ncol + i] = 255;
+        }
 
     // Shape Shaking Filtering
      
@@ -2985,6 +2983,8 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         //ShapeInTheMask = 0;
 
         if((int)t2b_index->values[i] == 0 ) {
+            std::cout << std::endl<<"Entra a  if((int)t2b_index->values[i] == 0 )" << std::endl;
+
             float r=((Info*)(pShape->data))->r, g= ((Info*)(pShape->data))->g, b= ((Info*)(pShape->data))->b;
 
             if (tosParameters.model == 4 && (dictionaryParameters.mcolor == 1 || dictionaryParameters.mcolor ==2)){
@@ -2992,33 +2992,24 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                 ((Info*)(pShape->data))->r = ((Info*)(pShapeDict->data))->r;
                 ((Info*)(pShape->data))->g = ((Info*)(pShapeDict->data))->g;
                 ((Info*)(pShape->data))->b = ((Info*)(pShapeDict->data))->b;
+                std::cout << std::endl<<"Entra a  if((int)t2b_index->values[i] == 0 ) 2" << std::endl;
             }
             synshapeRect(pShape, imgsyn, &ALPHA, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
             if (tosParameters.model == 4 && dictionaryParameters.mcolor == 1 || dictionaryParameters.mcolor ==2){
                 ((Info*)(pShape->data))->r = r;
                 ((Info*)(pShape->data))->g = g;
                 ((Info*)(pShape->data))->b = b;
+                std::cout << std::endl<<"Entra a  if((int)t2b_index->values[i] == 0 ) 3" << std::endl;
             }
         } 
         else{
-           
-           // Check if some point of the mask is in the shape
-           /*
-           for (j=0; j<len_ArrayPixelsMask; j++){
-                   p = &ArrayPixelsMask[j];
-                   if (point_in_shape(p->x, p->y, pShape, _pTree)){
-                       ShapeInTheMask = 1;
-                       std::cout << std::endl<<" Point of mask is in shape " << std::endl;
-                       break;
-                   }; 
-                };
 
-            if (ShapeInTheMask == 0){
-               pShape->removed = 1;
-               std::cout << std::endl<<" Shape removed " << std::endl;
-            };
-            */
-        
+           if(pShape->removed == 1){
+              std::cout << std::endl<<"Entra a  if(pShape->removed == 1)" << std::endl;
+              float r=((Info*)(pShape->data))->r, g= ((Info*)(pShape->data))->g, b= ((Info*)(pShape->data))->b;
+              std::cout << std::endl<<"r " << r << "g " << g << "b " << b std::endl;
+           };
+
            if(pShape->removed != 1){
 
                 // Attribute filtering
@@ -3116,8 +3107,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     }
 
     gettimeofday(&end, NULL);
-    elapsedTime = (end.tv_sec  - start.tv_sec) +
-            (end.tv_usec - start.tv_usec) / 1.e6;
+    elapsedTime = (end.tv_sec  - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1.e6;
     std::cout << "TreeOfShapes::time elapsed : " << elapsedTime <<" seconds"<< std::endl;
     std::cout << "***************************" << std::endl << std::endl << std::endl;
 
@@ -3131,6 +3121,13 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
 
     _tosParameters = tosParameters;
     _tree_recomputed = false;
+
+    for( i= 0; i< _pTree->ncol; i++)
+        for( j= 0; j< _pTree->nrow; j++){
+            imgsyn->red[j*_pTree->ncol + i] = 255;
+            imgsyn->green[j*_pTree->ncol + i] = 255;
+            imgsyn->blue[j*_pTree->ncol + i] = 0;
+        }
 
     QImage result_image( QSize(imgsyn->ncol, imgsyn->nrow), QImage::Format_RGB32 );
 
