@@ -2858,7 +2858,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     for( int i= 0; i< image_mask.width() ; i++)
         for( int j= 0; j< image_mask.height(); j++){
             color_ij =image_mask.pixel( i, j );       
-            if (!(color_ij.red() == 0 &&  color_ij.blue() == 0 && color_ij.green() == 0)){
+            if (!(color_ij.red() == 255 &&  color_ij.blue() == 255 && color_ij.green() == 255)){
                 pCurrentPoint = &ArrayPixelsMask[len_ArrayPixelsMask];
                 pCurrentPoint->x = i;
                 pCurrentPoint->y = j;
@@ -2957,9 +2957,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         pShape = _pTree->the_shapes + (int)t2b_index->values[i];
 
         if((int)t2b_index->values[i] == 0 ) {
-
-            //float r=((Info*)(pShape->data))->r, g= ((Info*)(pShape->data))->g, b= ((Info*)(pShape->data))->b;
-            
+ 
             // Take color from dictionary for background
             if (tosParameters.model == 4 && (dictionaryParameters.mcolor == 1 || dictionaryParameters.mcolor ==2)){
                 pShapeDict = tosDictionary->getShape(0);
@@ -2979,13 +2977,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
 
             synshapeRect(pShape, imgsyn, &ALPHA, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
             
-            /*
-            if (tosParameters.model == 4 && (dictionaryParameters.mcolor == 1 || dictionaryParameters.mcolor ==2)){
-                ((Info*)(pShape->data))->r = r;
-                ((Info*)(pShape->data))->g = g;
-                ((Info*)(pShape->data))->b = b;
-            }
-            */
         } 
         else{
 
