@@ -17,7 +17,7 @@ You should have received a copy of the GNU Affero General Public License along w
 #include <QColor>
 #include <queue>
 #include <algorithm>
-//#include "flst_boundary.c"
+#include "flst_boundary.c"
 
 extern void flst();
 #define PI 3.1415926
