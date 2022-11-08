@@ -2978,13 +2978,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         if((int)t2b_index->values[i] == 0 ) {
             std::cout << std::endl<<"Entra a  if((int)t2b_index->values[i] == 0 )" << std::endl;
 
-        for( i= 0; i< _pTree->ncol; i++)
-           for( j= 0; j< _pTree->nrow; j++){
-                imgsyn->red[j*_pTree->ncol + i] = 0;
-                imgsyn->green[j*_pTree->ncol + i] = 255;
-                imgsyn->blue[j*_pTree->ncol + i] = 255;
-            }
-
             float r=((Info*)(pShape->data))->r, g= ((Info*)(pShape->data))->g, b= ((Info*)(pShape->data))->b;
 
             if (tosParameters.model == 4 && (dictionaryParameters.mcolor == 1 || dictionaryParameters.mcolor ==2)){
@@ -2995,11 +2988,19 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                 std::cout << std::endl<<"Entra a  if((int)t2b_index->values[i] == 0 ) 2" << std::endl;
             }
             synshapeRect(pShape, imgsyn, &ALPHA, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
+            
             if (tosParameters.model == 4 && dictionaryParameters.mcolor == 1 || dictionaryParameters.mcolor ==2){
                 ((Info*)(pShape->data))->r = r;
                 ((Info*)(pShape->data))->g = g;
                 ((Info*)(pShape->data))->b = b;
                 std::cout << std::endl<<"Entra a  if((int)t2b_index->values[i] == 0 ) 3" << std::endl;
+            }
+
+           for( i= 0; i< _pTree->ncol; i++)
+            for( j= 0; j< _pTree->nrow; j++){
+                    imgsyn->red[j*_pTree->ncol + i] = 0;
+                    imgsyn->green[j*_pTree->ncol + i] = 255;
+                    imgsyn->blue[j*_pTree->ncol + i] = 255;
             }
         } 
         else{
