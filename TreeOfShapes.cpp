@@ -669,6 +669,10 @@ void TreeOfShapes::compute_shape_attribute(){
     _average_r /= _pTree->nb_shapes;
     _average_g /= _pTree->nb_shapes;
     _average_b /=  _pTree->nb_shapes;
+
+    _average_r = 255;
+    _average_g = 255;
+    _average_b = 0;
 }
 
 
