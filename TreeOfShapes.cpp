@@ -2969,13 +2969,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         }
     }
 
-    for( i= 0; i< _pTree->ncol; i++)
-        for( j= 0; j< _pTree->nrow; j++){
-            imgsyn->red[j*_pTree->ncol + i] = 0;
-            imgsyn->green[j*_pTree->ncol + i] = 255;
-            imgsyn->blue[j*_pTree->ncol + i] = 255;
-        }
-
     // Shape Shaking Filtering
      
     for(i=0; i < _pTree->nb_shapes; i++)  {
@@ -2984,6 +2977,13 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
 
         if((int)t2b_index->values[i] == 0 ) {
             std::cout << std::endl<<"Entra a  if((int)t2b_index->values[i] == 0 )" << std::endl;
+
+        for( i= 0; i< _pTree->ncol; i++)
+           for( j= 0; j< _pTree->nrow; j++){
+                imgsyn->red[j*_pTree->ncol + i] = 0;
+                imgsyn->green[j*_pTree->ncol + i] = 255;
+                imgsyn->blue[j*_pTree->ncol + i] = 255;
+            }
 
             float r=((Info*)(pShape->data))->r, g= ((Info*)(pShape->data))->g, b= ((Info*)(pShape->data))->b;
 
