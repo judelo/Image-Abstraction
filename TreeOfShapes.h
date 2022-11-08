@@ -21,7 +21,7 @@ You should have received a copy of the GNU Affero General Public License along w
 #include "stdlib.h"
 #include "tree_of_shapes.h"
 #include "jmkdtree.h"
-#include "flst_boundary.c"
+//#include "flst_boundary.c"
 #include <cfloat>
 #include <map>
 #include <QColor>
