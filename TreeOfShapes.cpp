@@ -2871,11 +2871,12 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     Point_plane pCurrentPoint;
     //int ShapeInTheMask;
     short x, y;
+    QColor color_ij;
     
     int len_ArrayPixelsMask = 0;
     for( int i= 0; i< image_mask.width() ; i++)
         for( int j= 0; j< image_mask.height(); j++){
-            QColor color_ij =image_mask.pixel( i, j );       
+            color_ij =image_mask.pixel( i, j );       
             if (!(color_ij.red() == 0 &&  color_ij.blue() == 0 && color_ij.green() == 0)){
                 //image.setPixel(i, j, qRgb(color_ij.red(), color_ij.green(), color_ij.blue()));
                 pCurrentPoint = &ArrayPixelsMask[len_ArrayPixelsMask];
