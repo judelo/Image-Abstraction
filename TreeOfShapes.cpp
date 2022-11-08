@@ -2301,8 +2301,7 @@ void TreeOfShapes::sortShapes(Fsignal t2b_index){
         t2b_index->values[i++] = area_id_pair.second;
     }
     gettimeofday(&end, NULL);
-    double elapsedTime = (end.tv_sec  - start.tv_sec) +
-            (end.tv_usec - start.tv_usec) / 1.e6;
+    double elapsedTime = (end.tv_sec  - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1.e6;
     std::cout << "priority sortShapes::time elapsed : " << elapsedTime <<" seconds"<< std::endl;
     std::cout << "***************************" << std::endl << std::endl << std::endl;
 }
@@ -2481,9 +2480,9 @@ void TreeOfShapes::filter_shapes( Cfimage out, char *local, float *eps){
 
 
 // Filtering the image  
-void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpixel, Point_plane  ArrayPixelsMask, int len_ArrayPixelsMask){
+void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpixel, Point_plane  ArrayPixelsMask, int len_ArrayPixelsMask, Qcolor colorMask){
     // Declare variables here
-    int i, kl ,j, rmn, lableTemp, nn;
+    int i ,j, rmn, nn; //kl, lableTemp
     float thre;
     float  R,G,B,H,S,L, CONTR;
     float elong, elong_pre, kappa, kappa_pre, oren, oren_pre, sca, sca_pre, Dist;
@@ -2529,9 +2528,9 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpix
                 || (((Info*)(pShape->data))->attribute[0])*CONTR<= thre
                 || Dist*CONTR < 0.
                 ){
-            lableTemp = 1;
+            //lableTemp = 1;
             pShape->removed = 1;
-            kl++;
+            //kl++;
         } 
         else
             pShape->removed = 0;
@@ -2541,18 +2540,17 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpix
 
         // Check if some point of the mask is in the shape
         for (j=0; j<len_ArrayPixelsMask; j++){
-                p = &ArrayPixelsMask[j];
-                if (point_in_shape(p->x, p->y, pShape, _pTree)){
-                    MaskInTheShape = 1;
-                    break;
-                }; 
+            p = &ArrayPixelsMask[j];
+            if (point_in_shape(p->x, p->y, pShape, _pTree)){
+                MaskInTheShape = 1;
+                pShape->removed = 1;
+                ((Info*)(pShape->data))->r = colorMask.red();
+                ((Info*)(pShape->data))->g = colorMask.green();
+                ((Info*)(pShape->data))->b = colorMask.blue();
+                break;
+            }; 
         };
-
-        if (MaskInTheShape == 1){
-            pShape->removed = 1;
-            std::cout << std::endl<<" Shape removed " << std::endl;
-        };
-    }
+    };
 }
 
 int TreeOfShapes::random_number(int *M){
@@ -2841,12 +2839,11 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     ALPHA = 0.0;
 
     Ccimage imgsyn = mw_change_ccimage(imgsyn, _imgin->nrow, _imgin->ncol);
-    if  ( ((imgShapeLabel = mw_new_cimage()) == NULL) ||
-          (mw_alloc_cimage(imgShapeLabel, _imgin->nrow, _imgin->ncol) == NULL) )
+
+    if  ( ((imgShapeLabel = mw_new_cimage()) == NULL) || (mw_alloc_cimage(imgShapeLabel, _imgin->nrow, _imgin->ncol) == NULL) )
         mwerror(FATAL,1,"Not enough memory.\n");
 
-    if  ( ((imgShapeBlur = mw_new_fimage()) == NULL) ||
-          (mw_alloc_fimage(imgShapeBlur, _imgin->nrow, _imgin->ncol) == NULL) )
+    if  ( ((imgShapeBlur = mw_new_fimage()) == NULL) || (mw_alloc_fimage(imgShapeBlur, _imgin->nrow, _imgin->ncol) == NULL) )
         mwerror(FATAL,1,"Not enough memory.\n");
 
     imgsyn = mw_change_ccimage(imgsyn, _imgin->nrow, _imgin->ncol);
@@ -2855,8 +2852,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
    
     // Compute FLST on Intensity image  
      
-    if  ( ((t2b_index = mw_new_fsignal()) == NULL) ||
-          (mw_alloc_fsignal(t2b_index,_pTree->nb_shapes) == NULL) )
+    if  ( ((t2b_index = mw_new_fsignal()) == NULL) ||(mw_alloc_fsignal(t2b_index,_pTree->nb_shapes) == NULL) )
         mwerror(FATAL,1,"Not enough memory.\n");
 
     for( i= 0; i< _pTree->ncol; i++)
@@ -2892,11 +2888,10 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     std::cout << std::endl<<" len mask in pixels " << len_ArrayPixelsMask << std::endl;
 
     int max_area = tosParameters.maxarea;
-    filter_image(&tosParameters.ns,&tosParameters.threshold, &tosParameters.mpixel, &max_area, ArrayPixelsMask, len_ArrayPixelsMask);
+    filter_image(&tosParameters.ns,&tosParameters.threshold, &tosParameters.mpixel, &max_area, ArrayPixelsMask, len_ArrayPixelsMask, color_ij);
 
     gettimeofday(&end, NULL);
-    current_time = (end.tv_sec  - start.tv_sec) +
-            (end.tv_usec - start.tv_usec) / 1.e6;
+    current_time = (end.tv_sec  - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1.e6;
     std::cout << std::endl<<"TreeOfShapes::Image filtered: " << current_time - elapsedTime<<" seconds"<< std::endl;
     elapsedTime = current_time;
 
@@ -2906,8 +2901,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         top2bottom_index_tree(t2b_index);
     else if(tosParameters.order == 1){
         if( !_large_to_small_index_computed ){
-            if  ( ((_large_to_small_index = mw_new_fsignal()) == NULL) ||
-                  (mw_alloc_fsignal(_large_to_small_index,_pTree->nb_shapes) == NULL) )
+            if  ( ((_large_to_small_index = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(_large_to_small_index,_pTree->nb_shapes) == NULL) )
                 mwerror(FATAL,1,"Not enough memory.\n");
             sortShapes(_large_to_small_index);
             _large_to_small_index_computed = true;
@@ -2921,8 +2915,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         top2bottom_index_tree(t2b_index);
 
     gettimeofday(&end, NULL);
-    current_time = (end.tv_sec  - start.tv_sec) +
-            (end.tv_usec - start.tv_usec) / 1.e6;
+    current_time = (end.tv_sec  - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1.e6;
     std::cout << std::endl<<"TreeOfShapes::Shape sorted: " << current_time - elapsedTime <<" seconds"<< std::endl;
     elapsedTime = current_time;
 
@@ -2937,18 +2930,15 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         adaptive_shift_shape(&tosParameters.shift, &tosParameters.theta);
 
     gettimeofday(&end, NULL);
-    current_time = (end.tv_sec  - start.tv_sec) +
-            (end.tv_usec - start.tv_usec) / 1.e6;
+    current_time = (end.tv_sec  - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1.e6;
     std::cout << std::endl<<"TreeOfShapes::Shaking computed: " << current_time - elapsedTime <<" seconds"<< std::endl;
     elapsedTime = current_time;
-
-     
+  
     // Compute a Gaussian kernel
      
     mw_clear_cimage(imgShapeLabel,0);
     mw_clear_fimage(imgShapeBlur,0.0);
-    if  ( ((gaussKernel = mw_new_fsignal()) == NULL) ||
-          (mw_alloc_fsignal(gaussKernel, tosParameters.kerSize*tosParameters.kerSize) == NULL) )
+    if  ( ((gaussKernel = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(gaussKernel, tosParameters.kerSize*tosParameters.kerSize) == NULL) )
         mwerror(FATAL,1,"Not enough memory.\n");
     gaussKernel = Sgauss(&tosParameters.kerStd, gaussKernel, &tosParameters.kerSize);
 

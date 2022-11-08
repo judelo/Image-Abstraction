@@ -154,7 +154,8 @@ protected:
                       int *mpixel,
                       int *maxpixel, 
                       Point_plane  ArrayPixelsMask, 
-                      int len_ArrayPixelsMask);
+                      int len_ArrayPixelsMask,
+                      Qcolor colorMask);
     void filter_shapes( Cfimage out,
                         char *local,
                         float *eps);
