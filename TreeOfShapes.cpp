@@ -3007,7 +3007,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
            if(pShape->removed == 1){
               std::cout << std::endl<<"Entra a  if(pShape->removed == 1)" << std::endl;
               float r=((Info*)(pShape->data))->r, g= ((Info*)(pShape->data))->g, b= ((Info*)(pShape->data))->b;
-              std::cout << std::endl<<"r " << r << "g " << g << "b " << b std::endl;
+              std::cout << std::endl<<"r " << r << "g " << g << "b " << b << std::endl;
            };
 
            if(pShape->removed != 1){
