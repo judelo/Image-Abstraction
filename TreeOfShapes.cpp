@@ -2493,14 +2493,14 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpix
     nn = *ns;
 
     Point_plane p;
-    int ShapeInTheMask;
+    int MaskInTheShape;
 
     compute_shape_attribute(&nn);
 
     // Filtering the image
     for(i = 0; i<=_pTree->nb_shapes-1; i++)  {
         pShape = _pTree->the_shapes + i;
-        ShapeInTheMask = 0;
+        MaskInTheShape = 0;
 
         if(pShape->parent == NULL)
             continue;
@@ -2543,12 +2543,12 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpix
         for (j=0; j<len_ArrayPixelsMask; j++){
                 p = &ArrayPixelsMask[j];
                 if (point_in_shape(p->x, p->y, pShape, _pTree)){
-                    ShapeInTheMask = 1;
+                    MaskInTheShape = 1;
                     break;
                 }; 
         };
 
-        if (ShapeInTheMask == 0){
+        if (MaskInTheShape == 1){
             pShape->removed = 1;
             std::cout << std::endl<<" Shape removed " << std::endl;
         };
