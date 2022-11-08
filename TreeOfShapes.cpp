@@ -2542,9 +2542,6 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpix
             if (point_in_shape(p->x, p->y, pShape, _pTree)){
                 MaskInTheShape = 1;
                 pShape->removed = 1;
-                ((Info*)(pShape->data))->r = colorMask.red();
-                ((Info*)(pShape->data))->g = colorMask.green();
-                ((Info*)(pShape->data))->b = colorMask.blue();
                 break;
             }; 
         };
@@ -2987,9 +2984,14 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                 ((Info*)(pShape->data))->b = ((Info*)(pShapeDict->data))->b;
                 std::cout << std::endl<<"Entra a  if((int)t2b_index->values[i] == 0 ) 2" << std::endl;
             }
+
+            ((Info*)(pShape->data))->r = color_ij.red();
+            ((Info*)(pShape->data))->g = color_ij.green();
+            ((Info*)(pShape->data))->b = color_ij.blue();
+
             synshapeRect(pShape, imgsyn, &ALPHA, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
             
-            if (tosParameters.model == 4 && dictionaryParameters.mcolor == 1 || dictionaryParameters.mcolor ==2){
+            if (tosParameters.model == 4 && (dictionaryParameters.mcolor == 1 || dictionaryParameters.mcolor ==2)){
                 ((Info*)(pShape->data))->r = r;
                 ((Info*)(pShape->data))->g = g;
                 ((Info*)(pShape->data))->b = b;
