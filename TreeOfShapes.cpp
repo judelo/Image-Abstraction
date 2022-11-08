@@ -2970,7 +2970,8 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
             
             // If mask, take color for background from mask
             if (len_ArrayPixelsMask != 0){
-                color_ij =image_mask.pixel( &ArrayPixelsMask[0]->x, &ArrayPixelsMask[0]->y ); 
+                pCurrentPoint = &ArrayPixelsMask[0];
+                color_ij =image_mask.pixel( pCurrentPoint->x, pCurrentPoint->y ); 
                 ((Info*)(pShape->data))->r = color_ij.red();
                 ((Info*)(pShape->data))->g = color_ij.green();
                 ((Info*)(pShape->data))->b = color_ij.blue();
