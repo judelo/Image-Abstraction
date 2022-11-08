@@ -50,16 +50,13 @@ void TreeOfShapes::init(Cfimage inputImg, Shapes &pTree){
     Shape pShape;
     Fimage imgIntensity;
 
-    if  ( ((imgIntensity = mw_new_fimage()) == NULL) ||
-          (mw_alloc_fimage(imgIntensity,inputImg->nrow,inputImg->ncol) == NULL) )
+    if  ( ((imgIntensity = mw_new_fimage()) == NULL) || (mw_alloc_fimage(imgIntensity,inputImg->nrow,inputImg->ncol) == NULL) )
         mwerror(FATAL,1,"Not enough memory.\n");
 
     if((pTree = mw_new_shapes()) == NULL)
-        mwerror(FATAL, 1,
-                "fgrain --> Not enough memory to allocate the tree of shapes");
+        mwerror(FATAL, 1, "fgrain --> Not enough memory to allocate the tree of shapes");
 
-    if  ( ((_NormOfDu = mw_new_fimage()) == NULL) ||
-          (mw_alloc_fimage(_NormOfDu,inputImg->nrow,inputImg->ncol) == NULL) )
+    if  ( ((_NormOfDu = mw_new_fimage()) == NULL) || (mw_alloc_fimage(_NormOfDu,inputImg->nrow,inputImg->ncol) == NULL) )
         mwerror(FATAL,1,"Not enough memory.\n");
 
     // Compute Intensity image
@@ -105,7 +102,7 @@ void TreeOfShapes::init(Cfimage inputImg, Shapes &pTree){
     compute_shape_attribute();
 
     // Synthesize the image
-    printf("---1---- Synthesize the image ..........\n");
+    printf("------- Synthesize the image ..........\n");
 }
 
 
@@ -670,9 +667,6 @@ void TreeOfShapes::compute_shape_attribute(){
     _average_g /= _pTree->nb_shapes;
     _average_b /=  _pTree->nb_shapes;
 
-    _average_r = 255;
-    _average_g = 255;
-    _average_b = 0;
 }
 
 
@@ -2861,9 +2855,9 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
 
     for( i= 0; i< _pTree->ncol; i++)
         for( j= 0; j< _pTree->nrow; j++){
-            imgsyn->red[j*_pTree->ncol + i] = 1;
-            imgsyn->green[j*_pTree->ncol + i] = 1;
-            imgsyn->blue[j*_pTree->ncol + i] = 1;
+            imgsyn->red[j*_pTree->ncol + i] = 255;
+            imgsyn->green[j*_pTree->ncol + i] = 255;
+            imgsyn->blue[j*_pTree->ncol + i] = 0;
         }
 
     // Image filtering    
