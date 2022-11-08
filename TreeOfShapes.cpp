@@ -3106,6 +3106,13 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         }
     }
 
+    for( i= 0; i< _pTree->ncol; i++)
+        for( j= 0; j< _pTree->nrow; j++){
+            imgsyn->red[j*_pTree->ncol + i] = 255;
+            imgsyn->green[j*_pTree->ncol + i] = 255;
+            imgsyn->blue[j*_pTree->ncol + i] = 0;
+        }
+
     gettimeofday(&end, NULL);
     elapsedTime = (end.tv_sec  - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1.e6;
     std::cout << "TreeOfShapes::time elapsed : " << elapsedTime <<" seconds"<< std::endl;
@@ -3122,12 +3129,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     _tosParameters = tosParameters;
     _tree_recomputed = false;
 
-    for( i= 0; i< _pTree->ncol; i++)
-        for( j= 0; j< _pTree->nrow; j++){
-            imgsyn->red[j*_pTree->ncol + i] = 255;
-            imgsyn->green[j*_pTree->ncol + i] = 255;
-            imgsyn->blue[j*_pTree->ncol + i] = 0;
-        }
 
     QImage result_image( QSize(imgsyn->ncol, imgsyn->nrow), QImage::Format_RGB32 );
 
