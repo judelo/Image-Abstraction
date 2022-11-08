@@ -2480,7 +2480,7 @@ void TreeOfShapes::filter_shapes( Cfimage out, char *local, float *eps){
 
 
 // Filtering the image  
-void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpixel, Point_plane  ArrayPixelsMask, int len_ArrayPixelsMask, Qcolor colorMask){
+void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpixel, Point_plane  ArrayPixelsMask, int len_ArrayPixelsMask, QColor colorMask){
     // Declare variables here
     int i ,j, rmn, nn; //kl, lableTemp
     float thre;
