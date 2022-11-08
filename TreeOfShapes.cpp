@@ -2852,13 +2852,15 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
      
     if  ( ((t2b_index = mw_new_fsignal()) == NULL) ||(mw_alloc_fsignal(t2b_index,_pTree->nb_shapes) == NULL) )
         mwerror(FATAL,1,"Not enough memory.\n");
-
+    
+    /*
     for( i= 0; i< _pTree->ncol; i++)
         for( j= 0; j< _pTree->nrow; j++){
             imgsyn->red[j*_pTree->ncol + i] = 255;
             imgsyn->green[j*_pTree->ncol + i] = 255;
             imgsyn->blue[j*_pTree->ncol + i] = 0;
         }
+    */
 
     // Image filtering    
     std::cout << "Image filtering" << std::endl;
@@ -2969,6 +2971,13 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         }
     }
  
+    for( i= 0; i< _pTree->ncol; i++)
+        for( j= 0; j< _pTree->nrow; j++){
+            imgsyn->red[j*_pTree->ncol + i] = 255;
+            imgsyn->green[j*_pTree->ncol + i] = 255;
+            imgsyn->blue[j*_pTree->ncol + i] = 0;
+        };
+
     // Shape Shaking Filtering
      
     for(i=0; i < _pTree->nb_shapes; i++)  {
