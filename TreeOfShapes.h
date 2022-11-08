@@ -21,10 +21,8 @@ You should have received a copy of the GNU Affero General Public License along w
 #include "stdlib.h"
 #include "tree_of_shapes.h"
 #include "jmkdtree.h"
-//#include "flst_boundary.c"
 #include <cfloat>
 #include <map>
-#include <QColor>
 
 class TreeOfShapes
 {
@@ -154,8 +152,7 @@ protected:
                       int *mpixel,
                       int *maxpixel, 
                       Point_plane  ArrayPixelsMask, 
-                      int len_ArrayPixelsMask,
-                      QColor colorMask);
+                      int len_ArrayPixelsMask);
     void filter_shapes( Cfimage out,
                         char *local,
                         float *eps);

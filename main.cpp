@@ -90,16 +90,6 @@ int main(int argc, char *argv[])
 
     // Load Mask
     QImage image_mask(mask_file_name);
-    
-    /*
-    for( int i= 0; i< image.width() ; i++)
-        for( int j= 0; j< image.height(); j++){
-            QColor color_ij =image_mask.pixel( i, j );       
-            if (!(color_ij.red() == 0 &&  color_ij.blue() == 0 && color_ij.green() == 0)){
-                image.setPixel(i, j, qRgb(color_ij.red(), color_ij.green(), color_ij.blue()));
-            };
-        };
-    */
        
     TreeOfShapes * TOS = new TreeOfShapes(cfimages_from_qimage(image));
 

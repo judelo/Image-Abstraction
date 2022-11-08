@@ -2478,9 +2478,9 @@ void TreeOfShapes::filter_shapes( Cfimage out, char *local, float *eps){
 
 
 // Filtering the image  
-void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpixel, Point_plane  ArrayPixelsMask, int len_ArrayPixelsMask, QColor colorMask){
+void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpixel, Point_plane  ArrayPixelsMask, int len_ArrayPixelsMask){
     // Declare variables here
-    int i ,j, rmn, nn; //kl, lableTemp
+    int i ,j, rmn, nn;
     float thre;
     float  R,G,B,H,S,L, CONTR;
     float elong, elong_pre, kappa, kappa_pre, oren, oren_pre, sca, sca_pre, Dist;
@@ -2490,14 +2490,12 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpix
     nn = *ns;
 
     Point_plane p;
-    int MaskInTheShape;
 
     compute_shape_attribute(&nn);
 
     // Filtering the image
     for(i = 0; i<=_pTree->nb_shapes-1; i++)  {
         pShape = _pTree->the_shapes + i;
-        MaskInTheShape = 0;
 
         if(pShape->parent == NULL)
             continue;
@@ -2526,9 +2524,7 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpix
                 || (((Info*)(pShape->data))->attribute[0])*CONTR<= thre
                 || Dist*CONTR < 0.
                 ){
-            //lableTemp = 1;
             pShape->removed = 1;
-            //kl++;
         } 
         else
             pShape->removed = 0;
@@ -2540,11 +2536,11 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpix
         for (j=0; j<len_ArrayPixelsMask; j++){
             p = &ArrayPixelsMask[j];
             if (point_in_shape(p->x, p->y, pShape, _pTree)){
-                MaskInTheShape = 1;
                 pShape->removed = 1;
                 break;
             }; 
         };
+
     };
 }
 
@@ -2849,15 +2845,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
      
     if  ( ((t2b_index = mw_new_fsignal()) == NULL) ||(mw_alloc_fsignal(t2b_index,_pTree->nb_shapes) == NULL) )
         mwerror(FATAL,1,"Not enough memory.\n");
-    
-    /*
-    for( i= 0; i< _pTree->ncol; i++)
-        for( j= 0; j< _pTree->nrow; j++){
-            imgsyn->red[j*_pTree->ncol + i] = 255;
-            imgsyn->green[j*_pTree->ncol + i] = 255;
-            imgsyn->blue[j*_pTree->ncol + i] = 0;
-        }
-    */
 
     // Image filtering    
     std::cout << "Image filtering" << std::endl;
@@ -2865,7 +2852,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     // Compute List of pixels of mask (mask select parts to change by shapes)
     Point_plane  ArrayPixelsMask = (Point_plane) malloc(image_mask.width() * image_mask.height() * sizeof(struct point_plane));
     Point_plane pCurrentPoint;
-    short x, y;
     QColor color_ij;
     
     int len_ArrayPixelsMask = 0;
@@ -2873,18 +2859,17 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         for( int j= 0; j< image_mask.height(); j++){
             color_ij =image_mask.pixel( i, j );       
             if (!(color_ij.red() == 0 &&  color_ij.blue() == 0 && color_ij.green() == 0)){
-                //image.setPixel(i, j, qRgb(color_ij.red(), color_ij.green(), color_ij.blue()));
                 pCurrentPoint = &ArrayPixelsMask[len_ArrayPixelsMask];
                 pCurrentPoint->x = i;
                 pCurrentPoint->y = j;
-                len_ArrayPixelsMask = len_ArrayPixelsMask +1;    
+                len_ArrayPixelsMask = len_ArrayPixelsMask +1;   
             };
         };
 
     std::cout << std::endl<<" len mask in pixels " << len_ArrayPixelsMask << std::endl;
 
     int max_area = tosParameters.maxarea;
-    filter_image(&tosParameters.ns,&tosParameters.threshold, &tosParameters.mpixel, &max_area, ArrayPixelsMask, len_ArrayPixelsMask, color_ij);
+    filter_image(&tosParameters.ns,&tosParameters.threshold, &tosParameters.mpixel, &max_area, ArrayPixelsMask, len_ArrayPixelsMask);
 
     gettimeofday(&end, NULL);
     current_time = (end.tv_sec  - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1.e6;
@@ -2970,41 +2955,38 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
      
     for(i=0; i < _pTree->nb_shapes; i++)  {
         pShape = _pTree->the_shapes + (int)t2b_index->values[i];
-        //ShapeInTheMask = 0;
 
         if((int)t2b_index->values[i] == 0 ) {
-            std::cout << std::endl<<"Entra a  if((int)t2b_index->values[i] == 0 )" << std::endl;
 
-            float r=((Info*)(pShape->data))->r, g= ((Info*)(pShape->data))->g, b= ((Info*)(pShape->data))->b;
-
+            //float r=((Info*)(pShape->data))->r, g= ((Info*)(pShape->data))->g, b= ((Info*)(pShape->data))->b;
+            
+            // Take color from dictionary for background
             if (tosParameters.model == 4 && (dictionaryParameters.mcolor == 1 || dictionaryParameters.mcolor ==2)){
                 pShapeDict = tosDictionary->getShape(0);
                 ((Info*)(pShape->data))->r = ((Info*)(pShapeDict->data))->r;
                 ((Info*)(pShape->data))->g = ((Info*)(pShapeDict->data))->g;
                 ((Info*)(pShape->data))->b = ((Info*)(pShapeDict->data))->b;
-                std::cout << std::endl<<"Entra a  if((int)t2b_index->values[i] == 0 ) 2" << std::endl;
             }
-
-            ((Info*)(pShape->data))->r = color_ij.red();
-            ((Info*)(pShape->data))->g = color_ij.green();
-            ((Info*)(pShape->data))->b = color_ij.blue();
+            
+            // If mask, take color for background from mask
+            if (len_ArrayPixelsMask != 0){
+                color_ij =image_mask.pixel( &ArrayPixelsMask[0]->x, &ArrayPixelsMask[0]->y ); 
+                ((Info*)(pShape->data))->r = color_ij.red();
+                ((Info*)(pShape->data))->g = color_ij.green();
+                ((Info*)(pShape->data))->b = color_ij.blue();
+            }
 
             synshapeRect(pShape, imgsyn, &ALPHA, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
             
+            /*
             if (tosParameters.model == 4 && (dictionaryParameters.mcolor == 1 || dictionaryParameters.mcolor ==2)){
                 ((Info*)(pShape->data))->r = r;
                 ((Info*)(pShape->data))->g = g;
                 ((Info*)(pShape->data))->b = b;
-                std::cout << std::endl<<"Entra a  if((int)t2b_index->values[i] == 0 ) 3" << std::endl;
             }
+            */
         } 
         else{
-
-           if(pShape->removed == 1){
-              std::cout << std::endl<<"Entra a  if(pShape->removed == 1)" << std::endl;
-              float r=((Info*)(pShape->data))->r, g= ((Info*)(pShape->data))->g, b= ((Info*)(pShape->data))->b;
-              std::cout << std::endl<<"r " << r << "g " << g << "b " << b << std::endl;
-           };
 
            if(pShape->removed != 1){
 
