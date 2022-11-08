@@ -17,7 +17,7 @@ You should have received a copy of the GNU Affero General Public License along w
 #include <QColor>
 #include <queue>
 #include <algorithm>
-#include "flst_boundary.c"
+//#include "flst_boundary.c"
 
 extern void flst();
 #define PI 3.1415926
@@ -62,7 +62,7 @@ void TreeOfShapes::init(Cfimage inputImg, Shapes &pTree){
           (mw_alloc_fimage(_NormOfDu,inputImg->nrow,inputImg->ncol) == NULL) )
         mwerror(FATAL,1,"Not enough memory.\n");
 
-    // Compute Intensity imag
+    // Compute Intensity image
     for( int i= 0; i< inputImg->ncol; i++)
         for( int j= 0; j< inputImg->nrow; j++){
             imgIntensity->gray[j*inputImg->ncol + i] = (int)(inputImg->blue[j*inputImg->ncol + i]
@@ -2481,10 +2481,7 @@ void TreeOfShapes::filter_shapes( Cfimage out, char *local, float *eps){
 
 
 // Filtering the image  
-void TreeOfShapes::filter_image(int *ns,
-                                float *threshold,
-                                int *mpixel,
-                                int *maxpixel){
+void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpixel, Point_plane  ArrayPixelsMask, int len_ArrayPixelsMask){
     // Declare variables here
     int i, kl ,j, rmn, lableTemp, nn;
     float thre;
@@ -2495,11 +2492,16 @@ void TreeOfShapes::filter_image(int *ns,
     thre = *threshold;
     nn = *ns;
 
+    Point_plane p;
+    int ShapeInTheMask;
+
     compute_shape_attribute(&nn);
 
     // Filtering the image
     for(i = 0; i<=_pTree->nb_shapes-1; i++)  {
         pShape = _pTree->the_shapes + i;
+        ShapeInTheMask = 0;
+
         if(pShape->parent == NULL)
             continue;
 
@@ -2536,6 +2538,20 @@ void TreeOfShapes::filter_image(int *ns,
 
         if(i ==0)
             pShape->removed = 0;
+
+        // Check if some point of the mask is in the shape
+        for (j=0; j<len_ArrayPixelsMask; j++){
+                p = &ArrayPixelsMask[j];
+                if (point_in_shape(p->x, p->y, pShape, _pTree)){
+                    ShapeInTheMask = 1;
+                    break;
+                }; 
+        };
+
+        if (ShapeInTheMask == 0){
+            pShape->removed = 1;
+            std::cout << std::endl<<" Shape removed " << std::endl;
+        };
     }
 }
 
@@ -2845,15 +2861,38 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
 
     for( i= 0; i< _pTree->ncol; i++)
         for( j= 0; j< _pTree->nrow; j++){
-            imgsyn->red[j*_pTree->ncol + i] = 255;
-            imgsyn->green[j*_pTree->ncol + i] = 255;
-            imgsyn->blue[j*_pTree->ncol + i] = 255;
+            imgsyn->red[j*_pTree->ncol + i] = 1;
+            imgsyn->green[j*_pTree->ncol + i] = 1;
+            imgsyn->blue[j*_pTree->ncol + i] = 1;
         }
 
     // Image filtering    
     std::cout << "Image filtering" << std::endl;
+
+    // Compute List of pixels of mask (mask select parts to change by shapes)
+    Point_plane  ArrayPixelsMask = (Point_plane) malloc(image_mask.width() * image_mask.height() * sizeof(struct point_plane));
+    //Point_plane p;
+    Point_plane pCurrentPoint;
+    //int ShapeInTheMask;
+    short x, y;
+    
+    int len_ArrayPixelsMask = 0;
+    for( int i= 0; i< image_mask.width() ; i++)
+        for( int j= 0; j< image_mask.height(); j++){
+            QColor color_ij =image_mask.pixel( i, j );       
+            if (!(color_ij.red() == 0 &&  color_ij.blue() == 0 && color_ij.green() == 0)){
+                //image.setPixel(i, j, qRgb(color_ij.red(), color_ij.green(), color_ij.blue()));
+                pCurrentPoint = &ArrayPixelsMask[len_ArrayPixelsMask];
+                pCurrentPoint->x = i;
+                pCurrentPoint->y = j;
+                len_ArrayPixelsMask = len_ArrayPixelsMask +1;    
+            };
+        };
+
+    std::cout << std::endl<<" len mask in pixels " << len_ArrayPixelsMask << std::endl;
+
     int max_area = tosParameters.maxarea;
-    filter_image(&tosParameters.ns,&tosParameters.threshold, &tosParameters.mpixel, &max_area);
+    filter_image(&tosParameters.ns,&tosParameters.threshold, &tosParameters.mpixel, &max_area, ArrayPixelsMask, len_ArrayPixelsMask);
 
     gettimeofday(&end, NULL);
     current_time = (end.tv_sec  - start.tv_sec) +
@@ -2941,33 +2980,11 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         }
     }
  
-    // Compute List of pixels of mask (mask select parts to change by shapes)
-    Point_plane  ArrayPixelsMask = (Point_plane) malloc(image_mask.width() * image_mask.height() * sizeof(struct point_plane));
-    Point_plane p;
-    Point_plane pCurrentPoint;
-    int ShapeInTheMask;
-    short x, y;
-    
-    int len_ArrayPixelsMask = 0;
-    for( int i= 0; i< image_mask.width() ; i++)
-        for( int j= 0; j< image_mask.height(); j++){
-            QColor color_ij =image_mask.pixel( i, j );       
-            if (!(color_ij.red() == 0 &&  color_ij.blue() == 0 && color_ij.green() == 0)){
-                //image.setPixel(i, j, qRgb(color_ij.red(), color_ij.green(), color_ij.blue()));
-                pCurrentPoint = &ArrayPixelsMask[len_ArrayPixelsMask];
-                pCurrentPoint->x = i;
-                pCurrentPoint->y = j;
-                len_ArrayPixelsMask = len_ArrayPixelsMask +1;    
-            };
-        };
-
-    std::cout << std::endl<<" len mask in pixels " << len_ArrayPixelsMask << std::endl;
-
     // Shape Shaking Filtering
      
     for(i=0; i < _pTree->nb_shapes; i++)  {
         pShape = _pTree->the_shapes + (int)t2b_index->values[i];
-        ShapeInTheMask = 0;
+        //ShapeInTheMask = 0;
 
         if((int)t2b_index->values[i] == 0 ) {
             float r=((Info*)(pShape->data))->r, g= ((Info*)(pShape->data))->g, b= ((Info*)(pShape->data))->b;
@@ -2987,32 +3004,8 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         } 
         else{
            
-           //Check if some point of the shape is in the mask
-           /*
-           for(i=0; i< pShape->area; i++){
-               x = (pShape->pixels+i)->x;
-               y = (pShape->pixels+i)->y;
-               
-               for (j=0; j<len_ArrayPixelsMask; j++){
-                   p = &ArrayPixelsMask[j];
-                   if (p->x == x && p->y == y){
-                       ShapeInTheMask = 1;
-                       break;
-                   }; 
-                };
-               if (ShapeInTheMask == 1){
-                   break;
-                   std::cout << std::endl<<" Shape in the mask " << std::endl;
-                };
-            };
-
-            if (ShapeInTheMask == 0){
-               pShape->removed = 1;
-               std::cout << std::endl<<" Shape removed " << std::endl;
-            };
-            */
-           
            // Check if some point of the mask is in the shape
+           /*
            for (j=0; j<len_ArrayPixelsMask; j++){
                    p = &ArrayPixelsMask[j];
                    if (point_in_shape(p->x, p->y, pShape, _pTree)){
@@ -3026,6 +3019,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                pShape->removed = 1;
                std::cout << std::endl<<" Shape removed " << std::endl;
             };
+            */
         
            if(pShape->removed != 1){
 
