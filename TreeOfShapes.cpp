@@ -3212,8 +3212,6 @@ QImage TreeOfShapes::renderOrigShapesBackground(TOSParameters tosParameters, boo
     if  ( ((imgShapeLabel = mw_new_cimage()) == NULL) || (mw_alloc_cimage(imgShapeLabel, _imgin->nrow, _imgin->ncol) == NULL) )
         mwerror(FATAL,1,"Not enough memory.\n");
 
-    if  ( ((imgShapeBlur = mw_new_fimage()) == NULL) || (mw_alloc_fimage(imgShapeBlur, _imgin->nrow, _imgin->ncol) == NULL) )
-        mwerror(FATAL,1,"Not enough memory.\n");
 
     imgsyn = mw_change_ccimage(imgsyn, _imgin->nrow, _imgin->ncol);
     imgShapeLabel = mw_change_cimage(imgShapeLabel, _imgin->nrow, _imgin->ncol);
