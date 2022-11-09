@@ -3071,6 +3071,8 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                             imgsyn->blue[j*_pTree->ncol + i] = ((Info*)(pShape->data))->b;
                         }
                     }
+                
+                break;
             }
             synshapeRect(pShape, imgsyn, &ALPHA, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);          
         } 
