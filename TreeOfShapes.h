@@ -14,7 +14,6 @@ You should have received a copy of the GNU Affero General Public License along w
 #define TREEOFSHAPES_H
 
 #include <QImage>
-#include <QColor>
 
 #include "mw3.h"
 #include "mw3-modules.h"
@@ -161,7 +160,7 @@ protected:
                       int *maxpixel, 
                       Point_plane  ArrayPixelsMask, 
                       int len_ArrayPixelsMask,
-                      QColor  image_mask);
+                      QImage  image_mask);
     void filter_shapes( Cfimage out,
                         char *local,
                         float *eps);

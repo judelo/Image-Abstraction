@@ -2546,7 +2546,7 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpix
 
 
 // Filtering the image  
-void TreeOfShapes::filter_image2(int *ns,float *threshold,int *mpixel,int *maxpixel, Point_plane  ArrayPixelsMask, int len_ArrayPixelsMask, QColor image_mask){
+void TreeOfShapes::filter_image2(int *ns,float *threshold,int *mpixel,int *maxpixel, Point_plane  ArrayPixelsMask, int len_ArrayPixelsMask, QImage image_mask){
     // Declare variables here
     int i ,j, rmn, nn;
     float thre;
@@ -3244,7 +3244,7 @@ QImage TreeOfShapes::renderOrigShapesBackground(TOSParameters tosParameters, boo
     std::cout << std::endl<<" len mask in pixels " << len_ArrayPixelsMask << std::endl;
 
     int max_area = tosParameters.maxarea;
-    filter_image2(&tosParameters.ns,&tosParameters.threshold, &tosParameters.mpixel, &max_area, ArrayPixelsMask, len_ArrayPixelsMask);
+    filter_image2(&tosParameters.ns,&tosParameters.threshold, &tosParameters.mpixel, &max_area, ArrayPixelsMask, len_ArrayPixelsMask, image_mask);
 
     gettimeofday(&end, NULL);
     current_time = (end.tv_sec  - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1.e6;
