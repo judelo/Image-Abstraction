@@ -3057,8 +3057,8 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                 pCurrentPoint = &_ArrayPixelsMask[0];
                 color_mask =image_mask.pixel( pCurrentPoint->x, pCurrentPoint->y ); 
 
-                for( i= 0; i< _pTree->ncol; i++)
-                    for( j= 0; j< _pTree->nrow; j++){
+                for( i= 0; i< imgsyn->ncol; i++)
+                    for( j= 0; j< imgsyn->nrow; j++){
                         color_ij = background.pixel( i, j );  
                         /*
                         if (i==300 && j==510){
@@ -3076,15 +3076,10 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                             imgsyn->blue[j*_pTree->ncol + i] = color_ij.blue();
                         }
                         else{
-                            imgsyn->red[j*_pTree->ncol + i] = ((Info*)(pShape->data))->r;
-                            imgsyn->green[j*_pTree->ncol + i] = ((Info*)(pShape->data))->g;
-                            imgsyn->blue[j*_pTree->ncol + i] = ((Info*)(pShape->data))->b;
-                            std::cout << " red 0,0 bakground " << color_ij.red() << std::endl;
-                            std::cout << " red 0,0 mask " << color_mask.red() << std::endl; 
-                            std::cout << " blue 0,0 bakground " << color_ij.blue() << std::endl;
-                            std::cout << " blue 0,0 mask " << color_mask.blue() << std::endl;
-                            std::cout << " green 0,0 bakground " << color_ij.green() << std::endl;
-                            std::cout << " green 0,0 mask " << color_mask.green() << std::endl;
+                            imgsyn->red[j*_pTree->ncol + i] = _average_r;//((Info*)(pShape->data))->r;
+                            imgsyn->green[j*_pTree->ncol + i] = _average_g;//((Info*)(pShape->data))->g;
+                            imgsyn->blue[j*_pTree->ncol + i] = _average_b;//((Info*)(pShape->data))->b;
+           
                         }
                     }
                 
