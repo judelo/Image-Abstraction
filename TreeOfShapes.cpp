@@ -3050,6 +3050,9 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                 ((Info*)(pShape->data))->b = color_ij.blue();
             }
             */
+
+            synshapeRect(pShape, imgsyn, &ALPHA, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);          
+            
             if (_len_ArrayPixelsMask != 0){
                 pCurrentPoint = &_ArrayPixelsMask[0];
                 color_mask =image_mask.pixel( pCurrentPoint->x, pCurrentPoint->y ); 
@@ -3062,15 +3065,16 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                             imgsyn->green[j*_pTree->ncol + i] = color_ij.green();
                             imgsyn->blue[j*_pTree->ncol + i] = color_ij.blue();
                         }
+                        /*
                         else{
                             imgsyn->red[j*_pTree->ncol + i] = _average_r;
                             imgsyn->green[j*_pTree->ncol + i] = _average_g;
                             imgsyn->blue[j*_pTree->ncol + i] = _average_b;
                         }
+                        */
                     }
             }
-            else
-               synshapeRect(pShape, imgsyn, &ALPHA, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);          
+        
         } 
         else{
 
