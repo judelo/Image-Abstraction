@@ -3057,35 +3057,25 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                 pCurrentPoint = &_ArrayPixelsMask[0];
                 color_mask =image_mask.pixel( pCurrentPoint->x, pCurrentPoint->y ); 
 
+                float r=((Info*)(pShape->data))->r, g= ((Info*)(pShape->data))->g, b= ((Info*)(pShape->data))->b;
+
                 for( i= 0; i< imgsyn->ncol; i++)
                     for( j= 0; j< imgsyn->nrow; j++){
                         color_ij = background.pixel( i, j );  
-                        /*
-                        if (i==300 && j==510){
-                           std::cout << " red 0,0 bakground " << color_ij.red() << std::endl;
-                           std::cout << " red 0,0 mask " << color_mask.red() << std::endl; 
-                           std::cout << " blue 0,0 bakground " << color_ij.blue() << std::endl;
-                           std::cout << " blue 0,0 mask " << color_mask.blue() << std::endl;
-                           std::cout << " green 0,0 bakground " << color_ij.green() << std::endl;
-                           std::cout << " green 0,0 mask " << color_mask.green() << std::endl;
-                        }
-                        */
                         if ((color_ij.red() == color_mask.red()) &&  (color_ij.blue() == color_mask.blue()) && (color_ij.green() == color_mask.green())){
                             imgsyn->red[j*_pTree->ncol + i] = color_ij.red();
                             imgsyn->green[j*_pTree->ncol + i] = color_ij.green();
                             imgsyn->blue[j*_pTree->ncol + i] = color_ij.blue();
                         }
                         else{
-                            imgsyn->red[j*_pTree->ncol + i] = _average_r;//((Info*)(pShape->data))->r;
-                            imgsyn->green[j*_pTree->ncol + i] = _average_g;//((Info*)(pShape->data))->g;
-                            imgsyn->blue[j*_pTree->ncol + i] = _average_b;//((Info*)(pShape->data))->b;
-           
+                            imgsyn->red[j*_pTree->ncol + i] = r;//((Info*)(pShape->data))->r;
+                            imgsyn->green[j*_pTree->ncol + i] = g;//((Info*)(pShape->data))->g;
+                            imgsyn->blue[j*_pTree->ncol + i] = b;//((Info*)(pShape->data))->b;
                         }
                     }
-                
-                break;
             }
-            synshapeRect(pShape, imgsyn, &ALPHA, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);          
+            else
+                synshapeRect(pShape, imgsyn, &ALPHA, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);          
         } 
         else{
 
