@@ -95,6 +95,7 @@ int main(int argc, char *argv[])
     TreeOfShapes * TOS = new TreeOfShapes(cfimages_from_qimage(image));
 
     QImage resulting_image;
+    QImage background;
     bool tree_recomputed = false;
 
     // Load parameters depending on the task
