@@ -2858,7 +2858,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     for( int i= 0; i< image_mask.width() ; i++)
         for( int j= 0; j< image_mask.height(); j++){
             color_ij =image_mask.pixel( i, j );       
-            if (!(color_ij.red() == 255 &&  color_ij.blue() == 255 && color_ij.green() == 255)){
+            if (!(color_ij.red() == 0 &&  color_ij.blue() == 0 && color_ij.green() == 0)){
                 pCurrentPoint = &ArrayPixelsMask[len_ArrayPixelsMask];
                 pCurrentPoint->x = i;
                 pCurrentPoint->y = j;
