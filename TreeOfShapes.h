@@ -32,6 +32,7 @@ public:
     TreeOfShapes( Cfimage imageIn );
     ~TreeOfShapes();
     QImage render(TOSParameters tosParameters, bool &tree_recomputed, QImage image_mask, TreeOfShapes *tosDictionary=NULL, DictionaryParameters dictionaryParameters=getDefaultDictionaryParameters() );
+    QImage renderOrigShapesBackground(TOSParameters tosParameters, bool &tree_recomputed, QImage image_mask);
     void compute_tree( TOSParameters tosParameters, bool dictionary=false );
     void computeKdTree(float average_r, float average_g, float average_b );
     Cfimage getCfImage(){ if( _texture_image_loaded ) return _texture_image; else return _imgin; }
@@ -148,6 +149,12 @@ protected:
 
     void compute_shape_attribute(int *ns);
     void filter_image(int *ns,
+                      float *alpha,
+                      int *mpixel,
+                      int *maxpixel, 
+                      Point_plane  ArrayPixelsMask, 
+                      int len_ArrayPixelsMask);
+    void filter_image2(int *ns,
                       float *alpha,
                       int *mpixel,
                       int *maxpixel, 

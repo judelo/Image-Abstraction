@@ -2544,6 +2544,78 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpix
     };
 }
 
+
+// Filtering the image  
+void TreeOfShapes::filter_image2(int *ns,float *threshold,int *mpixel,int *maxpixel, Point_plane  ArrayPixelsMask, int len_ArrayPixelsMask){
+    // Declare variables here
+    int i ,j, rmn, nn;
+    float thre;
+    float  R,G,B,H,S,L, CONTR;
+    float elong, elong_pre, kappa, kappa_pre, oren, oren_pre, sca, sca_pre, Dist;
+    Shape pShape;
+
+    thre = *threshold;
+    nn = *ns;
+
+    Point_plane p;
+    QColor color_mask;
+
+    compute_shape_attribute(&nn);
+
+    // Filtering the image
+    for(i = 0; i<=_pTree->nb_shapes-1; i++)  {
+        pShape = _pTree->the_shapes + i;
+
+        if(pShape->parent == NULL)
+            continue;
+
+        CONTR = sqrt(pow((((Info*)(pShape->data))->r - ((Info*)(pShape->parent->data))->r), 2.0) +
+                     pow((((Info*)(pShape->data))->g - ((Info*)(pShape->parent->data))->g), 2.0) +
+                     pow((((Info*)(pShape->data))->b - ((Info*)(pShape->parent->data))->b), 2.0));
+
+        elong = ((Info*)(pShape->data))->attribute[2];
+        kappa = ((Info*)(pShape->data))->attribute[1];
+        oren  = ((Info*)(pShape->data))->attribute[3];
+        sca   = (float) pShape->area;
+
+        elong_pre = ((Info*)(pShape->parent->data))->attribute[2];
+        kappa_pre = ((Info*)(pShape->parent->data))->attribute[1];
+        oren_pre  = ((Info*)(pShape->parent->data))->attribute[3];
+        sca_pre   = (float) pShape->parent->area;
+
+        Dist = sqrt((elong - elong_pre)*(elong - elong_pre) +
+                    (kappa - kappa_pre)*(kappa - kappa_pre) +
+                    (oren - oren_pre)*(oren - oren_pre)/(PI*PI) +
+                    (1 - _MIN(sca_pre/sca, sca/sca_pre))*(1 - _MIN(sca_pre/sca, sca/sca_pre)));
+        Dist /= 4;
+
+        if(pShape->area <= *mpixel || *maxpixel < pShape->area
+                || (((Info*)(pShape->data))->attribute[0])*CONTR<= thre
+                || Dist*CONTR < 0.
+                ){
+            pShape->removed = 1;
+        } 
+        else
+            pShape->removed = 0;
+
+        if(i ==0)
+            pShape->removed = 0;
+
+        // Check if some point of the mask is in the shape
+        for (j=0; j<len_ArrayPixelsMask; j++){
+            p = &ArrayPixelsMask[j];
+            if (point_in_shape(p->x, p->y, pShape, _pTree)){
+                color_mask =image_mask.pixel( p->x, p->y ); 
+                ((Info*)(pShape->data))->r = color_mask.red();
+                ((Info*)(pShape->data))->g = color_mask.green();
+                ((Info*)(pShape->data))->b = color_mask.blue();
+                break;
+            }; 
+        };
+
+    };
+}
+
 int TreeOfShapes::random_number(int *M){
 
     int i, size, select_i;
@@ -2967,6 +3039,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
             }
             
             // If mask, take color for background from mask
+            /*
             if (len_ArrayPixelsMask != 0){
                 pCurrentPoint = &ArrayPixelsMask[0];
                 color_ij =image_mask.pixel( pCurrentPoint->x, pCurrentPoint->y ); 
@@ -2974,6 +3047,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                 ((Info*)(pShape->data))->g = color_ij.green();
                 ((Info*)(pShape->data))->b = color_ij.blue();
             }
+            */
 
             synshapeRect(pShape, imgsyn, &ALPHA, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
             
@@ -3092,6 +3166,183 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     _tosParameters = tosParameters;
     _tree_recomputed = false;
 
+
+    QImage result_image( QSize(imgsyn->ncol, imgsyn->nrow), QImage::Format_RGB32 );
+
+    for( int j= 0; j< imgsyn->nrow; j++)
+        for( int i= 0; i< imgsyn->ncol; i++)
+        {
+            int comp = j*imgsyn->ncol + i;
+            QColor color (imgsyn->red[comp], imgsyn->green[comp], imgsyn->blue[comp]);
+            result_image.setPixel(i, j , qRgb(color.red(), color.green(), color.blue()));
+        }
+
+    if( imgsyn != NULL )
+        mw_delete_ccimage(imgsyn);
+    return result_image;
+}
+
+
+QImage TreeOfShapes::renderOrigShapesBackground(TOSParameters tosParameters, bool &tree_recomputed, QImage image_mask){
+    
+    struct timeval start, end;
+    gettimeofday(&start, NULL);
+
+    double elapsedTime = 0., current_time = 0.;
+    std::cout <<"TreeOfShapes::Abstraction started"<< std::endl;
+
+    compute_tree(tosParameters, false);
+
+    tree_recomputed = _tree_recomputed;
+
+    printf("---0---- syntexturecolor ..........\n");
+
+    fflush(stdout);
+    // @Declare variables here.
+    int i,j, k, minArea, mn, nsize;
+    Shape pShape, pShapeTemp, pShapeDict;
+
+    float pa, fzero, ALPHA;
+    Cimage imgShapeLabel;
+    Fsignal t2b_index = NULL;
+    ALPHA = 0.0;
+
+    Ccimage imgsyn = mw_change_ccimage(imgsyn, _imgin->nrow, _imgin->ncol);
+
+    if  ( ((imgShapeLabel = mw_new_cimage()) == NULL) || (mw_alloc_cimage(imgShapeLabel, _imgin->nrow, _imgin->ncol) == NULL) )
+        mwerror(FATAL,1,"Not enough memory.\n");
+
+    if  ( ((imgShapeBlur = mw_new_fimage()) == NULL) || (mw_alloc_fimage(imgShapeBlur, _imgin->nrow, _imgin->ncol) == NULL) )
+        mwerror(FATAL,1,"Not enough memory.\n");
+
+    imgsyn = mw_change_ccimage(imgsyn, _imgin->nrow, _imgin->ncol);
+    imgShapeLabel = mw_change_cimage(imgShapeLabel, _imgin->nrow, _imgin->ncol);
+   
+    // Compute FLST on Intensity image  
+     
+    if  ( ((t2b_index = mw_new_fsignal()) == NULL) ||(mw_alloc_fsignal(t2b_index,_pTree->nb_shapes) == NULL) )
+        mwerror(FATAL,1,"Not enough memory.\n");
+
+    // Image filtering    
+    std::cout << "Image filtering" << std::endl;
+
+    // Compute List of pixels of mask (mask select parts to change color)
+    Point_plane  ArrayPixelsMask = (Point_plane) malloc(image_mask.width() * image_mask.height() * sizeof(struct point_plane));
+    Point_plane pCurrentPoint;
+    QColor color_ij;
+    
+    int len_ArrayPixelsMask = 0;
+    for( int i= 0; i< image_mask.width() ; i++)
+        for( int j= 0; j< image_mask.height(); j++){
+            color_ij =image_mask.pixel( i, j );       
+            if (!(color_ij.red() == 0 &&  color_ij.blue() == 0 && color_ij.green() == 0)){
+                pCurrentPoint = &ArrayPixelsMask[len_ArrayPixelsMask];
+                pCurrentPoint->x = i;
+                pCurrentPoint->y = j;
+                len_ArrayPixelsMask = len_ArrayPixelsMask +1;   
+            };
+        };
+
+    std::cout << std::endl<<" len mask in pixels " << len_ArrayPixelsMask << std::endl;
+
+    int max_area = tosParameters.maxarea;
+    filter_image2(&tosParameters.ns,&tosParameters.threshold, &tosParameters.mpixel, &max_area, ArrayPixelsMask, len_ArrayPixelsMask);
+
+    gettimeofday(&end, NULL);
+    current_time = (end.tv_sec  - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1.e6;
+    std::cout << std::endl<<"TreeOfShapes::Image filtered: " << current_time - elapsedTime<<" seconds"<< std::endl;
+    elapsedTime = current_time;
+
+    // Select the rendering order
+    std::cout << "Rendering order " << tosParameters.order <<std::endl;
+    if(tosParameters.order == 0)
+        top2bottom_index_tree(t2b_index);
+    else if(tosParameters.order == 1){
+        if( !_large_to_small_index_computed ){
+            if  ( ((_large_to_small_index = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(_large_to_small_index,_pTree->nb_shapes) == NULL) )
+                mwerror(FATAL,1,"Not enough memory.\n");
+            sortShapes(_large_to_small_index);
+            _large_to_small_index_computed = true;
+        }
+
+        mw_copy_fsignal_values(_large_to_small_index, t2b_index);
+    } 
+    else if(tosParameters.order == 2)
+        random_tree_order(t2b_index);
+    else
+        top2bottom_index_tree(t2b_index);
+
+    gettimeofday(&end, NULL);
+    current_time = (end.tv_sec  - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1.e6;
+    std::cout << std::endl<<"TreeOfShapes::Shape sorted: " << current_time - elapsedTime <<" seconds"<< std::endl;
+    elapsedTime = current_time;
+   
+    // Add a random shift to each shape
+     
+    if(tosParameters.smodel == 0)
+        random_shift_shape(&tosParameters.shift, &tosParameters.theta);
+    else if(tosParameters.smodel == 1)
+        adaptive_shift_shape(&tosParameters.shift, &tosParameters.theta);
+    else
+        adaptive_shift_shape(&tosParameters.shift, &tosParameters.theta);
+
+    gettimeofday(&end, NULL);
+    current_time = (end.tv_sec  - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1.e6;
+    std::cout << std::endl<<"TreeOfShapes::Shaking computed: " << current_time - elapsedTime <<" seconds"<< std::endl;
+    elapsedTime = current_time;
+
+    Fsignal dictionary_correspondance;
+    if  ( ((dictionary_correspondance = mw_new_fsignal()) == NULL) ||
+          (mw_alloc_fsignal(dictionary_correspondance,_pTree->nb_shapes) == NULL) )
+        mwerror(FATAL,1,"Not enough memory.\n");
+
+    bool correspondance_computed = false ;
+    
+    // Shape Shaking Filtering
+     
+    for(i=0; i < _pTree->nb_shapes; i++)  {
+        pShape = _pTree->the_shapes + (int)t2b_index->values[i];
+
+        if((int)t2b_index->values[i] == 0 ) {
+            
+            // If mask, take color for background from mask
+            if (len_ArrayPixelsMask != 0){
+                pCurrentPoint = &ArrayPixelsMask[0];
+                color_ij =image_mask.pixel( pCurrentPoint->x, pCurrentPoint->y ); 
+                ((Info*)(pShape->data))->r = color_ij.red();
+                ((Info*)(pShape->data))->g = color_ij.green();
+                ((Info*)(pShape->data))->b = color_ij.blue();
+            }
+
+            synshapeRect(pShape, imgsyn, &ALPHA, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);    
+        } 
+        else{
+
+           if(pShape->removed != 1){
+
+                // Attribute filtering             
+                mn=3;
+                pShapeTemp =  m_order_parent(pShape, &mn);
+                pa = ((float) pShape->area)/((float) pShapeTemp->area);
+
+                if(pa < tosParameters.kappa)
+                    continue;
+                
+                synshapeOriginal(pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
+                } 
+        }
+        }
+
+    gettimeofday(&end, NULL);
+    elapsedTime = (end.tv_sec  - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1.e6;
+    std::cout << "TreeOfShapes::time elapsed : " << elapsedTime <<" seconds"<< std::endl;
+    std::cout << "***************************" << std::endl << std::endl << std::endl;
+
+    mw_delete_fsignal(t2b_index);
+    mw_delete_cimage(imgShapeLabel);
+
+    _tosParameters = tosParameters;
+    _tree_recomputed = false;
 
     QImage result_image( QSize(imgsyn->ncol, imgsyn->nrow), QImage::Format_RGB32 );
 
