@@ -2478,7 +2478,7 @@ void TreeOfShapes::filter_shapes( Cfimage out, char *local, float *eps){
 
 
 // Filtering the image  
-void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpixel, Point_plane  ArrayPixelsMask, int len_ArrayPixelsMask){
+void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpixel){
     // Declare variables here
     int i ,j, rmn, nn;
     float thre;
@@ -2533,8 +2533,8 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpix
             pShape->removed = 0;
 
         // Check if some point of the mask is in the shape
-        for (j=0; j<len_ArrayPixelsMask; j++){
-            p = &ArrayPixelsMask[j];
+        for (j=0; j<_len_ArrayPixelsMask; j++){
+            p = &_ArrayPixelsMask[j];
             if (point_in_shape(p->x, p->y, pShape, _pTree)){
                 pShape->removed = 1;
                 break;
@@ -2546,7 +2546,7 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpix
 
 
 // Filtering the image  
-void TreeOfShapes::filter_image2(int *ns,float *threshold,int *mpixel,int *maxpixel, Point_plane  ArrayPixelsMask, int len_ArrayPixelsMask, QImage image_mask){
+void TreeOfShapes::filter_image2(int *ns,float *threshold,int *mpixel,int *maxpixel, QImage image_mask){
     // Declare variables here
     int i ,j, rmn, nn;
     float thre;
@@ -2602,8 +2602,8 @@ void TreeOfShapes::filter_image2(int *ns,float *threshold,int *mpixel,int *maxpi
             pShape->removed = 0;
 
         // Check if some point of the mask is in the shape
-        for (j=0; j<len_ArrayPixelsMask; j++){
-            p = &ArrayPixelsMask[j];
+        for (j=0; j<_len_ArrayPixelsMask; j++){
+            p = &_ArrayPixelsMask[j];
             if (point_in_shape(p->x, p->y, pShape, _pTree)){
                 color_mask =image_mask.pixel( p->x, p->y ); 
                 ((Info*)(pShape->data))->r = color_mask.red();
@@ -2876,7 +2876,7 @@ void TreeOfShapes::compute_tree( TOSParameters tosParameters, bool dictionary ){
 }
 
 
-QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, QImage image_mask, TreeOfShapes *tosDictionary, DictionaryParameters dictionaryParameters ){
+QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, QImage image_mask, QImage background, TreeOfShapes *tosDictionary, DictionaryParameters dictionaryParameters ){
     
     struct timeval start, end;
     gettimeofday(&start, NULL);
@@ -2921,7 +2921,9 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     // Image filtering    
     std::cout << "Image filtering" << std::endl;
 
+    QColor color_ij;
     // Compute List of pixels of mask (mask select parts to change by shapes)
+    /*
     Point_plane  ArrayPixelsMask = (Point_plane) malloc(image_mask.width() * image_mask.height() * sizeof(struct point_plane));
     Point_plane pCurrentPoint;
     QColor color_ij;
@@ -2937,11 +2939,10 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                 len_ArrayPixelsMask = len_ArrayPixelsMask +1;   
             };
         };
-
-    std::cout << std::endl<<" len mask in pixels " << len_ArrayPixelsMask << std::endl;
+    */
 
     int max_area = tosParameters.maxarea;
-    filter_image(&tosParameters.ns,&tosParameters.threshold, &tosParameters.mpixel, &max_area, ArrayPixelsMask, len_ArrayPixelsMask);
+    filter_image(&tosParameters.ns,&tosParameters.threshold, &tosParameters.mpixel, &max_area);
 
     gettimeofday(&end, NULL);
     current_time = (end.tv_sec  - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1.e6;
@@ -3049,8 +3050,20 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
             }
             */
 
-            synshapeRect(pShape, imgsyn, &ALPHA, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-            
+            if (_len_ArrayPixelsMask != 0){
+                for( i= 0; i< _pTree->ncol; i++)
+                    for( j= 0; j< _pTree->nrow; j++){
+                        color_ij = background.pixel( i, j ); 
+                        imgsyn->red[j*_pTree->ncol + i] = color_ij.red();
+                        imgsyn->green[j*_pTree->ncol + i] = color_ij.green();
+                        imgsyn->blue[j*_pTree->ncol + i] = color_ij.blue();
+                    }
+            }
+            else{
+                synshapeRect(pShape, imgsyn, &ALPHA, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
+            }
+
+                 
         } 
         else{
 
@@ -3199,10 +3212,10 @@ QImage TreeOfShapes::renderOrigShapesBackground(TOSParameters tosParameters, boo
 
     fflush(stdout);
     // @Declare variables here.
-    int i,j, k, minArea, mn, nsize;
-    Shape pShape, pShapeTemp, pShapeDict;
+    int i,j, mn;
+    Shape pShape, pShapeTemp;
 
-    float pa, fzero, ALPHA;
+    float pa, ALPHA;
     Cimage imgShapeLabel;
     Fsignal t2b_index = NULL;
     ALPHA = 0.0;
@@ -3225,26 +3238,24 @@ QImage TreeOfShapes::renderOrigShapesBackground(TOSParameters tosParameters, boo
     std::cout << "Image filtering" << std::endl;
 
     // Compute List of pixels of mask (mask select parts to change color)
-    Point_plane  ArrayPixelsMask = (Point_plane) malloc(image_mask.width() * image_mask.height() * sizeof(struct point_plane));
+    Point_plane  _ArrayPixelsMask = (Point_plane) malloc(image_mask.width() * image_mask.height() * sizeof(struct point_plane));
     Point_plane pCurrentPoint;
     QColor color_ij;
     
-    int len_ArrayPixelsMask = 0;
+    int _len_ArrayPixelsMask = 0;
     for( int i= 0; i< image_mask.width() ; i++)
         for( int j= 0; j< image_mask.height(); j++){
             color_ij =image_mask.pixel( i, j );       
             if (!(color_ij.red() == 0 &&  color_ij.blue() == 0 && color_ij.green() == 0)){
-                pCurrentPoint = &ArrayPixelsMask[len_ArrayPixelsMask];
+                pCurrentPoint = &_ArrayPixelsMask[_len_ArrayPixelsMask];
                 pCurrentPoint->x = i;
                 pCurrentPoint->y = j;
-                len_ArrayPixelsMask = len_ArrayPixelsMask +1;   
+                _len_ArrayPixelsMask = _len_ArrayPixelsMask +1;   
             };
         };
 
-    std::cout << std::endl<<" len mask in pixels " << len_ArrayPixelsMask << std::endl;
-
     int max_area = tosParameters.maxarea;
-    filter_image2(&tosParameters.ns,&tosParameters.threshold, &tosParameters.mpixel, &max_area, ArrayPixelsMask, len_ArrayPixelsMask, image_mask);
+    filter_image2(&tosParameters.ns,&tosParameters.threshold, &tosParameters.mpixel, &max_area, image_mask);
 
     gettimeofday(&end, NULL);
     current_time = (end.tv_sec  - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1.e6;
@@ -3304,8 +3315,8 @@ QImage TreeOfShapes::renderOrigShapesBackground(TOSParameters tosParameters, boo
         if((int)t2b_index->values[i] == 0 ) {
             
             // If mask, take color for background from mask
-            if (len_ArrayPixelsMask != 0){
-                pCurrentPoint = &ArrayPixelsMask[0];
+            if (_len_ArrayPixelsMask != 0){
+                pCurrentPoint = &_ArrayPixelsMask[0];
                 color_ij =image_mask.pixel( pCurrentPoint->x, pCurrentPoint->y ); 
                 ((Info*)(pShape->data))->r = color_ij.red();
                 ((Info*)(pShape->data))->g = color_ij.green();

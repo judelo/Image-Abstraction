@@ -49,6 +49,8 @@ protected:
     BasicANNkdTree _annTree;
     int _tree_id;
     int _maxArea;
+    Point_plane  _ArrayPixelsMask;
+    int _len_ArrayPixelsMask;
 
     Cfimage _imgin;
     Cfimage _texture_image;
@@ -151,15 +153,11 @@ protected:
     void filter_image(int *ns,
                       float *alpha,
                       int *mpixel,
-                      int *maxpixel, 
-                      Point_plane  ArrayPixelsMask, 
-                      int len_ArrayPixelsMask);
+                      int *maxpixel);
     void filter_image2(int *ns,
                       float *alpha,
                       int *mpixel,
                       int *maxpixel, 
-                      Point_plane  ArrayPixelsMask, 
-                      int len_ArrayPixelsMask,
                       QImage  image_mask);
     void filter_shapes( Cfimage out,
                         char *local,
