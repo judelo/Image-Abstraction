@@ -2928,8 +2928,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     // Compute List of pixels of mask (mask select parts to change by shapes)
     
     //Point_plane  ArrayPixelsMask = (Point_plane) malloc(image_mask.width() * image_mask.height() * sizeof(struct point_plane));
-    Point_plane pCurrentPoint;
-    QColor color_ij;
     
     _len_ArrayPixelsMask = 0;
     for( int i= 0; i< image_mask.width() ; i++)
