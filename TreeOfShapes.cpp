@@ -2926,23 +2926,22 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     QColor color_ij, color_mask;
     Point_plane pCurrentPoint;
     // Compute List of pixels of mask (mask select parts to change by shapes)
-    /*
-    Point_plane  ArrayPixelsMask = (Point_plane) malloc(image_mask.width() * image_mask.height() * sizeof(struct point_plane));
+    
+    //Point_plane  ArrayPixelsMask = (Point_plane) malloc(image_mask.width() * image_mask.height() * sizeof(struct point_plane));
     Point_plane pCurrentPoint;
     QColor color_ij;
     
-    int len_ArrayPixelsMask = 0;
+    _len_ArrayPixelsMask = 0;
     for( int i= 0; i< image_mask.width() ; i++)
         for( int j= 0; j< image_mask.height(); j++){
             color_ij =image_mask.pixel( i, j );       
             if (!(color_ij.red() == 0 &&  color_ij.blue() == 0 && color_ij.green() == 0)){
-                pCurrentPoint = &ArrayPixelsMask[len_ArrayPixelsMask];
+                pCurrentPoint = &_ArrayPixelsMask[_len_ArrayPixelsMask];
                 pCurrentPoint->x = i;
                 pCurrentPoint->y = j;
-                len_ArrayPixelsMask = len_ArrayPixelsMask +1;   
+                _len_ArrayPixelsMask = _len_ArrayPixelsMask +1;   
             };
         };
-    */
 
     int max_area = tosParameters.maxarea;
     filter_image(&tosParameters.ns,&tosParameters.threshold, &tosParameters.mpixel, &max_area);
@@ -3057,8 +3056,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                 pCurrentPoint = &_ArrayPixelsMask[0];
                 color_mask =image_mask.pixel( pCurrentPoint->x, pCurrentPoint->y ); 
 
-                float r=((Info*)(pShape->data))->r, g= ((Info*)(pShape->data))->g, b= ((Info*)(pShape->data))->b;
-
                 for( i= 0; i< imgsyn->ncol; i++)
                     for( j= 0; j< imgsyn->nrow; j++){
                         color_ij = background.pixel( i, j );  
@@ -3068,9 +3065,9 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                             imgsyn->blue[j*_pTree->ncol + i] = color_ij.blue();
                         }
                         else{
-                            imgsyn->red[j*_pTree->ncol + i] = _average_r;//((Info*)(pShape->data))->r;
-                            imgsyn->green[j*_pTree->ncol + i] = _average_g;//((Info*)(pShape->data))->g;
-                            imgsyn->blue[j*_pTree->ncol + i] = _average_b;//((Info*)(pShape->data))->b;
+                            imgsyn->red[j*_pTree->ncol + i] = _average_r;
+                            imgsyn->green[j*_pTree->ncol + i] = _average_g;
+                            imgsyn->blue[j*_pTree->ncol + i] = _average_b;
                         }
                     }
             }
