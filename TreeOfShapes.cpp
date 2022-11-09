@@ -3027,6 +3027,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     }
 
     // Shape Shaking Filtering
+
      
     for(i=0; i < _pTree->nb_shapes; i++)  {
         pShape = _pTree->the_shapes + (int)t2b_index->values[i];
@@ -3051,21 +3052,25 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                 ((Info*)(pShape->data))->b = color_ij.blue();
             }
             */
-
             if (_len_ArrayPixelsMask != 0){
+                pCurrentPoint = &_ArrayPixelsMask[0];
+                color_mask =image_mask.pixel( pCurrentPoint->x, pCurrentPoint->y ); 
+
                 for( i= 0; i< _pTree->ncol; i++)
                     for( j= 0; j< _pTree->nrow; j++){
-                        color_ij = background.pixel( i, j ); 
-                        imgsyn->red[j*_pTree->ncol + i] = color_ij.red();
-                        imgsyn->green[j*_pTree->ncol + i] = color_ij.green();
-                        imgsyn->blue[j*_pTree->ncol + i] = color_ij.blue();
-                    }
+                        color_ij = background.pixel( i, j );  
+                        if (color_ij.red() == color_mask.red() &&  color_ij.blue() == color_mask.blue() && color_ij.green() == color_mask.green()){
+                            imgsyn->red[j*_pTree->ncol + i] = color_ij.red();
+                            imgsyn->green[j*_pTree->ncol + i] = color_ij.green();
+                            imgsyn->blue[j*_pTree->ncol + i] = color_ij.blue();
+                        }
+                        else{
+                            imgsyn->red[j*_pTree->ncol + i] = ((Info*)(pShape->data))->r;
+                            imgsyn->green[j*_pTree->ncol + i] = ((Info*)(pShape->data))->g;
+                            imgsyn->blue[j*_pTree->ncol + i] = ((Info*)(pShape->data))->b;
+                        }
             }
-            else{
-                synshapeRect(pShape, imgsyn, &ALPHA, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-            }
-
-                 
+            //synshapeRect(pShape, imgsyn, &ALPHA, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);          
         } 
         else{
 
