@@ -180,8 +180,8 @@ int main(int argc, char *argv[])
         resulting_image = TOS->render(TOSParameters, tree_recomputed,  image_mask, background, dictionary, dictionaryParameters);
     } else {
         // Run abstraction
-        background = TOS->renderOrigShapesBackground(TOSParameters, tree_recomputed, image_mask);
-        resulting_image = TOS->render(TOSParameters, tree_recomputed, image_mask, background);
+        resulting_image = TOS->renderOrigShapesBackground(TOSParameters, tree_recomputed, image_mask);
+        //resulting_image = TOS->render(TOSParameters, tree_recomputed, image_mask, background);
     };
 
     resulting_image.save("result.png");
