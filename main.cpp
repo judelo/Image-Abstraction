@@ -181,7 +181,9 @@ int main(int argc, char *argv[])
     } else {
         // Run abstraction
         background = TOS->renderOrigShapesBackground(TOSParameters, tree_recomputed, image_mask);
-        resulting_image = TOS->render(TOSParameters, tree_recomputed, image_mask, background);
+
+        TreeOfShapes * TOS2 = new TreeOfShapes(cfimages_from_qimage(image));
+        resulting_image = TOS2->render(TOSParameters, tree_recomputed, image_mask, background);
     };
 
     resulting_image.save("result.png");
