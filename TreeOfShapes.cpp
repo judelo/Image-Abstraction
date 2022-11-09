@@ -2923,7 +2923,8 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     // Image filtering    
     std::cout << "Image filtering" << std::endl;
 
-    QColor color_ij;
+    QColor color_ij, color_mask;
+    Point_plane pCurrentPoint;
     // Compute List of pixels of mask (mask select parts to change by shapes)
     /*
     Point_plane  ArrayPixelsMask = (Point_plane) malloc(image_mask.width() * image_mask.height() * sizeof(struct point_plane));
@@ -3069,6 +3070,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                             imgsyn->green[j*_pTree->ncol + i] = ((Info*)(pShape->data))->g;
                             imgsyn->blue[j*_pTree->ncol + i] = ((Info*)(pShape->data))->b;
                         }
+                    }
             }
             //synshapeRect(pShape, imgsyn, &ALPHA, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);          
         } 
