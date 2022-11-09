@@ -3068,14 +3068,14 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                             imgsyn->blue[j*_pTree->ncol + i] = color_ij.blue();
                         }
                         else{
-                            imgsyn->red[j*_pTree->ncol + i] = r;//((Info*)(pShape->data))->r;
-                            imgsyn->green[j*_pTree->ncol + i] = g;//((Info*)(pShape->data))->g;
-                            imgsyn->blue[j*_pTree->ncol + i] = b;//((Info*)(pShape->data))->b;
+                            imgsyn->red[j*_pTree->ncol + i] = _average_r;//((Info*)(pShape->data))->r;
+                            imgsyn->green[j*_pTree->ncol + i] = _average_g;//((Info*)(pShape->data))->g;
+                            imgsyn->blue[j*_pTree->ncol + i] = _average_b;//((Info*)(pShape->data))->b;
                         }
                     }
             }
             else
-                synshapeRect(pShape, imgsyn, &ALPHA, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);          
+               synshapeRect(pShape, imgsyn, &ALPHA, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);          
         } 
         else{
 
