@@ -41,6 +41,8 @@ TreeOfShapes::TreeOfShapes( Cfimage imageIn ){
     _large_to_small_index_computed = false;
     _texture_image_loaded = false;
     _use_kdtree = false;
+    _ArrayPixelsMask = (Point_plane) malloc(imageIn->ncol * imageIn->nrow * sizeof(struct point_plane));
+    _len_ArrayPixelsMask = 0;
 }
 
 
@@ -3238,11 +3240,11 @@ QImage TreeOfShapes::renderOrigShapesBackground(TOSParameters tosParameters, boo
     std::cout << "Image filtering" << std::endl;
 
     // Compute List of pixels of mask (mask select parts to change color)
-    Point_plane  _ArrayPixelsMask = (Point_plane) malloc(image_mask.width() * image_mask.height() * sizeof(struct point_plane));
+    //Point_plane  _ArrayPixelsMask = (Point_plane) malloc(image_mask.width() * image_mask.height() * sizeof(struct point_plane));
     Point_plane pCurrentPoint;
     QColor color_ij;
     
-    int _len_ArrayPixelsMask = 0;
+    _len_ArrayPixelsMask = 0;
     for( int i= 0; i< image_mask.width() ; i++)
         for( int j= 0; j< image_mask.height(); j++){
             color_ij =image_mask.pixel( i, j );       
