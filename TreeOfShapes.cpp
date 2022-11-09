@@ -2546,11 +2546,11 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpix
 
 
 // Filtering the image  
-void TreeOfShapes::filter_image2(int *ns,float *threshold,int *mpixel,int *maxpixel, Point_plane  ArrayPixelsMask, int len_ArrayPixelsMask){
+void TreeOfShapes::filter_image2(int *ns,float *threshold,int *mpixel,int *maxpixel, Point_plane  ArrayPixelsMask, int len_ArrayPixelsMask, QColor image_mask){
     // Declare variables here
     int i ,j, rmn, nn;
     float thre;
-    float  R,G,B,H,S,L, CONTR;
+    float CONTR;
     float elong, elong_pre, kappa, kappa_pre, oren, oren_pre, sca, sca_pre, Dist;
     Shape pShape;
 
