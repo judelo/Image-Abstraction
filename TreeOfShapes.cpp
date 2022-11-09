@@ -3060,7 +3060,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                 for( i= 0; i< _pTree->ncol; i++)
                     for( j= 0; j< _pTree->nrow; j++){
                         color_ij = background.pixel( i, j );  
-                        if (i==0 && j==0){
+                        if (i==300 && j==510){
                            std::cout << " red 0,0 bakground " << color_ij.red() << std::endl;
                            std::cout << " red 0,0 mask " << color_mask.red() << std::endl; 
                            std::cout << " blue 0,0 bakground " << color_ij.blue() << std::endl;
