@@ -3067,9 +3067,12 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
 
             synshapeRect(pShape, imgsyn, &ALPHA, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);          
             
-            r=((Info*)(pShape->data))->r; 
-            g= ((Info*)(pShape->data))->g; 
-            b= ((Info*)(pShape->data))->b;
+            r= imgsyn->red[0]; 
+            g= imgsyn->green[0]; 
+            b= imgsyn->blue[0];
+
+            std::cout << r << g << b << std::endl;
+
             /*
             if (_len_ArrayPixelsMask != 0){
                 pCurrentPoint = &_ArrayPixelsMask[0];
