@@ -3212,7 +3212,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         for( i= 0; i< imgsyn->ncol; i++)
             for( j= 0; j< imgsyn->nrow; j++){
                 color_ij = background.pixel( i, j ); 
-                int comp = j*imgsyn->ncol + i; 
+                int comp = j*_pTree->ncol + i; 
                 if ((color_ij.red() == color_mask.red()) &&  
                     (color_ij.blue() == color_mask.blue()) && 
                     (color_ij.green() == color_mask.green()) &&
@@ -3222,6 +3222,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                     imgsyn->red[comp] = color_ij.red();
                     imgsyn->green[comp] = color_ij.green();
                     imgsyn->blue[comp] = color_ij.blue();
+                     std::cout << "Entra if"  << std::endl;
                 };
             };
     };
