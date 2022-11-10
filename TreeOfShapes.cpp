@@ -2535,6 +2535,7 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpix
             pShape->removed = 0;
 
         // Check if some point of the mask is in the shape
+        /*
         for (j=0; j<_len_ArrayPixelsMask; j++){
             p = &_ArrayPixelsMask[j];
             if (point_in_shape(p->x, p->y, pShape, _pTree)){
@@ -2543,6 +2544,7 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpix
                 break;
             }; 
         };
+        */
 
     };
 }
@@ -2944,6 +2946,16 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
 
     int max_area = tosParameters.maxarea;
     filter_image(&tosParameters.ns,&tosParameters.threshold, &tosParameters.mpixel, &max_area);
+    Point_plane p;
+    
+    for (j=0; j<_len_ArrayPixelsMask; j++){
+            p = &_ArrayPixelsMask[j];
+            if (point_in_shape(p->x, p->y, pShape, _pTree)){
+                pShape->removed = 1;
+                std::cout <<"Shape removed for mask" << std::endl;
+                break;
+            }; 
+        };
 
     gettimeofday(&end, NULL);
     current_time = (end.tv_sec  - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1.e6;
