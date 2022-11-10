@@ -3215,7 +3215,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                     (color_ij.green() == color_mask.green()) &&
                     (imgsyn->red[comp]== _average_r) &&
                     (imgsyn->green[comp]== _average_g) &&
-                    (imgsyn->blue[comp]== _average_b) &&){
+                    (imgsyn->blue[comp]== _average_b) ){
                     imgsyn->red[comp] = color_ij.red();
                     imgsyn->green[comp] = color_ij.green();
                     imgsyn->blue[comp] = color_ij.blue();
