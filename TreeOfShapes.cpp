@@ -3327,6 +3327,7 @@ QImage TreeOfShapes::renderOrigShapesBackground(TOSParameters tosParameters, boo
         if((int)t2b_index->values[i] == 0 ) {
             
             // If mask, take color for background from mask
+            /*
             if (_len_ArrayPixelsMask != 0){
                 pCurrentPoint = &_ArrayPixelsMask[0];
                 color_ij =image_mask.pixel( pCurrentPoint->x, pCurrentPoint->y ); 
@@ -3334,6 +3335,7 @@ QImage TreeOfShapes::renderOrigShapesBackground(TOSParameters tosParameters, boo
                 ((Info*)(pShape->data))->g = color_ij.green();
                 ((Info*)(pShape->data))->b = color_ij.blue();
             }
+            */
 
             synshapeRect(pShape, imgsyn, &ALPHA, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);    
         } 
