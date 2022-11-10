@@ -3052,7 +3052,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
             */
 
             synshapeRect(pShape, imgsyn, &ALPHA, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);          
-            break;
+
             if (_len_ArrayPixelsMask != 0){
                 pCurrentPoint = &_ArrayPixelsMask[0];
                 color_mask =image_mask.pixel( pCurrentPoint->x, pCurrentPoint->y ); 
@@ -3074,6 +3074,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                         */
                     }
             }
+            break;
         
         } 
         else{
