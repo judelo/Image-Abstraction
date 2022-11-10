@@ -3074,7 +3074,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                         */
                     }
             }
-            break;
+            
         
         } 
         else{
