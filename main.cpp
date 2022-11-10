@@ -186,6 +186,6 @@ int main(int argc, char *argv[])
         resulting_image = TOS2->render(TOSParameters, tree_recomputed, image_mask, background);
     };
 
-    background.save("result.png");
+    resulting_image.save("result.png");
     
 }

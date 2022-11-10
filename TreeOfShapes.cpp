@@ -2539,6 +2539,7 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpix
             p = &_ArrayPixelsMask[j];
             if (point_in_shape(p->x, p->y, pShape, _pTree)){
                 pShape->removed = 1;
+                std::cout <<"Shape removed for mask" << std::endl;
                 break;
             }; 
         };
@@ -3025,7 +3026,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     }
 
     // Shape Shaking Filtering
-
+    int countRemoved = 0;
      
     for(i=0; i < _pTree->nb_shapes; i++)  {
         pShape = _pTree->the_shapes + (int)t2b_index->values[i];
@@ -3065,19 +3066,15 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                             imgsyn->green[j*_pTree->ncol + i] = color_ij.green();
                             imgsyn->blue[j*_pTree->ncol + i] = color_ij.blue();
                         }
-                        /*
-                        else{
-                            imgsyn->red[j*_pTree->ncol + i] = _average_r;
-                            imgsyn->green[j*_pTree->ncol + i] = _average_g;
-                            imgsyn->blue[j*_pTree->ncol + i] = _average_b;
-                        }
-                        */
                     }
             }
             
         
         } 
         else{
+
+           if(pShape->removed == 1)
+              countRemoved= countRemoved +1;
 
            if(pShape->removed != 1){
 
@@ -3179,6 +3176,8 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     elapsedTime = (end.tv_sec  - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1.e6;
     std::cout << "TreeOfShapes::time elapsed : " << elapsedTime <<" seconds"<< std::endl;
     std::cout << "***************************" << std::endl << std::endl << std::endl;
+
+    std::cout << "CountRemoved" << countRemoved << std::endl;
 
     mw_delete_fsignal(t2b_index);
     mw_delete_cimage(imgShapeLabel);
@@ -3325,17 +3324,6 @@ QImage TreeOfShapes::renderOrigShapesBackground(TOSParameters tosParameters, boo
         pShape = _pTree->the_shapes + (int)t2b_index->values[i];
 
         if((int)t2b_index->values[i] == 0 ) {
-            
-            // If mask, take color for background from mask
-            /*
-            if (_len_ArrayPixelsMask != 0){
-                pCurrentPoint = &_ArrayPixelsMask[0];
-                color_ij =image_mask.pixel( pCurrentPoint->x, pCurrentPoint->y ); 
-                ((Info*)(pShape->data))->r = color_ij.red();
-                ((Info*)(pShape->data))->g = color_ij.green();
-                ((Info*)(pShape->data))->b = color_ij.blue();
-            }
-            */
 
             synshapeRect(pShape, imgsyn, &ALPHA, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);    
         } 
