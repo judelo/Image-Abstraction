@@ -2899,6 +2899,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     // @Declare variables here.
     int i,j, k, minArea, mn, nsize;
     Shape pShape, pShapeTemp, pShapeDict;
+    float r, g, b;
 
     float pa, fzero, ALPHA;
     Cimage imgShapeLabel;
@@ -3044,7 +3045,9 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         };
 
         if((int)t2b_index->values[i] == 0 ) {
- 
+            r=((Info*)(pShape->data))->r; 
+            g= ((Info*)(pShape->data))->g; 
+            b= ((Info*)(pShape->data))->b;
             // Take color from dictionary for background
             if (tosParameters.model == 4 && (dictionaryParameters.mcolor == 1 || dictionaryParameters.mcolor ==2)){
                 pShapeDict = tosDictionary->getShape(0);
@@ -3213,9 +3216,9 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                 if ((color_ij.red() == color_mask.red()) &&  
                     (color_ij.blue() == color_mask.blue()) && 
                     (color_ij.green() == color_mask.green()) &&
-                    (imgsyn->red[comp]== _average_r) &&
-                    (imgsyn->green[comp]== _average_g) &&
-                    (imgsyn->blue[comp]== _average_b) ){
+                    (imgsyn->red[comp]== r) &&
+                    (imgsyn->green[comp]== g) &&
+                    (imgsyn->blue[comp]== b) ){
                     imgsyn->red[comp] = color_ij.red();
                     imgsyn->green[comp] = color_ij.green();
                     imgsyn->blue[comp] = color_ij.blue();
