@@ -3065,6 +3065,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
             */
 
             synshapeRect(pShape, imgsyn, &ALPHA, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);          
+            
             /*
             if (_len_ArrayPixelsMask != 0){
                 pCurrentPoint = &_ArrayPixelsMask[0];
@@ -3081,7 +3082,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                     }
             }
             */
-            
         
         } 
         else{
@@ -3203,6 +3203,25 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     _tosParameters = tosParameters;
     _tree_recomputed = false;
 
+    if (_len_ArrayPixelsMask != 0){
+        pCurrentPoint = &_ArrayPixelsMask[0];
+        color_mask =image_mask.pixel( pCurrentPoint->x, pCurrentPoint->y ); 
+        for( i= 0; i< imgsyn->ncol; i++)
+            for( j= 0; j< imgsyn->nrow; j++){
+                color_ij = background.pixel( i, j ); 
+                int comp = j*imgsyn->ncol + i; 
+                if ((color_ij.red() == color_mask.red()) &&  
+                    (color_ij.blue() == color_mask.blue()) && 
+                    (color_ij.green() == color_mask.green()) &&
+                    (imgsyn->red[comp]== _average_r) &&
+                    (imgsyn->green[comp]== _average_g) &&
+                    (imgsyn->blue[comp]== _average_b) &&){
+                    imgsyn->red[comp] = color_ij.red();
+                    imgsyn->green[comp] = color_ij.green();
+                    imgsyn->blue[comp] = color_ij.blue();
+                };
+            };
+    };
 
     QImage result_image( QSize(imgsyn->ncol, imgsyn->nrow), QImage::Format_RGB32 );
 
