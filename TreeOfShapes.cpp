@@ -3056,7 +3056,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
             if (_len_ArrayPixelsMask != 0){
                 pCurrentPoint = &_ArrayPixelsMask[0];
                 color_mask =image_mask.pixel( pCurrentPoint->x, pCurrentPoint->y ); 
-
+                std::cout << std::endl<<"Tiene Mask"<< std::endl;
                 for( i= 0; i< imgsyn->ncol; i++)
                     for( j= 0; j< imgsyn->nrow; j++){
                         color_ij = background.pixel( i, j );  
