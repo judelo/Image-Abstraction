@@ -3038,8 +3038,12 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         for (j=0; j<_len_ArrayPixelsMask; j++){
             p = &_ArrayPixelsMask[j];
             if (point_in_shape(p->x, p->y, pShape, _pTree)){
-                pShape->removed = 1;
-                std::cout <<"Shape removed for mask" << std::endl;
+                //pShape->removed = 1;
+                color_mask =image_mask.pixel( p->x, p->y ); 
+                ((Info*)(pShape->data))->r = color_mask.red();
+                ((Info*)(pShape->data))->g = color_mask.green();
+                ((Info*)(pShape->data))->b = color_mask.blue();
+                std::cout <<"Shape change color" << std::endl;
                 break;
             }; 
         };
