@@ -2900,6 +2900,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     int i,j, k, minArea, mn, nsize;
     Shape pShape, pShapeTemp, pShapeDict;
     float r, g, b;
+    int originalShape = 0;
 
     float pa, fzero, ALPHA;
     Cimage imgShapeLabel;
@@ -3088,11 +3089,14 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                 p = &_ArrayPixelsMask[j];
                 if (point_in_shape(p->x, p->y, pShape, _pTree)){
                     //pShape->removed = 1;
-                    color_mask =image_mask.pixel( p->x, p->y ); 
-                    ((Info*)(pShape->data))->r = color_mask.red();
-                    ((Info*)(pShape->data))->g = color_mask.green();
-                    ((Info*)(pShape->data))->b = color_mask.blue();
-                    std::cout <<"Shape change color" << std::endl;
+                    //color_mask =image_mask.pixel( p->x, p->y ); 
+                    //((Info*)(pShape->data))->r = color_mask.red();
+                    //((Info*)(pShape->data))->g = color_mask.green();
+                    //((Info*)(pShape->data))->b = color_mask.blue();
+                    //std::cout <<"Shape change color" << std::endl;
+                    // Change here
+                    originalShape = 1:
+
                     break;
                 }; 
             };
@@ -3113,7 +3117,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
 
                 // Select the rendering model
                 
-                if(tosParameters.model == 0){
+                if(tosParameters.model == 0) || (originalShape = 1){
                     if(tosParameters.blur == 1)
                         synshapeOriginal(pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
                     else
@@ -3213,7 +3217,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
 
     _tosParameters = tosParameters;
     _tree_recomputed = false;
-
+    /*
     if (_len_ArrayPixelsMask != 0){
         pCurrentPoint = &_ArrayPixelsMask[0];
         color_mask =image_mask.pixel( pCurrentPoint->x, pCurrentPoint->y ); 
@@ -3234,6 +3238,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                 };
             };
     };
+    */
 
     QImage result_image( QSize(imgsyn->ncol, imgsyn->nrow), QImage::Format_RGB32 );
 
