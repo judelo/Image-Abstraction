@@ -3117,7 +3117,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
 
                 // Select the rendering model
                 
-                if(tosParameters.model == 0) || (originalShape = 1){
+                if(tosParameters.model == 0) || (originalShape == 1){
                     if(tosParameters.blur == 1)
                         synshapeOriginal(pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
                     else
