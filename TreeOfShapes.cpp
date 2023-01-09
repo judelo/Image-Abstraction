@@ -3084,7 +3084,8 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         
         } 
         else{
-            originalShape == 0;
+            originalShape = 0;
+
             for (j=0; j<_len_ArrayPixelsMask; j++){
                 p = &_ArrayPixelsMask[j];
                 if (point_in_shape(p->x, p->y, pShape, _pTree)){
