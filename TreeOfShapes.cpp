@@ -557,57 +557,6 @@ void TreeOfShapes::synshapeRect(Shape pShape,
     
     MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
 
-    // Median Filter  
-    /*
-    MedSize = (int)((*median)/2.0);
-    for(x = left; x <= right; x++)
-        for(y = top; y <= bottom; y++){
-            numMedain = 0;
-            for(iKer = - MedSize; iKer <= MedSize; iKer++)
-                for(jKer = - MedSize; jKer <= MedSize; jKer++){
-                    xKer = x + iKer;
-                    yKer = y + jKer;
-
-                    if(xKer<0 || xKer>= imgShapeLabelSyn->ncol ||
-                            yKer<0 || yKer>= imgShapeLabelSyn->nrow )
-                        continue;
-
-                    imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] +=
-                            (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
-                    numMedain++;
-                }
-            if( imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] < ((float) numMedain)/2.0 )
-                imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
-            else
-                imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 1.0;
-        }
-
-    for(x = left; x <= right; x++)
-        for(y = top; y <= bottom; y++){
-            imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] = (int) imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
-            imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
-        }
-
-    // Add Gaussian Blur  
-    KerSize = (int) ( sqrt( (double) gaussKernel->size) /2.0 );
-    for(x = left; x <= right; x++)
-        for(y = top; y <= bottom; y++){
-            for(iKer = -KerSize; iKer <= KerSize; iKer++)
-                for(jKer = -KerSize; jKer <= KerSize; jKer++){
-                    xKer = x + iKer;
-                    yKer = y + jKer;
-
-                    if(xKer<0 || xKer>= imgShapeLabelSyn->ncol ||
-                            yKer<0 || yKer>= imgShapeLabelSyn->nrow )
-                        continue;
-
-                    imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] +=
-                            gaussKernel->values[(iKer + KerSize)*KerSize + (jKer + KerSize)]*
-                            (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
-                }
-        }
-    */
-
     // Synthesis  
     if(*relief == 1 && pShape->area > 10)
     {
@@ -833,56 +782,7 @@ void TreeOfShapes::synshapeEllipse(Shape pShape,
         }
 
     MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
-    // Median Filter  
-    /*
-    MedSize = (int)((*median)/2.0);
-    for(x = left; x <= right; x++)
-        for(y = top; y <= bottom; y++){
-            numMedain = 0;
-            for(iKer = - MedSize; iKer <= MedSize; iKer++)
-                for(jKer = - MedSize; jKer <= MedSize; jKer++){
-                    xKer = x + iKer;
-                    yKer = y + jKer;
-
-                    if(xKer<0 || xKer>= imgShapeLabelSyn->ncol ||
-                            yKer<0 || yKer>= imgShapeLabelSyn->nrow )
-                        continue;
-
-                    imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] +=
-                            (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
-                    numMedain++;
-                }
-            if( imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] < ((float) numMedain)/2.0 )
-                imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
-            else
-                imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 1.0;
-        }
-
-    for(x = left; x <= right; x++)
-        for(y = top; y <= bottom; y++){
-            imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] = (int) imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
-            imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
-        }
-
-    // Add Gaussian Blur  
-    KerSize = (int) ( sqrt( (double) gaussKernel->size) /2.0 );
-    for(x = left; x <= right; x++)
-        for(y = top; y <= bottom; y++){
-            for(iKer = -KerSize; iKer <= KerSize; iKer++)
-                for(jKer = -KerSize; jKer <= KerSize; jKer++){
-                    xKer = x + iKer;
-                    yKer = y + jKer;
-
-                    if(xKer<0 || xKer>= imgShapeLabelSyn->ncol ||
-                            yKer<0 || yKer>= imgShapeLabelSyn->nrow )
-                        continue;
-
-                    imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] +=
-                            gaussKernel->values[(iKer + KerSize)*KerSize + (jKer + KerSize)]*
-                            (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
-                }
-        }
-    */
+   
     // Synthesis  
     if(*relief == 1 && pShape->area > 10){
         float shLambda, shTR, shTG, shTB;
@@ -1011,56 +911,7 @@ void TreeOfShapes::synshapeCircle(Shape pShape,
             }
         }
     MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
-    /*
-    // Median Filter  
-    MedSize = (int)((*median)/2.0);
-    for(x = left; x <= right; x++)
-        for(y = top; y <= bottom; y++){
-            numMedain = 0;
-            for(iKer = - MedSize; iKer <= MedSize; iKer++)
-                for(jKer = - MedSize; jKer <= MedSize; jKer++){
-                    xKer = x + iKer;
-                    yKer = y + jKer;
-
-                    if(xKer<0 || xKer>= imgShapeLabelSyn->ncol ||
-                            yKer<0 || yKer>= imgShapeLabelSyn->nrow )
-                        continue;
-
-                    imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] +=
-                            (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
-                    numMedain++;
-                }
-            if( imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] < ((float) numMedain)/2.0 )
-                imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
-            else
-                imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 1.0;
-        }
-
-    for(x = left; x <= right; x++)
-        for(y = top; y <= bottom; y++){
-            imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] = (int) imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
-            imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
-        }
-
-    // Add Gaussian Bulr  
-    KerSize = (int) ( sqrt( (double) gaussKernel->size) /2.0 );
-    for(x = left; x <= right; x++)
-        for(y = top; y <= bottom; y++){
-            for(iKer = -KerSize; iKer <= KerSize; iKer++)
-                for(jKer = -KerSize; jKer <= KerSize; jKer++){
-                    xKer = x + iKer;
-                    yKer = y + jKer;
-
-                    if(xKer<0 || xKer>= imgShapeLabelSyn->ncol ||
-                            yKer<0 || yKer>= imgShapeLabelSyn->nrow )
-                        continue;
-
-                    imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] +=
-                            gaussKernel->values[(iKer + KerSize)*KerSize + (jKer + KerSize)]*
-                            (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
-                }
-        }
-    */
+    
     // Synthesis  
     if(*relief == 1 && pShape->area > 10){
         float shLambda, shTR, shTG, shTB;
@@ -1630,8 +1481,8 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
             }
         }
     
-    //MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
-    
+    MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
+    /*
     // Median Filter  
     MedSize = (int)((*median)/2.0);
     for(x = ceil(left); x <= right; x++)
@@ -1716,7 +1567,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 }
 
         }
-    
+    */
     if(*relief == 1 && pShape->area > 30){
         float shLambda, shTR, shTG, shTB;
         int xsh, ysh, shiftsh;
@@ -1865,57 +1716,8 @@ void TreeOfShapes::synshapeOriginal(Shape pShape,
         right  = _MAX(xi, right);
         bottom = _MAX(yi, bottom);
     }
+
     MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
-    // Median Filter  
-    /*
-    MedSize = (int)((*median)/2.0);
-    for(x = left; x <= right; x++)
-        for(y = top; y <= bottom; y++){
-            numMedain = 0;
-            for(iKer = - MedSize; iKer <= MedSize; iKer++)
-                for(jKer = - MedSize; jKer <= MedSize; jKer++){
-                    xKer = x + iKer;
-                    yKer = y + jKer;
-
-                    if(xKer<0 || xKer>= imgShapeLabelSyn->ncol ||
-                            yKer<0 || yKer>= imgShapeLabelSyn->nrow )
-                        continue;
-
-                    imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] +=
-                            (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
-                    numMedain++;
-                }
-            if( imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] < ((float) numMedain)/2.0 )
-                imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
-            else
-                imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 1.0;
-        }
-
-    for(x = left; x <= right; x++)
-        for(y = top; y <= bottom; y++){
-            imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] = (int) imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
-            imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
-        }
-
-    // Add Gaussian Blur  
-    KerSize = (int) ( sqrt( (double) gaussKernel->size) /2.0 );
-    for(x = left; x <= right; x++)
-        for(y = top; y <= bottom; y++){
-            for(iKer = -KerSize; iKer <= KerSize; iKer++)
-                for(jKer = -KerSize; jKer <= KerSize; jKer++){
-                    xKer = x + iKer;
-                    yKer = y + jKer;
-
-                    if(xKer<0 || xKer>= imgShapeLabelSyn->ncol ||
-                            yKer<0 || yKer>= imgShapeLabelSyn->nrow )
-                        continue;
-
-                    imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] +=
-                            gaussKernel->values[(iKer + KerSize)*KerSize + (jKer + KerSize)]*
-                            (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
-                }
-        }
-    */
 
     // Synthesis  
     if(*relief == 1 && pShape->area > 10){
