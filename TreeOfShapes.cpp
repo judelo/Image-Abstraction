@@ -127,7 +127,7 @@ void TreeOfShapes::shape_orilam(Shape pShape, float *out_ori, float *out_e, floa
 
     float size;
     float a11, a20, a02, x0, y0, sumx, sumy, lambda1, lambda2;
-    int i,j;
+    int i;
 
     size = (float)pShape->area;
 
@@ -166,7 +166,7 @@ void TreeOfShapes::shape_orilam(Shape pShape, float *out_ori, float *out_e, floa
 void TreeOfShapes::shape_orilam(Shape pShape, float *out_ori, float *out_e, float *out_k, float *pX0, float *pY0){
     float size;
     float a11, a20, a02, x0, y0, sumx, sumy, lambda1, lambda2;
-    int i,j;
+    int i;
 
     size = (float)pShape->area;
 
@@ -319,7 +319,7 @@ float TreeOfShapes::min_contrast(Shape pShape){
 void TreeOfShapes::shape_boundingbox(Shape pShape){
 
     float xmin, xmax, ymin, ymax, theta, x0temp, y0temp;
-    float x, y, xr, yr, sx, sy;
+    float x, y, xr, yr;
     int size, ncol, nrow, i;
 
     ncol = _pTree->ncol;
@@ -332,12 +332,11 @@ void TreeOfShapes::shape_boundingbox(Shape pShape){
 
     xmin = ncol;  xmax = -ncol;
     ymin = nrow;  ymax = -nrow;
-    sx = 1.0; sy = 1.0;
     for(i = 0; i< size; i++){
         x = (float)((pShape->pixels+i)->x - x0temp);
         y = (float)((pShape->pixels+i)->y - y0temp);
 
-        // Scaling_rotation_dict2(&x, &y, &sx, &sy, &theta, &xr, &yr);
+        // Scaling_rotation_dict2(&x, &y, &theta, &xr, &yr);
         xr = (int)( x*cos(theta) + y*sin(theta));
         yr = (int)( y*cos(theta) - x*sin(theta));
 
@@ -412,12 +411,11 @@ void TreeOfShapes::compute_shape_attribute(){
 // Compute shape attribute  
 void TreeOfShapes::compute_shape_attribute(int *ns)
 {
-    int i, j, kn, nb, nn, nsize, num;
-    float oren, elg, kap, stdtemp, meantemp, mmin, mmax;
-    int *pKN;
-    Shape pShape, pShapeTemp, pShapeCh;
+    int i, nn;
+    float oren, elg, kap;
+    Shape pShape, pShapeTemp;
 
-    nn = *ns; nsize = 3;
+    nn = *ns; 
 
     for(i = _pTree->nb_shapes-1; i>=0; i--){
         pShape = _pTree->the_shapes + i;
@@ -718,7 +716,7 @@ void TreeOfShapes::synshapeRect(Shape pShape, Ccimage imgsyn, float *alpha, int 
     // Synthesis  
     if(*relief == 1 && pShape->area > 10)
     {
-        float shLambda, shTR, shTG, shTB;
+        float shLambda;
         int xsh, ysh, shiftsh;
         if(pShape->area > 10)
             shiftsh = *reliefHeight;
@@ -788,7 +786,7 @@ void TreeOfShapes::synshapeEllipse(Shape pShape,
                                    float *reliefOrentation, float *reliefHeight){
 
     int xi, yi, x, y, iKer, jKer, KerSize, MedSize, xKer, yKer, numMedain;
-    float xr, yr, ALPHA, BETA, a, b, x0temp, y0temp, top, right, left, bottom;
+    float ALPHA, BETA, a, b, x0temp, y0temp, top, right, left, bottom;
     float phi, xi_e, yi_e;
     float xShift, yShift, theta, tR, tG, tB, TR, TG, TB, tr, tg, tb;
 
@@ -966,7 +964,7 @@ void TreeOfShapes::synshapeCircle(Shape pShape,
                                   float *reliefOrentation, float *reliefHeight){
 
     int xi, yi, x, y, iKer, jKer, KerSize, MedSize, xKer, yKer, numMedain;
-    float xr, yr, ALPHA, BETA, a, b, x0temp, y0temp, top, right, left, bottom;
+    float ALPHA, BETA, a, b, x0temp, y0temp, top, right, left, bottom;
     float phi, xi_e, yi_e;
     float xShift, yShift, theta, tR, tG, tB, TR, TG, TB, tr, tg, tb;
 
@@ -1822,9 +1820,8 @@ void TreeOfShapes::synshapeOriginal(Shape pShape,
                                     float *reliefOrentation, float *reliefHeight){
 
     int i, xi, yi, x, y, iKer, jKer, KerSize, MedSize, xKer, yKer, numMedain;
-    float xr, yr, x0temp, y0temp, ALPHA, BETA, a, b;
+    float xr, yr, x0temp, y0temp, ALPHA, BETA;
     float xShift, yShift, theta, tR, tG, tB, tr, tg, tb, TR, TG, TB;
-    float minX, maxX, minY, maxY;
     float top, right, left, bottom;
 
     ALPHA = *alpha;
@@ -1989,7 +1986,7 @@ void TreeOfShapes::synshapeOriginal( Shape pShape,
     
     int i, xi, yi;
     float x, y, xr, yr, x0temp, y0temp, ALPHA;
-    float xShift, yShift, theta, tR, tG, tB, tb, TR, TG, TB;
+    float xShift, yShift, theta, tR, tG, tB, TR, TG, TB;
 
     ALPHA = *alpha;
     x0temp = (((Info*)(pShape->data))->x0);
@@ -2270,10 +2267,10 @@ void TreeOfShapes::filter_shapes( Cfimage out, char *local, float *eps){
 // Filtering the image  
 void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpixel){
     // Declare variables here
-    int i ,j, rmn, nn;
+    int i, nn;
     float thre;
-    float  R,G,B,H,S,L, CONTR;
-    float elong, elong_pre, kappa, kappa_pre, oren, oren_pre, sca, sca_pre, Dist;
+    float CONTR;
+    float elong, elong_pre, kappa_pre, oren, oren_pre, sca, sca_pre, Dist;
     Shape pShape;
     thre = *threshold;
     nn = *ns;
@@ -2374,9 +2371,8 @@ void TreeOfShapes::computeKdTree(float average_r, float average_g, float average
             pShape = _pTree->the_shapes + i;
 
             float lambda1, lambda2;
-            float elong, kappa, elongDict, kappaDict, Dist, minDist;
-            float sca, scaDict, pa;
-            int mn, temp;
+            float elongDict, kappaDict;
+            float scaDict;
 
             lambda1 = ((Info*)(pShape->data))->lambda1;
             lambda2 = ((Info*)(pShape->data))->lambda2;
@@ -2532,7 +2528,6 @@ Shape TreeOfShapes::getShape(int index){
 
 void TreeOfShapes::compute_tree( TOSParameters tosParameters, bool dictionary ){
 
-    double elapsedTime = 0., current_time = 0.;
     std::cout <<"Compute_tree started"<< std::endl;
     if( !_tree_computed || _tosParameters.color_sketch != tosParameters.color_sketch ||
             ( _tosParameters.color_sketch == 1 & _tosParameters.eps != tosParameters.eps ) ){
@@ -2548,7 +2543,7 @@ void TreeOfShapes::compute_tree( TOSParameters tosParameters, bool dictionary ){
             mw_delete_cfimage(out);
 
         } 
-        else if( _tosParameters.color_sketch == 1 & tosParameters.color_sketch == 0 || !_tree_computed)
+        else if( (_tosParameters.color_sketch == 1) && (tosParameters.color_sketch == 0 || !_tree_computed))
             init(_imgin, _pTree);
 
         _tree_computed = true;
@@ -2582,10 +2577,10 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     tree_recomputed = _tree_recomputed;
 
     //Declare variables
-    int i,j, k, minArea, mn, nsize;
+    int i,j, mn;
     Shape pShape, pShapeTemp, pShapeDict;
     int maskIntersectionWithShape;
-    float pa, fzero, ALPHA;
+    float pa, ALPHA;
     Cimage imgShapeLabel;
     Fimage imgShapeBlur;
     Fsignal t2b_index = NULL, gaussKernel;
