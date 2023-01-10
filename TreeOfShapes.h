@@ -169,6 +169,9 @@ protected:
                       float *alpha,
                       int *equal, int *mcolor, int *relief,
                       float *reliefOrentation, float *reliefHeight);
+    void MedianFilterAndGaussianBlur(float left, float right, float top, float bottom, 
+                                               Cimage imgShapeLabelSyn,Fimage imgShapeBlurSyn,
+                                               Fsignal gaussKernel, int *median);
 };
 
 #endif // TREEOFSHAPES_H

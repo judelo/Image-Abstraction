@@ -439,6 +439,62 @@ void TreeOfShapes::compute_shape_attribute(int *ns)
     }
 }
 
+void TreeOfShapes::MedianFilterAndGaussianBlur(float left, float right, float top, float bottom, 
+                                               Cimage imgShapeLabelSyn,Fimage imgShapeBlurSyn,
+                                               Fsignal gaussKernel, int *median){
+
+    int x, y, iKer, jKer, KerSize, MedSize, xKer, yKer, numMedain;
+
+    // Median Filter  
+    MedSize = (int)((*median)/2.0);
+    for(x = left; x <= right; x++)
+        for(y = top; y <= bottom; y++){
+            numMedain = 0;
+            for(iKer = - MedSize; iKer <= MedSize; iKer++)
+                for(jKer = - MedSize; jKer <= MedSize; jKer++){
+                    xKer = x + iKer;
+                    yKer = y + jKer;
+
+                    if(xKer<0 || xKer>= imgShapeLabelSyn->ncol ||
+                            yKer<0 || yKer>= imgShapeLabelSyn->nrow )
+                        continue;
+
+                    imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] +=
+                            (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
+                    numMedain++;
+                }
+            if( imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] < ((float) numMedain)/2.0 )
+                imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
+            else
+                imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 1.0;
+        }
+
+    for(x = left; x <= right; x++)
+        for(y = top; y <= bottom; y++){
+            imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] = (int) imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
+            imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
+        }
+
+    // Add Gaussian Blur  
+    KerSize = (int) ( sqrt( (double) gaussKernel->size) /2.0 );
+    for(x = left; x <= right; x++)
+        for(y = top; y <= bottom; y++){
+            for(iKer = -KerSize; iKer <= KerSize; iKer++)
+                for(jKer = -KerSize; jKer <= KerSize; jKer++){
+                    xKer = x + iKer;
+                    yKer = y + jKer;
+
+                    if(xKer<0 || xKer>= imgShapeLabelSyn->ncol ||
+                            yKer<0 || yKer>= imgShapeLabelSyn->nrow )
+                        continue;
+
+                    imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] +=
+                            gaussKernel->values[(iKer + KerSize)*KerSize + (jKer + KerSize)]*
+                            (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
+                }
+       }
+} 
+
 // Synthesis by Shape Shaking  
 // Before the Shaking, smooth the shape with a gaussian kernel or a median filter  
 void TreeOfShapes::synshapeRect(Shape pShape,
@@ -500,8 +556,11 @@ void TreeOfShapes::synshapeRect(Shape pShape,
                 bottom = _MAX(yi, bottom);
             }
         }
-
+    
+    MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, *median);
+    
     // Median Filter  
+    /*
     MedSize = (int)((*median)/2.0);
     for(x = left; x <= right; x++)
         for(y = top; y <= bottom; y++){
@@ -549,6 +608,7 @@ void TreeOfShapes::synshapeRect(Shape pShape,
                             (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
                 }
         }
+    */
 
     // Synthesis  
     if(*relief == 1 && pShape->area > 10)
@@ -2746,9 +2806,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
 
     if( tosParameters.model == 4 && !correspondance_computed )
         mw_copy_fsignal_values( dictionary_correspondance, _dictionary_selections[ tosDictionary->getTreeId() ]);
-
-    //_tosParameters = tosParameters;
-    // _tree_recomputed = false;
 
     QImage result_image( QSize(imgsyn->ncol, imgsyn->nrow), QImage::Format_RGB32 );
 
