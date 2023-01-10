@@ -162,13 +162,6 @@ protected:
                       float *alpha,
                       int *equal, int *mcolor, int *relief,
                       float *reliefOrentation, float *reliefHeight);
-    void synShapeDict(Shape pShapeDict, Shape pShape,
-                      Ccimage imgsyn,
-                      Cfimage imgDict, Cfimage imgShapeColorSyn,
-                      Cimage imgShapeLabel, Cimage imgShapeLabelSyn,
-                      float *alpha,
-                      int *equal, int *mcolor, int *relief,
-                      float *reliefOrentation, float *reliefHeight);
     void MedianFilterAndGaussianBlur(float left, float right, float top, float bottom, 
                                                Cimage imgShapeLabelSyn,Fimage imgShapeBlurSyn,
                                                Fsignal gaussKernel, int *median);

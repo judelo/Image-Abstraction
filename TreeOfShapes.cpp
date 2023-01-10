@@ -1178,205 +1178,6 @@ void TreeOfShapes::synshapeEllipse(Shape pShape,
         }
 }
 
-void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
-                                Ccimage imgsyn,
-                                Cfimage imgDict, Cfimage imgShapeColorSyn,
-                                Cimage imgShapeLabel, Cimage imgShapeLabelSyn,
-                                float *alpha,
-                                int *equal, int *mcolor, int *relief,
-                                float *reliefOrentation, float *reliefHeight){
-
-    int i, x, y,  xi, yi;
-    float xr, yr, xt, yt, x0temp, y0temp, x0tempDict, y0tempDict, x0tempTransformed, y0tempTransformed;
-    float tR, tG, tB, ALPHA, TR, TG, TB;
-    float xBound_l, xBound_r, yBound_t, yBound_b;
-    float SCALEx, SCALEy, theta, thetaDict, rotation, xShift, yShift;
-    float top, right, left, bottom;
-    float a, b, bLimit, tempx;
-    ALPHA = *alpha;
-
-    xBound_l = (int) ((Info*)(pShapeDict->data))->boundingbox[0];
-    xBound_r = (int) ((Info*)(pShapeDict->data))->boundingbox[1];
-    yBound_t = (int) ((Info*)(pShapeDict->data))->boundingbox[2];
-    yBound_b = (int) ((Info*)(pShapeDict->data))->boundingbox[3];
-
-    // Begin Label pShapeDict
-    for(i=0; i < pShapeDict->area; i++){
-        x = (pShapeDict->pixels+i)->x;
-        y = (pShapeDict->pixels+i)->y;
-        imgShapeLabel->gray[y*imgShapeLabel->ncol + x] = 1;
-    }
-
-    srand( time(NULL) );
-    if(*mcolor == 1){
-        tempx = (rand()%10);
-        TR = ((Info*)(pShapeDict->data))->r + tempx*0;
-        TG = ((Info*)(pShapeDict->data))->g + tempx*0;
-        TB = ((Info*)(pShapeDict->data))->b + tempx*0;
-    }
-    else{
-        TR  = ((Info*)(pShape->data))->r + tempx*0;
-        TG  = ((Info*)(pShape->data))->g + tempx*0;
-        TB  = ((Info*)(pShape->data))->b + tempx*0;
-    }
-
-    if(*mcolor == 2){
-        TR  = ((Info*)(pShapeDict->data))->r;
-        TG  = ((Info*)(pShapeDict->data))->g;
-        TB  = ((Info*)(pShapeDict->data))->b;
-    }
-
-    if(*equal == 1){
-        SCALEx = sqrt( (double) pShape->area / (double) pShapeDict->area );
-        SCALEy = SCALEx;
-    }
-    else{
-        SCALEx =  sqrt( ((Info*)(pShape->data))->lambda1) /  sqrt(((Info*)(pShapeDict->data))->lambda1 );
-        SCALEy =  sqrt( ((Info*)(pShape->data))->lambda2) /  sqrt(((Info*)(pShapeDict->data))->lambda2 );
-    }
-
-    a = SCALEx * (xBound_r - xBound_l);
-    b = SCALEy * (yBound_b - yBound_t);
-
-    bLimit = (1.0*sqrt(a*a + b*b)/2.0);
-
-    x0temp = ((Info*)(pShape->data))->x0;
-    y0temp = ((Info*)(pShape->data))->y0;
-
-    x0tempDict =  ((Info*)(pShapeDict->data))->x0;
-    y0tempDict =  ((Info*)(pShapeDict->data))->y0;
-
-    theta  = ((Info*)(pShape->data))->oren;
-    thetaDict = ((Info*)(pShapeDict->data))->oren;
-
-    xShift = (((Info*)(pShape->data))->xShift);
-    yShift = (((Info*)(pShape->data))->yShift);
-
-    rotation  = (((Info*)(pShape->data))->rotation);
-
-    left   = _MAX(0, x0temp - bLimit);
-    right  = _MIN(imgsyn->ncol - 1, x0temp + bLimit );
-    top    = _MAX(0, y0temp - bLimit);
-    bottom = _MIN(imgsyn->nrow - 1, y0temp + bLimit);
-
-    // Transformation  
-    for(x = ceil(left); x <= right; x++)
-        for(y = ceil(top); y <= bottom; y++){
-            xt = (x - x0temp);
-            yt = (y - y0temp);
-
-            // Rotate to the major axis for scaling
-            xi = ( (1/SCALEx)* (xt*cos(theta) + yt*sin(theta)));
-            yi = ( (1/SCALEy)* (yt*cos(theta) - xt*sin(theta)));
-
-            // Inverse-transformation
-            xr = ( (xi*cos(thetaDict) - yi*sin(thetaDict)) + x0tempDict);
-            yr = ( (yi*cos(thetaDict) + xi*sin(thetaDict)) + y0tempDict);
-
-            if(xr <0 || xr >=imgShapeLabel->ncol ||
-                    yr <0 || yr >=imgShapeLabel->nrow)
-                continue;
-
-            if( imgShapeLabel->gray[(int)(yr)*imgShapeLabel->ncol + (int)(xr)] == 1 ){
-                imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] = 1;
-                imgShapeColorSyn->red[y*imgShapeLabelSyn->ncol + x]   =  imgDict->red[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
-                imgShapeColorSyn->green[y*imgShapeLabelSyn->ncol + x] =  imgDict->green[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
-                imgShapeColorSyn->blue[y*imgShapeLabelSyn->ncol + x]  =  imgDict->blue[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
-            }
-        }
-
-    x0tempTransformed = (x0tempDict - x0temp)*cos(theta) + (y0tempDict - y0temp)*sin(theta) +x0temp;
-    y0tempTransformed = (y0tempDict - y0temp)*cos(theta) - (x0tempDict - x0temp)*sin(theta) +y0temp;
-
-    if(*relief == 1 && pShape->area > 30){
-        float shLambda, shTR, shTG, shTB;
-        int xsh, ysh, shiftsh;
-        if(pShape->area > 30)
-            shiftsh = (*reliefHeight);
-        else
-            shiftsh = (*reliefHeight)*( (float) pShape->area /30.0);;
-
-        shLambda = 0.3;
-        for(x = ceil(left); x <= right; x++)
-            for(y = ceil(top); y <= bottom; y++){
-                if(imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] == 0)
-                    continue;
-
-                if(*mcolor == 1){
-                    TR  = imgShapeColorSyn->red[y*imgShapeLabelSyn->ncol + x];
-                    TG  = imgShapeColorSyn->green[y*imgShapeLabelSyn->ncol + x];
-                    TB  = imgShapeColorSyn->blue[y*imgShapeLabelSyn->ncol + x];
-                }
-
-                xr = (x - x0tempTransformed)*cos(rotation) + (y - y0tempTransformed)*sin(rotation);
-                yr = (y - y0tempTransformed)*cos(rotation) - (x - x0tempTransformed)*sin(rotation);
-
-                xi = floor(xShift + x0tempTransformed + xr);
-                yi = floor(yShift + y0tempTransformed + yr);
-
-                shTR = TR* shLambda;
-                shTG = TG* shLambda;
-                shTB = TB* shLambda;
-
-                xsh = xi + shiftsh*cos( PI*(*reliefOrentation)/180.0 );
-                ysh = yi - shiftsh*sin( PI*(*reliefOrentation)/180.0 );
-                xsh = _MAX(0, xsh);
-                xsh = _MIN(imgsyn->ncol - 1, xsh);
-                ysh = _MAX(0, ysh);
-                ysh = _MIN(imgsyn->nrow - 1, ysh);
-
-                if(xsh>= 0 && xsh< _pTree->ncol && ysh>= 0 && ysh< _pTree->nrow){
-                    tR = ((float) imgsyn->red[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*shTR;
-                    imgsyn->red[ysh*imgsyn->ncol + xsh]   = (int) tR; 
-
-                    tG = ((float) imgsyn->green[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*shTG;
-                    imgsyn->green[ysh*imgsyn->ncol + xsh] = (int) tG;  
-
-                    tB = ((float) imgsyn->blue[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*shTB;
-                    imgsyn->blue[ysh*imgsyn->ncol + xsh]  = (int) tB;  
-                }
-            }
-    }
-
-    TR  = ((Info*)(pShape->data))->r + tempx*0;
-    TG  = ((Info*)(pShape->data))->g + tempx*0;
-    TB  = ((Info*)(pShape->data))->b + tempx*0;
-
-    if(*mcolor == 2){
-        TR  = ((Info*)(pShapeDict->data))->r;
-        TG  = ((Info*)(pShapeDict->data))->g;
-        TB  = ((Info*)(pShapeDict->data))->b;
-    }
-    for(x = ceil(left); x <= right; x++)
-        for(y = ceil(top); y <= bottom; y++){
-            if(imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] == 0)
-                continue;
-
-            if(*mcolor == 1){
-                TR  = imgShapeColorSyn->red[y*imgShapeLabelSyn->ncol + x];
-                TG  = imgShapeColorSyn->green[y*imgShapeLabelSyn->ncol + x];
-                TB  = imgShapeColorSyn->blue[y*imgShapeLabelSyn->ncol + x];
-            }
-
-            xr = (x - x0tempTransformed)*cos(rotation) + (y - y0tempTransformed)*sin(rotation);
-            yr = (y - y0tempTransformed)*cos(rotation) - (x - x0tempTransformed)*sin(rotation);
-
-            xi = floor(xShift + x0tempTransformed + xr);
-            yi = floor(yShift + y0tempTransformed + yr);
-
-            if(xi>= 0 && xi< _pTree->ncol && yi>= 0 && yi< _pTree->nrow){
-                tR = ((float) imgsyn->red[yi*_pTree->ncol + xi])*ALPHA + (1-ALPHA)*TR;
-                imgsyn->red[yi*_pTree->ncol + xi] = (int)rint((double) tR);
-
-                tG = ((float) imgsyn->green[yi*_pTree->ncol + xi])*ALPHA + (1-ALPHA)*TG;
-                imgsyn->green[yi*_pTree->ncol + xi] = (int)rint((double) tG);
-
-                tB = ((float) imgsyn->blue[yi*_pTree->ncol + xi])*ALPHA + (1-ALPHA)*TB;
-                imgsyn->blue[yi*_pTree->ncol + xi] = (int)rint((double) tB);
-            }
-        }
-}
-
 
 void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                                 Ccimage imgsyn,
@@ -1531,7 +1332,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
             imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
         }
 
-    // Add Gaussian Bulr  
+    // Add Gaussian Blur  
     KerSize = (int) ( sqrt( (double) gaussKernel->size) /2.0 );
     for(x = ceil(left); x <= right; x++)
         for(y = ceil(top); y <= bottom; y++){
@@ -2585,13 +2386,9 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                         pShapeDict = tosDictionary->selectShapeDict(pShape, &dictionaryParameters.kappaDict, &dictionaryParameters.randS, shape_id, _average_r, _average_g, _average_b);
                         dictionary_correspondance->values[(int)t2b_index->values[i]] = shape_id;
                     }
-                    if( tosParameters.blur == 1 )
-                        synShapeDict( pShapeDict, pShape, imgsyn, imgDict, imgShapeColorSyn, imgShapeLabel, imgShapeLabelSyn, imgShapeBlurSyn, gaussKernel, &tosParameters.median, &tosParameters.alpha,
+                    synShapeDict( pShapeDict, pShape, imgsyn, imgDict, imgShapeColorSyn, imgShapeLabel, imgShapeLabelSyn, imgShapeBlurSyn, gaussKernel, &tosParameters.median, &tosParameters.alpha,
                                     &dictionaryParameters.equal, &dictionaryParameters.mcolor,&tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-                    else
-                        synShapeDict( pShapeDict, pShape, imgsyn, imgDict, imgShapeColorSyn, imgShapeLabel, imgShapeLabelSyn, &tosParameters.alpha,
-                                    &dictionaryParameters.equal, &dictionaryParameters.mcolor,&tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-
+                    
                     mw_delete_cfimage(imgShapeColorSyn);
                     mw_delete_cimage(imgShapeLabel);
                     mw_delete_cimage(imgShapeLabelSyn);
