@@ -832,7 +832,9 @@ void TreeOfShapes::synshapeEllipse(Shape pShape,
             }
         }
 
+    MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
     // Median Filter  
+    /*
     MedSize = (int)((*median)/2.0);
     for(x = left; x <= right; x++)
         for(y = top; y <= bottom; y++){
@@ -880,7 +882,7 @@ void TreeOfShapes::synshapeEllipse(Shape pShape,
                             (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
                 }
         }
-
+    */
     // Synthesis  
     if(*relief == 1 && pShape->area > 10){
         float shLambda, shTR, shTG, shTB;
@@ -1008,7 +1010,8 @@ void TreeOfShapes::synshapeCircle(Shape pShape,
                 bottom = _MAX(yi, bottom);
             }
         }
-
+    MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
+    /*
     // Median Filter  
     MedSize = (int)((*median)/2.0);
     for(x = left; x <= right; x++)
@@ -1057,7 +1060,7 @@ void TreeOfShapes::synshapeCircle(Shape pShape,
                             (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
                 }
         }
-
+    */
     // Synthesis  
     if(*relief == 1 && pShape->area > 10){
         float shLambda, shTR, shTG, shTB;
@@ -1626,7 +1629,9 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 imgShapeColorSyn->blue[y*imgShapeLabelSyn->ncol + x]  =  imgDict->blue[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
             }
         }
-
+    
+    //MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
+    
     // Median Filter  
     MedSize = (int)((*median)/2.0);
     for(x = ceil(left); x <= right; x++)
@@ -1711,7 +1716,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 }
 
         }
-
+    
     if(*relief == 1 && pShape->area > 30){
         float shLambda, shTR, shTG, shTB;
         int xsh, ysh, shiftsh;
@@ -1860,8 +1865,9 @@ void TreeOfShapes::synshapeOriginal(Shape pShape,
         right  = _MAX(xi, right);
         bottom = _MAX(yi, bottom);
     }
-
+    MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
     // Median Filter  
+    /*
     MedSize = (int)((*median)/2.0);
     for(x = left; x <= right; x++)
         for(y = top; y <= bottom; y++){
@@ -1909,6 +1915,7 @@ void TreeOfShapes::synshapeOriginal(Shape pShape,
                             (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
                 }
         }
+    */
 
     // Synthesis  
     if(*relief == 1 && pShape->area > 10){
