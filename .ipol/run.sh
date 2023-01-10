@@ -16,7 +16,8 @@ maxarea=${12}
 scaleratio=${13}
 threshold=${14}
 eps=${15}
+alternative_model=${16}
 
-echo $bin/image_abstraction input_0.png $task $model $options $color_sketch $renderOrder $alpha $modelDictionary $mcolor $equal $kappaDict $mpixel $maxarea $scaleratio $threshold $eps input_1.png mask_0.png
+echo $bin/image_abstraction input_0.png $task $model $options $color_sketch $renderOrder $alpha $modelDictionary $mcolor $equal $kappaDict $mpixel $maxarea $scaleratio $threshold $eps $alternative_model input_1.png mask_0.png
 
-$bin/image_abstraction input_0.png $task $model $options  $color_sketch $renderOrder $alpha $modelDictionary $mcolor $equal $kappaDict $mpixel $maxarea $scaleratio $threshold $eps input_1.png mask_0.png
+$bin/image_abstraction input_0.png $task $model $options  $color_sketch $renderOrder $alpha $modelDictionary $mcolor $equal $kappaDict $mpixel $maxarea $scaleratio $threshold $eps $alternative_model input_1.png mask_0.png
