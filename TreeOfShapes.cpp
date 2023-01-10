@@ -2957,27 +2957,27 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                     continue;
 
                 // Select the rendering model
-                if ((tosParameters.model == 0) || ((maskIntersectionWithShape == 1) && (alternative_model ==0))){
+                if (((maskIntersectionWithShape == 0) && (tosParameters.model == 0)) || ((maskIntersectionWithShape == 1) && (alternative_model ==0))){
                     if(tosParameters.blur == 1)
                         synshapeOriginal(pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
                     else
                         synshapeOriginal(pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-                } else if ((tosParameters.model == 1) || ((maskIntersectionWithShape == 1) && (alternative_model ==1))){
+                } else if (((maskIntersectionWithShape == 0) && (tosParameters.model == 1)) || ((maskIntersectionWithShape == 1) && (alternative_model ==1))){
                     if(tosParameters.blur == 1)
                         synshapeEllipse(pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
                     else
                         synshapeEllipse(pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-                } else if ((tosParameters.model == 2) || ((maskIntersectionWithShape == 1) && (alternative_model ==2))){
+                } else if (((maskIntersectionWithShape == 0) && (tosParameters.model == 2)) || ((maskIntersectionWithShape == 1) && (alternative_model ==2))){
                     if(tosParameters.blur == 1)
                         synshapeRect(pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
                     else
                         synshapeRect(pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-                } else if ((tosParameters.model == 3) || ((maskIntersectionWithShape == 1) && (alternative_model ==3))){
+                } else if (((maskIntersectionWithShape == 0) && (tosParameters.model == 3)) || ((maskIntersectionWithShape == 1) && (alternative_model ==3))){
                     if(tosParameters.blur == 1)
                         synshapeCircle(pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
                     else
                         synshapeCircle(pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-                } else if ((tosParameters.model == 4) || ((maskIntersectionWithShape == 1) && (alternative_model ==4))){
+                } else if (((maskIntersectionWithShape == 0) && (tosParameters.model == 4)) || ((maskIntersectionWithShape == 1) && (alternative_model ==4))){
 
                     // Dictionary
                     Cfimage imgDict = tosDictionary->getCfImage();
