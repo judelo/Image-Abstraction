@@ -1481,8 +1481,8 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
             }
         }
     
-    MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
-    /*
+    //MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
+
     // Median Filter  
     MedSize = (int)((*median)/2.0);
     for(x = ceil(left); x <= right; x++)
@@ -1567,7 +1567,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 }
 
         }
-    */
+    
     if(*relief == 1 && pShape->area > 30){
         float shLambda, shTR, shTG, shTB;
         int xsh, ysh, shiftsh;
