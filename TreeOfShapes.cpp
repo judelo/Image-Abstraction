@@ -557,8 +557,8 @@ void TreeOfShapes::synshapeRect(Shape pShape,
             }
         }
     
-    MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, *median);
-    
+    MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
+
     // Median Filter  
     /*
     MedSize = (int)((*median)/2.0);
