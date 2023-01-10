@@ -64,12 +64,13 @@ void TreeOfShapes::init(Cfimage inputImg, Shapes &pTree){
     // Compute Intensity image
     for( int i= 0; i< inputImg->ncol; i++)
         for( int j= 0; j< inputImg->nrow; j++){
-            imgIntensity->gray[j*inputImg->ncol + i] = (int)(inputImg->blue[j*inputImg->ncol + i]
+            imgIntensity->gray[j*inputImg->ncol + i] = (int)(inputImg->blue[j*inputImg->ncol + i] 
                     + inputImg->red[j*inputImg->ncol + i]
                     + inputImg->green[j*inputImg->ncol + i])/3;
         }
 
-    float fzero = 0.; int nsize = 3;
+    float fzero = 0.; 
+    int nsize = 3;
     fderiv(imgIntensity,NULL,NULL,NULL,NULL,NULL,NULL,_NormOfDu,NULL,&fzero,&nsize);
      
     // Compute FLST on Intensity image   
@@ -102,9 +103,6 @@ void TreeOfShapes::init(Cfimage inputImg, Shapes &pTree){
     // Compute shape attribute
     std::cout << "Compute shape attributes" << std::endl;
     compute_shape_attribute();
-
-    // Synthesize the image
-    printf("------- Synthesize the image ..........\n");
 }
 
 
@@ -118,7 +116,6 @@ TreeOfShapes::~TreeOfShapes(){
         for (std::map<int, Fsignal>::iterator it = _dictionary_selections.begin(); it !=  _dictionary_selections.end(); ++it){
             mw_delete_fsignal( it->second );
         }
-
         if( _texture_image_loaded )
             mw_delete_cfimage(_texture_image);
     }
@@ -224,147 +221,24 @@ void TreeOfShapes::Order(Fsignal t2b_index, int *p, int *q){
 
 // Indexing the mn-order parent of the pShape
 Shape TreeOfShapes::m_order_parent(Shape pShape, int *mn, bool dict){
-    int t;
     Shape pShapeTemp;
     pShapeTemp = pShape;
-    for(t=0; t<(*mn); t++)
-    {
+
+    for(int t=0; t<(*mn); t++){
         if(pShapeTemp->parent == NULL)
             break;
-
+        
         if( dict ){
             for(pShapeTemp=pShape->parent; ((Info*)(pShapeTemp->data))->show != 1 && pShapeTemp !=NULL; pShapeTemp=pShapeTemp->parent)
             {;
             }
-        } else {
+        } else 
             pShapeTemp = pShapeTemp->parent;
-        }
     }
 
     return pShapeTemp;
 }
 
-
-// Sampling the leaf node of the tree according to given distribution
-void TreeOfShapes::random_leaf(Fsignal leaf, Fsignal t2b_index,int *k_ind){
-    Shape pShape, pShapeTemp;
-    int i, size, select_i;
-    float pb_sum, temp;
-    Fsignal pb=0;
-
-    size = leaf->size;
-
-    if(size <= 0)
-        return;
-
-    srand ( time(NULL) );
-
-    select_i = size-1;
-
-    if(size > 1){
-        pb_sum = 0.0;
-        pb = mw_change_fsignal(pb,size);
-        mw_clear_fsignal(pb,0.0);
-
-        for(i=0; i< size; i++){
-            // Sampling by uniform distribution;
-            pb->values[i] = 1;
-            pb_sum += pb->values[i];
-        }
-
-        for(i=0; i< size; i++)
-            pb->values[i] /= pb_sum;
-
-        for(i=1; i< size; i++)
-            pb->values[i] += pb->values[i-1];
-
-        temp = ((float)rand())/RAND_MAX;
-
-        for(i= 0; i< size; i++){
-            if( temp <= pb->values[i]){
-                select_i = i;
-                break;
-            }
-        }
-    }
-
-    t2b_index->values[*k_ind] = leaf->values[2*select_i +0];
-
-    pShape = _pTree->the_shapes + (int) leaf->values[2*select_i +0];
-    pShapeTemp = pShape->parent;
-    if(pShapeTemp != NULL){
-        ((Info*)(pShapeTemp->data))->child --;
-        if(((Info*)(pShapeTemp->data))->child ==0){
-            leaf->values[2*select_i +0] = (float) ((Info*)(pShapeTemp->data))->index;
-            leaf->values[2*select_i +1] = (float) pShapeTemp->area;
-        }
-        else{
-            for(i = select_i+1; i< size; i++){
-                leaf->values[2*(i-1) +0] = leaf->values[2*(i) +0];
-                leaf->values[2*(i-1) +1] = leaf->values[2*(i) +1];
-            }
-            size = size - 1;
-            mw_change_fsignal(leaf,size);
-        }
-    }
-    else{
-        size = 0;
-        mw_change_fsignal(leaf,size);
-    }
-
-    mw_delete_fsignal(pb);
-}
-
-
-// Visit the tree in random order
-void TreeOfShapes::random_tree_order(Fsignal t2b_index){
-    int i,j, a,b, nleaf, k_ind;
-    Shape pShape, pShapeTemp;
-    Fsignal leaf=0;
-
-    leaf = mw_change_fsignal(leaf, 2*_pTree->nb_shapes);
-    mw_clear_fsignal(leaf,0.0);
-
-    mw_change_fsignal(t2b_index, _pTree->nb_shapes);
-    mw_clear_fsignal(t2b_index,0.0);
-
-    nleaf = 0;
-    for(i=0; i< _pTree->nb_shapes; i++) {
-        pShape = _pTree->the_shapes + i;
-        ((Info*)(pShape->data))->index = i;
-        ((Info*)(pShape->data))->child = 0;
-
-        for(pShapeTemp=pShape->child; pShapeTemp!=NULL;
-            pShapeTemp=pShapeTemp->next_sibling){
-            ((Info*)(pShape->data))->child += 1;
-        }
-
-        if( ((Info*)(pShape->data))->child == 0){
-            leaf->values[2*nleaf +0] = (float) ((Info*)(pShape->data))->index;
-            leaf->values[2*nleaf +1] = (float)  pShape->area;
-            nleaf++;
-        }
-    }
-
-    mw_change_fsignal(leaf, nleaf);
-    k_ind = 0;
-
-    while(k_ind < _pTree->nb_shapes){
-        random_leaf(leaf, t2b_index, &k_ind);
-        k_ind++;
-    }
-
-    mw_change_fsignal(leaf, _pTree->nb_shapes);
-    mw_clear_fsignal(leaf,0.0);
-    for(i=0; i< _pTree->nb_shapes; i++){
-        leaf->values[i] = t2b_index->values[i];
-    }
-    for(i=0; i< _pTree->nb_shapes; i++){
-        t2b_index->values[i] =  leaf->values[_pTree->nb_shapes-1-i];
-    }
-
-    mw_delete_fsignal(leaf);
-}
 
 
 // Indexing the tree by the Breadth-first order
@@ -400,143 +274,6 @@ void TreeOfShapes::top2bottom_index_tree(Fsignal t2b_index){
             queArr[qInd++] = (((Info*)(pShapeTemp->data))->index);
             rear++;
         }
-    }
-}
-
-
-// Compute the mean contrast of the curve l
-float TreeOfShapes::mean_contrast(Shape pShape){
-
-    double per;
-    float mu,meanmu,x,y,ox,oy;
-    int i,ix,iy;
-
-    Flist pBoundary = NULL;
-    pBoundary = mw_change_flist(pBoundary, 4*pShape->area+1, 0, 2);
-    flst_boundary(_pTree, pShape, pBoundary);
-
-    per = 0.;
-    meanmu = 0.0;
-
-    for (i=0; i<pBoundary->size;i++) {
-        x = pBoundary->values[i*2];
-        y = pBoundary->values[i*2+1];
-
-        if (i>0) per += sqrt((double)(x-ox)*(x-ox)+(y-oy)*(y-oy));
-        ox = x; oy = y;
-
-        ix = (int)rint((double)x)-1;
-        iy = (int)rint((double)y)-1;
-        if (ix>=0 && iy>=0 && ix<_NormOfDu->ncol && iy<_NormOfDu->nrow) {
-            mu = _NormOfDu->gray[_NormOfDu->ncol*iy+ix];
-            meanmu += mu;
-        }
-    }
-    meanmu /= pBoundary->size;
-    if (meanmu == FLT_MAX) meanmu = 0.;
-
-    free(pBoundary->data);
-    mw_delete_flist(pBoundary);
-    return(meanmu);
-}
-
-
-void TreeOfShapes::adaptive_shift_shape(float *shift, float *theta){
-    int i,j;
-    Shape pShape;
-    float SHIFT, THETA, tempx, tempy, tempt, tempShiftx, tempShifty;
-    float a,b,phi, CONTRAST;
-    SHIFT = *shift;
-    THETA = *theta;
-
-    srand( time(NULL) );
-    for(i = _pTree->nb_shapes-1; i>= 0; i--)
-    {
-        pShape = _pTree->the_shapes + i;
-
-        if(pShape == NULL )
-            continue;
-
-        if(i==0)
-        {
-            ((Info*)(pShape->data))->xShift = 0;
-            ((Info*)(pShape->data))->yShift = 0;
-            ((Info*)(pShape->data))->rotation = 0;
-            continue;
-        }
-
-        if( (rand()%10) >5 )
-            tempx = -((float)rand())/RAND_MAX;
-        else
-            tempx = ((float)rand())/RAND_MAX;
-
-        if( (rand()%10) >5 )
-            tempy = -((float)rand())/RAND_MAX;
-        else
-            tempy = ((float)rand())/RAND_MAX;
-
-        if( (rand()%10) >5 )
-            tempt = -((float)rand())/RAND_MAX;
-        else
-            tempt = ((float)rand())/RAND_MAX;
-
-        a = 2.0 * sqrt(((Info*)(pShape->data))->lambda1);
-        b = 2.0 * sqrt(((Info*)(pShape->data))->lambda2);
-        phi = ((Info*)(pShape->data))->oren;
-
-        tempShiftx = tempx*SHIFT;
-        tempShifty = tempy*SHIFT*pow((b/a),2);
-
-        ((Info*)(pShape->data))->xShift = tempShiftx*cos(phi) + tempShifty*sin(phi);
-        ((Info*)(pShape->data))->yShift = tempShifty*cos(phi) - tempShiftx*sin(phi);
-
-        ((Info*)(pShape->data))->rotation = tempt*THETA*PI*(b/a);
-
-        CONTRAST = mean_contrast(pShape);
-
-        ((Info*)(pShape->data))->xShift *= 1/pow(CONTRAST, 0.5);
-        ((Info*)(pShape->data))->yShift *= 1/pow(CONTRAST, 0.5);
-        ((Info*)(pShape->data))->rotation *= 1/pow(CONTRAST, 0.5);
-
-    }
-}
-
-
-void TreeOfShapes::random_shift_shape(float *shift, float * theta){
-
-    int i,j;
-    Shape pShape;
-    float SHIFT, THETA, tempx, tempy, temprotation;
-    SHIFT = *shift;
-    THETA = *theta;
-
-    srand( time(NULL) );
-    for(i = _pTree->nb_shapes-1; i>= 0; i--)
-    {
-        pShape = _pTree->the_shapes + i;
-
-        if(pShape == NULL )
-            continue;
-        if(i==0)
-        {
-            ((Info*)(pShape->data))->xShift = 0;
-            ((Info*)(pShape->data))->yShift = 0;
-            ((Info*)(pShape->data))->rotation = 0;
-            continue;
-        }
-
-        if( (rand()%10) >5 )
-            tempx = -((float)rand())/RAND_MAX;
-        else
-            tempx = ((float)rand())/RAND_MAX;
-
-        if( (rand()%10) >5 )
-            tempy = -((float)rand())/RAND_MAX;
-        else
-            tempy = ((float)rand())/RAND_MAX;
-
-        ((Info*)(pShape->data))->xShift = tempx*SHIFT;
-        ((Info*)(pShape->data))->yShift = tempy*SHIFT;
     }
 }
 
@@ -794,7 +531,7 @@ void TreeOfShapes::synshapeRect(Shape pShape,
             imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
         }
 
-    // Add Gaussian Bulr  
+    // Add Gaussian Blur  
     KerSize = (int) ( sqrt( (double) gaussKernel->size) /2.0 );
     for(x = left; x <= right; x++)
         for(y = top; y <= bottom; y++){
@@ -1067,7 +804,7 @@ void TreeOfShapes::synshapeEllipse(Shape pShape,
             imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
         }
 
-    // Add Gaussian Bulr  
+    // Add Gaussian Blur  
     KerSize = (int) ( sqrt( (double) gaussKernel->size) /2.0 );
     for(x = left; x <= right; x++)
         for(y = top; y <= bottom; y++){
@@ -2281,9 +2018,6 @@ void TreeOfShapes::synshapeOriginal( Shape pShape,
 
 void TreeOfShapes::sortShapes(Fsignal t2b_index){
 
-    struct timeval start, end;
-    gettimeofday(&start, NULL);
-
     std::priority_queue < std::pair<int, int>, std::deque< std::pair<int, int> > , std::less<std::pair<int, int> > > AreaShapeIDQueue;
     Shape pShape;
 
@@ -2294,16 +2028,10 @@ void TreeOfShapes::sortShapes(Fsignal t2b_index){
 
     int i = 0;
     while(!AreaShapeIDQueue.empty()){
-
         std::pair<int, int> area_id_pair = AreaShapeIDQueue.top();
         AreaShapeIDQueue.pop();
-
         t2b_index->values[i++] = area_id_pair.second;
     }
-    gettimeofday(&end, NULL);
-    double elapsedTime = (end.tv_sec  - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1.e6;
-    std::cout << "priority sortShapes::time elapsed : " << elapsedTime <<" seconds"<< std::endl;
-    std::cout << "***************************" << std::endl << std::endl << std::endl;
 }
 
 
@@ -2487,11 +2215,8 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpix
     float  R,G,B,H,S,L, CONTR;
     float elong, elong_pre, kappa, kappa_pre, oren, oren_pre, sca, sca_pre, Dist;
     Shape pShape;
-
     thre = *threshold;
     nn = *ns;
-
-    Point_plane p;
 
     compute_shape_attribute(&nn);
 
@@ -2746,11 +2471,9 @@ Shape TreeOfShapes::getShape(int index){
 
 
 void TreeOfShapes::compute_tree( TOSParameters tosParameters, bool dictionary ){
-    struct timeval start, end;
-    gettimeofday(&start, NULL);
 
     double elapsedTime = 0., current_time = 0.;
-    std::cout <<"TreeOfShapes::Abstraction started"<< std::endl;
+    std::cout <<"Compute_tree started"<< std::endl;
     if( !_tree_computed || _tosParameters.color_sketch != tosParameters.color_sketch ||
             ( _tosParameters.color_sketch == 1 & _tosParameters.eps != tosParameters.eps ) ){
 
@@ -2779,13 +2502,7 @@ void TreeOfShapes::compute_tree( TOSParameters tosParameters, bool dictionary ){
             mw_delete_fsignal( it->second );
         
         _dictionary_selections.clear();
-
         _large_to_small_index_computed = false;
-
-        gettimeofday(&end, NULL);
-        current_time = (end.tv_sec  - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1.e6;
-        std::cout << std::endl<<"TreeOfShapes::Tree of " << _pTree->nb_shapes << " shapes computed : " << current_time - elapsedTime <<" seconds"<< std::endl;
-        elapsedTime = current_time;
     }
 
     if( dictionary ){
@@ -2857,33 +2574,15 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     std::cout << "Rendering order " << tosParameters.order <<std::endl;
     if(tosParameters.order == 0)
         top2bottom_index_tree(t2b_index);
-    else if(tosParameters.order == 1){
+    else{ //(tosParameters.order == 1)
         if( !_large_to_small_index_computed ){
             if  ( ((_large_to_small_index = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(_large_to_small_index,_pTree->nb_shapes) == NULL) )
                 mwerror(FATAL,1,"Not enough memory.\n");
             sortShapes(_large_to_small_index);
             _large_to_small_index_computed = true;
         }
-
         mw_copy_fsignal_values(_large_to_small_index, t2b_index);
     } 
-    else if(tosParameters.order == 2)
-        random_tree_order(t2b_index);
-    else
-        top2bottom_index_tree(t2b_index);
-
-     
-    // Add a random shift to each shape
-    /*
-    std::cout << "Image Shaking" << std::endl;
-     
-    if(tosParameters.smodel == 0)
-        random_shift_shape(&tosParameters.shift, &tosParameters.theta);
-    else if(tosParameters.smodel == 1)
-        adaptive_shift_shape(&tosParameters.shift, &tosParameters.theta);
-    else
-        adaptive_shift_shape(&tosParameters.shift, &tosParameters.theta);
-    */
   
     // Compute a Gaussian kernel
     std::cout << "Compute a Gaussian kernel" << std::endl;

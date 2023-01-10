@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
     char * model_char = argv[3];              // Synthesis model: orignal shape: m=0; ellipse: m=1; rectangle: m=2; circle m=3,  dictionary m=4, random: m=5 (not use);
     std::stringstream ss(argv[4]);
     char * color_sketch_char = argv[5];       // Keep meaningful boundaries: No 0, Yes 1;
-    char * renderOrder_char = argv[6];        //rendering order of the shapes: top->down: o=0 ; large->small: o=1; random: o=2"
+    char * renderOrder_char = argv[6];        //rendering order of the shapes: top->down: o=0 ; large->small: o=1;"
     char * alpha_char = argv[7];              // Transparency (between 0 and 1)
     char * modelDictionary_char = argv[8];    // Selection model: randS=0, randomly select shapes; randS=1, select shapes according to elongation, compactness and scale; randS=2, select shapes according to elongation, compactness, scale and color",
     char * mcolor_char = argv[9];             // Select de source of color
