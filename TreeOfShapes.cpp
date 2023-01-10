@@ -2543,7 +2543,7 @@ void TreeOfShapes::compute_tree( TOSParameters tosParameters, bool dictionary ){
             mw_delete_cfimage(out);
 
         } 
-        else if( (_tosParameters.color_sketch == 1) && (tosParameters.color_sketch == 0 || !_tree_computed))
+        else if( _tosParameters.color_sketch == 1 & tosParameters.color_sketch == 0 || !_tree_computed)
             init(_imgin, _pTree);
 
         _tree_computed = true;
