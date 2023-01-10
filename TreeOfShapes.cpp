@@ -2270,7 +2270,7 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpix
     int i, nn;
     float thre;
     float CONTR;
-    float elong, elong_pre, kappa_pre, oren, oren_pre, sca, sca_pre, Dist;
+    float elong, elong_pre, kappa, kappa_pre, oren, oren_pre, sca, sca_pre, Dist;
     Shape pShape;
     thre = *threshold;
     nn = *ns;
