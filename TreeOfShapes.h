@@ -165,7 +165,7 @@ protected:
     void MedianFilterAndGaussianBlur(float left, float right, float top, float bottom, 
                                                Cimage imgShapeLabelSyn,Fimage imgShapeBlurSyn,
                                                Fsignal gaussKernel, int *median);
-    void TreeOfShapes::synshape(int model, Shape pShape,
+    void synshape(int model, Shape pShape,
                                    Ccimage imgsyn,
                                    float *alpha,
                                    int *relief,
