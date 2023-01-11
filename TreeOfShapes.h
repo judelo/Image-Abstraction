@@ -76,11 +76,6 @@ protected:
     float min_contrast(Shape pShape);
     void synshapeCircle(Shape pShape,
                         Ccimage imgsyn,
-                        float *alpha,
-                        int *relief,
-                        float *reliefOrentation, float *reliefHeight);
-    void synshapeCircle(Shape pShape,
-                        Ccimage imgsyn,
                         Cimage imgShapeLabelSyn,
                         Fimage imgShapeBlurSyn,
                         Fsignal gaussKernel,
@@ -90,11 +85,6 @@ protected:
                         float *reliefOrentation, float *reliefHeight);
     void synshapeEllipse(Shape pShape,
                          Ccimage imgsyn,
-                         float *alpha,
-                         int *relief,
-                         float *reliefOrentation, float *reliefHeight);
-    void synshapeEllipse(Shape pShape,
-                         Ccimage imgsyn,
                          Cimage imgShapeLabelSyn,
                          Fimage imgShapeBlurSyn,
                          Fsignal gaussKernel,
@@ -102,11 +92,6 @@ protected:
                          float *alpha,
                          int *relief,
                          float *reliefOrentation, float *reliefHeight);
-    void synshapeRect(Shape pShape,
-                      Ccimage imgsyn,
-                      float *alpha,
-                      int *relief,
-                      float *reliefOrentation, float *reliefHeight);
     void synshapeRect(Shape pShape,
                       Ccimage imgsyn,
                       Cimage imgShapeLabelSyn,
