@@ -1199,7 +1199,7 @@ void TreeOfShapes::synshape(int model, Shape pShape,
         right  = _MIN(_pTree->ncol -1, x0temp + a);
         top    = _MAX(0, y0temp - a);
         bottom = _MIN(_pTree->nrow - 1, y0temp + a);
-    } elif (model == 2){ //Rectangle
+    } else if (model == 2){ //Rectangle
         a = (sqrt(3.0 * ((Info*)(pShape->data))->lambda1));
         b = (sqrt(3.0 * ((Info*)(pShape->data))->lambda2));
         float bLimit = sqrt(2.0)*a;
@@ -1207,7 +1207,7 @@ void TreeOfShapes::synshape(int model, Shape pShape,
         right  = _MIN(_pTree->ncol -1, x0temp + bLimit);
         top    = _MAX(0, y0temp - bLimit);
         bottom = _MIN(_pTree->nrow - 1, y0temp + bLimit);
-    }elif (model == 3){ //Circle
+    }else if (model == 3){ //Circle
         a = 2.0 * sqrt(((Info*)(pShape->data))->lambda1);
         b = 2.0 * sqrt(((Info*)(pShape->data))->lambda2);
         left   = _MAX(0, x0temp - b);
@@ -1238,9 +1238,9 @@ void TreeOfShapes::synshape(int model, Shape pShape,
 
                 if (model == 1){ //Ellipse
                    condition = ( xi_e*xi_e/(a*a) + yi_e*yi_e/(b*b) <= 1 );
-                } elif (model == 2){ //Rectangle
+                } else if (model == 2){ //Rectangle
                    condition = ( xi_e >= -a && xi_e <= +a && yi_e >= -b && yi_e <= +b );
-                }elif (model == 3){ //Circle
+                }else if (model == 3){ //Circle
                    condition = ( xi_e*xi_e/(b*b) + yi_e*yi_e/(b*b) <= 1 );
                 };
 
@@ -1279,9 +1279,9 @@ void TreeOfShapes::synshape(int model, Shape pShape,
 
             if (model == 1){ //Ellipse
                 condition = ( xi_e*xi_e/(a*a) + yi_e*yi_e/(b*b) <= 1 );
-            } elif (model == 2){ //Rectangle
+            } else if (model == 2){ //Rectangle
                 condition = ( xi_e >= -a && xi_e <= +a && yi_e >= -b && yi_e <= +b );
-            }elif (model == 3){ //Circle
+            }else if (model == 3){ //Circle
                 condition = ( xi_e*xi_e/(b*b) + yi_e*yi_e/(b*b) <= 1 );
             };
 
