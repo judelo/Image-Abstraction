@@ -74,33 +74,6 @@ protected:
     void shape_orilam(Shape pShape, float *out_ori, float *out_e, float *out_k, float *pX0, float *pY0);
     void compute_shape_attribute();
     float min_contrast(Shape pShape);
-    void synshapeCircle(Shape pShape,
-                        Ccimage imgsyn,
-                        Cimage imgShapeLabelSyn,
-                        Fimage imgShapeBlurSyn,
-                        Fsignal gaussKernel,
-                        int *median,
-                        float *alpha,
-                        int *relief,
-                        float *reliefOrentation, float *reliefHeight);
-    void synshapeEllipse(Shape pShape,
-                         Ccimage imgsyn,
-                         Cimage imgShapeLabelSyn,
-                         Fimage imgShapeBlurSyn,
-                         Fsignal gaussKernel,
-                         int *median,
-                         float *alpha,
-                         int *relief,
-                         float *reliefOrentation, float *reliefHeight);
-    void synshapeRect(Shape pShape,
-                      Ccimage imgsyn,
-                      Cimage imgShapeLabelSyn,
-                      Fimage imgShapeBlurSyn,
-                      Fsignal gaussKernel,
-                      int *median,
-                      float *alpha,
-                      int *relief,
-                      float *reliefOrentation, float *reliefHeight);
     void synshapeOriginal(Shape pShape,
                           Ccimage imgsyn,
                           Cimage imgShapeLabelSyn,
