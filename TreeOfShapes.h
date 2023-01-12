@@ -155,6 +155,15 @@ protected:
                                    float *alpha,
                                    int *relief,
                                    float *reliefOrentation, float *reliefHeight);
+    void synshape(Shape pShape,
+                                  Ccimage imgsyn,
+                                  Cimage imgShapeLabelSyn,
+                                  Fimage imgShapeBlurSyn,
+                                  Fsignal gaussKernel,
+                                  int *median,
+                                  float *alpha,
+                                  int *relief,
+                                  float *reliefOrentation, float *reliefHeight);
 };
 
 #endif // TREEOFSHAPES_H
