@@ -903,6 +903,7 @@ void TreeOfShapes::synshape(int model, Shape pShape,
 
     x0temp += xShift;
     y0temp += yShift;
+    phi = ((Info*)(pShape->data))->oren;
 
     if (model == 1){ //Ellipse
         a = 2.0 * sqrt(((Info*)(pShape->data))->lambda1);
@@ -945,8 +946,8 @@ void TreeOfShapes::synshape(int model, Shape pShape,
                 condition = ( xi_e*xi_e/(b*b) + yi_e*yi_e/(b*b) <= 1 );
             };
 
-            if( condition ){
-                if ((model ==1 || model ==3) && (xi<0 || xi>= imgsyn->ncol || yi<0 || yi>= imgsyn->nrow ))
+            if( condition ){ // (model ==1 || model ==3) &&
+                if ((xi<0 || xi>= imgsyn->ncol || yi<0 || yi>= imgsyn->nrow ))
                     continue;
 
                 imgShapeLabelSyn->gray[yi*imgShapeLabelSyn->ncol + xi] = 1;
