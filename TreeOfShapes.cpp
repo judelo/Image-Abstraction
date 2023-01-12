@@ -877,7 +877,7 @@ void TreeOfShapes::synshapeCircle(Shape pShape,
 
 // Synthesis by Shape Shaking  
 // Before the Shaking, smooth the shape with a gaussian kernel or a median filter  
-void TreeOfShapes::synshape(Shape pShape,
+void TreeOfShapes::synshape(int model, Shape pShape,
                                   Ccimage imgsyn,
                                   Cimage imgShapeLabelSyn,
                                   Fimage imgShapeBlurSyn,
@@ -891,6 +891,7 @@ void TreeOfShapes::synshape(Shape pShape,
     float ALPHA, BETA, a, b, x0temp, y0temp, top, right, left, bottom;
     float phi, xi_e, yi_e;
     float xShift, yShift, theta, tR, tG, tB, TR, TG, TB, tr, tg, tb;
+    bool condition;
 
     ALPHA = *alpha;
     x0temp = (((Info*)(pShape->data))->x0);

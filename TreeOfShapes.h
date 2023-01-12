@@ -155,7 +155,7 @@ protected:
                                    float *alpha,
                                    int *relief,
                                    float *reliefOrentation, float *reliefHeight);
-    void synshape(Shape pShape,
+    void synshape(int model, Shape pShape,
                                   Ccimage imgsyn,
                                   Cimage imgShapeLabelSyn,
                                   Fimage imgShapeBlurSyn,
