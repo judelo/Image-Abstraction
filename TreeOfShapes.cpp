@@ -1883,7 +1883,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     // Iterate in shapes
     std::cout << "Iterate in shapes" << std::endl;
 
-    for(i=0; i < _pTree->nb_shapes; i++)  {
+    for(i=0; i < _pTree->nb_shapes; i++) {
         pShape = _pTree->the_shapes + (int)t2b_index->values[i];
         
         // Compute background with average color and rectangle. 
@@ -1934,7 +1934,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                         synshape(modelToUse, pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
                     else
                         synshape(modelToUse, pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-                } else (modelToUse == 4){
+                } else if (modelToUse == 4){
 
                     // Dictionary
                     Cfimage imgDict = tosDictionary->getCfImage();
