@@ -569,11 +569,11 @@ void TreeOfShapes::synshape(int model, Shape pShape,
                    if (i == pShape->area)
                       break; 
                 } else {
-                   xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
-                   yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
                    xi = xi_iter;
                    yi = yi_iter;
-
+                   xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
+                   yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
+                   
                    if (model == 1) //Ellipse
                       condition = ( xi_e*xi_e/(a*a) + yi_e*yi_e/(b*b) <= 1 );
                    else if (model == 2) //Rectangle
@@ -793,11 +793,11 @@ void TreeOfShapes::synshape(int model, Shape pShape,
                    if (i == pShape->area)
                       break; 
                 } else {
-                   xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
-                   yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
                    xi = xi_iter;
                    yi = yi_iter;
-
+                   xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
+                   yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
+                   
                    if (model == 1) //Ellipse
                       condition = ( xi_e*xi_e/(a*a) + yi_e*yi_e/(b*b) <= 1 );
                    else if (model == 2) //Rectangle
