@@ -552,8 +552,8 @@ void TreeOfShapes::synshape(int model, Shape pShape,
     shTB  = shLambda*((Info*)(pShape->data))->b;
     
     i =0;
-    for(xi_iter = ceil(left); xi_iter <= right; xi_iter++){
-        for(yi_iter = ceil(top); yi_iter <= bottom; yi_iter++){
+    for(xi = ceil(left); xi <= right; xi++){
+            for(yi = ceil(top); yi <= bottom; yi++){
 
             if (model == 0){
                    x = (float)((pShape->pixels+i)->x);
@@ -569,8 +569,6 @@ void TreeOfShapes::synshape(int model, Shape pShape,
                    if (i == pShape->area)
                       break; 
                 } else {
-                   xi = xi_iter;
-                   yi = yi_iter;
                    xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
                    yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
                    
@@ -609,8 +607,8 @@ void TreeOfShapes::synshape(int model, Shape pShape,
             shiftsh = (*reliefHeight)*( (float) pShape->area /10.0);
   
         i =0;
-        for(xi_iter = ceil(left); xi_iter <= right; xi_iter++){
-            for(yi_iter = ceil(top); yi_iter <= bottom; yi_iter++){
+        for(xi = ceil(left); xi <= right; xi++){
+            for(yi = ceil(top); yi <= bottom; yi++){
                 if (model == 0){
                     x = (float)((pShape->pixels+i)->x);
                     y = (float)((pShape->pixels+i)->y);
@@ -624,9 +622,6 @@ void TreeOfShapes::synshape(int model, Shape pShape,
                     i++;
                     if (i == pShape->area)
                         break; 
-                } else{
-                    xi = xi_iter;
-                    yi = yi_iter;
                 }
 
                 if(imgShapeBlurSyn->gray[yi*imgShapeBlurSyn->ncol + xi] == 0)
@@ -659,8 +654,8 @@ void TreeOfShapes::synshape(int model, Shape pShape,
     }
     
     i =0;
-    for(xi_iter = left; xi_iter <= right; xi_iter++){
-        for(yi_iter = top; yi_iter <= bottom; yi_iter++){
+    for(xi = left; xi <= right; xi++){
+        for(yi = top; yi <= bottom; yi++){
             
             if (model == 0){
                 x = (float)((pShape->pixels+i)->x);
@@ -675,15 +670,12 @@ void TreeOfShapes::synshape(int model, Shape pShape,
                 i++;
                 if (i == pShape->area)
                     break; 
-            } else{
-                xi = xi_iter;
-                yi = yi_iter;
             }
 
             if(imgShapeBlurSyn->gray[yi*imgShapeBlurSyn->ncol + xi] == 0)
                 continue;
 
-            BETA = imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
+            BETA = imgShapeBlurSyn->gray[yi*imgShapeBlurSyn->ncol + xi];
             tr = ((float) imgsyn->red[yi*imgsyn->ncol + xi])*(1-BETA)   + BETA*((Info*)(pShape->data))->r;
             tg = ((float) imgsyn->green[yi*imgsyn->ncol + xi])*(1-BETA) + BETA*((Info*)(pShape->data))->g;
             tb = ((float) imgsyn->blue[yi*imgsyn->ncol + xi])*(1-BETA)  + BETA*((Info*)(pShape->data))->b;
@@ -713,7 +705,7 @@ void TreeOfShapes::synshape(int model, Shape pShape,
                                    int *relief,
                                    float *reliefOrentation, float *reliefHeight){
     
-    int xi, yi, i, xi_iter, yi_iter;
+    int xi, yi, i;
     float a, b, x0temp, y0temp, top, right, left, bottom, ALPHA, shLambda, shTR, shTG, shTB;
     float phi, x, y, xr, yr, xi_e, yi_e, xShift, yShift, theta, tR, tG, tB;
     bool condition;
@@ -776,8 +768,6 @@ void TreeOfShapes::synshape(int model, Shape pShape,
             shiftsh = (*reliefHeight)*( (float) pShape->area /10.0);
         
         i = 0;
-        //for( xi_iter= ceil(left); xi_iter<= right; xi_iter++){
-        //    for( yi_iter= ceil(top); yi_iter<= bottom; yi_iter++){
         for( xi= ceil(left); xi<= right; xi++){
             for( yi= ceil(top); yi<= bottom; yi++){
                 
@@ -795,8 +785,6 @@ void TreeOfShapes::synshape(int model, Shape pShape,
                    if (i == pShape->area)
                       break; 
                 } else {
-                   //xi = xi_iter;
-                   //yi = yi_iter;
                    xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
                    yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
                    
@@ -836,8 +824,6 @@ void TreeOfShapes::synshape(int model, Shape pShape,
     }
     
     i = 0;
-    //for( xi_iter= ceil(left); xi_iter<= right; xi_iter++){
-    //        for( yi_iter= ceil(top); yi_iter<= bottom; yi_iter++){
     for( xi= ceil(left); xi<= right; xi++){
         for( yi= ceil(top); yi<= bottom; yi++){
 
@@ -855,8 +841,6 @@ void TreeOfShapes::synshape(int model, Shape pShape,
                 if (i == pShape->area)
                     break; 
             } else {
-                //xi = xi_iter;
-                //yi = yi_iter;
                 xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
                 yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
                 
