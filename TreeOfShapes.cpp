@@ -666,7 +666,15 @@ void TreeOfShapes::synshape(int model, Shape pShape,
     y0temp += yShift;
     phi = ((Info*)(pShape->data))->oren;
 
-    if (model == 1){ //Ellipse
+    if (model == 0){ //Original
+        left   = 0;
+        right  = _pTree->ncol -1;
+        top    = 0;
+        bottom = _pTree->nrow - 1;
+        x0temp = (((Info*)(pShape->data))->x0);
+        y0temp = (((Info*)(pShape->data))->y0);
+        phi = 0;
+    } else if (model == 1){ //Ellipse
         a = 2.0 * sqrt(((Info*)(pShape->data))->lambda1);
         b = 2.0 * sqrt(((Info*)(pShape->data))->lambda2);
         left   = _MAX(0, x0temp - a);
@@ -710,7 +718,9 @@ void TreeOfShapes::synshape(int model, Shape pShape,
                 xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
                 yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
 
-                if (model == 1){ //Ellipse
+                if (model == 0){
+                   condition = true;
+                } else if (model == 1){ //Ellipse
                    condition = ( xi_e*xi_e/(a*a) + yi_e*yi_e/(b*b) <= 1 );
                 } else if (model == 2){ //Rectangle
                    condition = ( xi_e >= -a && xi_e <= +a && yi_e >= -b && yi_e <= +b );
@@ -751,7 +761,9 @@ void TreeOfShapes::synshape(int model, Shape pShape,
             xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
             yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
 
-            if (model == 1){ //Ellipse
+            if (model == 0){
+                condition = true;
+            } else if (model == 1){ //Ellipse
                 condition = ( xi_e*xi_e/(a*a) + yi_e*yi_e/(b*b) <= 1 );
             } else if (model == 2){ //Rectangle
                 condition = ( xi_e >= -a && xi_e <= +a && yi_e >= -b && yi_e <= +b );
@@ -1775,7 +1787,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     tree_recomputed = _tree_recomputed;
 
     //Declare variables
-    int i,j, mn;
+    int i,j, mn, modelToUse;
     Shape pShape, pShapeTemp, pShapeDict;
     int maskIntersectionWithShape;
     float pa, ALPHA;
@@ -1891,10 +1903,12 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
 
             // verify if some poinf of the mask touch the shape. 
             maskIntersectionWithShape = 0;
+            modelToUse = tosParameters.model;
             for (j=0; j<_len_ArrayPixelsMask; j++){
                 p = &_ArrayPixelsMask[j];
                 if (point_in_shape(p->x, p->y, pShape, _pTree)){
                     maskIntersectionWithShape = 1;
+                    modelToUse = alternative_model;
                     break;
                 }; 
             };
@@ -1910,27 +1924,17 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                     continue;
 
                 // Select the rendering model
-                if (((maskIntersectionWithShape == 0) && (tosParameters.model == 0)) || ((maskIntersectionWithShape == 1) && (alternative_model ==0))){
+                if (modelToUse == 0){
                     if(tosParameters.blur == 1)
                         synshapeOriginal(pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
                     else
-                        synshapeOriginal(pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-                } else if (((maskIntersectionWithShape == 0) && (tosParameters.model == 1)) || ((maskIntersectionWithShape == 1) && (alternative_model ==1))){
+                        synshape(modelToUse, pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
+                } else if ((modelToUse == 1) || (modelToUse == 2) || (modelToUse == 3)){
                     if(tosParameters.blur == 1)
-                        synshape(tosParameters.model,pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
+                        synshape(modelToUse, pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
                     else
-                        synshape(tosParameters.model, pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-                } else if (((maskIntersectionWithShape == 0) && (tosParameters.model == 2)) || ((maskIntersectionWithShape == 1) && (alternative_model ==2))){
-                    if(tosParameters.blur == 1)
-                        synshape(tosParameters.model,pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-                    else
-                        synshape(tosParameters.model, pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-                } else if (((maskIntersectionWithShape == 0) && (tosParameters.model == 3)) || ((maskIntersectionWithShape == 1) && (alternative_model ==3))){
-                    if(tosParameters.blur == 1)
-                        synshape(tosParameters.model,pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-                    else
-                        synshape(tosParameters.model, pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-                } else if (((maskIntersectionWithShape == 0) && (tosParameters.model == 4)) || ((maskIntersectionWithShape == 1) && (alternative_model ==4))){
+                        synshape(modelToUse, pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
+                } else (modelToUse == 4){
 
                     // Dictionary
                     Cfimage imgDict = tosDictionary->getCfImage();
