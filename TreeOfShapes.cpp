@@ -499,10 +499,10 @@ void TreeOfShapes::synshape(int model, Shape pShape,
                                   float *reliefOrentation, float *reliefHeight){
 
     int xi, yi, x, y, iKer, jKer, KerSize, MedSize, xKer, yKer, numMedain;
-    float ALPHA, BETA, a, b, x0temp, y0temp, top, right, left, bottom;
-    float phi, xi_e, yi_e;
-    float xShift, yShift, theta, tR, tG, tB, TR, TG, TB, tr, tg, tb;
+    float ALPHA, BETA, a, b, x0temp, y0temp, top, right, left, bottom, phi, xi_e, yi_e;
+    float xShift, yShift, theta, tR, tG, tB, tr, tg, tb, shLambda, shTR, shTG, shTB;
     bool condition;
+    shLambda = 0.3;
 
     ALPHA = *alpha;
     x0temp = (((Info*)(pShape->data))->x0);
@@ -540,9 +540,9 @@ void TreeOfShapes::synshape(int model, Shape pShape,
         bottom = _MIN(_pTree->nrow - 1, y0temp + b);
     }
 
-    TR  = ((Info*)(pShape->data))->r;
-    TG  = ((Info*)(pShape->data))->g;
-    TB  = ((Info*)(pShape->data))->b;
+    shTR  = shLambda*((Info*)(pShape->data))->r;
+    shTG  = shLambda*((Info*)(pShape->data))->g;
+    shTB  = shLambda*((Info*)(pShape->data))->b;
 
     for( xi= ceil(left); xi<= right; xi++)
         for( yi= ceil(top); yi<= bottom; yi++){
@@ -574,24 +574,18 @@ void TreeOfShapes::synshape(int model, Shape pShape,
     
     // Synthesis  
     if(*relief == 1 && pShape->area > 10){
-        float shLambda, shTR, shTG, shTB;
         int xsh, ysh, shiftsh;
         if(pShape->area > 10)
             shiftsh = *reliefHeight;
         else
             shiftsh = (*reliefHeight)*( (float) pShape->area /10.0);
 
-        shLambda = 0.3;
         for(x = ceil(left); x <= right; x++)
             for(y = ceil(top); y <= bottom; y++){
                 if(imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] == 0)
                     continue;
 
                 BETA = imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
-
-                shTR = TR* shLambda;
-                shTG = TG* shLambda;
-                shTB = TB* shLambda;
 
                 xsh = x + shiftsh*cos( PI*(*reliefOrentation)/180.0 );
                 ysh = y - shiftsh*sin( PI*(*reliefOrentation)/180.0 );
@@ -650,8 +644,7 @@ void TreeOfShapes::synshape(int model, Shape pShape,
     
     int xi, yi;
     float a, b, x0temp, y0temp, top, right, left, bottom, ALPHA, shLambda, shTR, shTG, shTB;
-    float phi, xi_e, yi_e;
-    float xShift, yShift, theta, tR, tG, tB; // TR, TG, TB;
+    float phi, xi_e, yi_e, xShift, yShift, theta, tR, tG, tB;
     bool condition;
     shLambda = 0.3;
 
@@ -731,10 +724,6 @@ void TreeOfShapes::synshape(int model, Shape pShape,
 
                     if ((model ==1 || model ==3) && (xi<0 || xi>= imgsyn->ncol || yi<0 || yi>= imgsyn->nrow ))
                         continue;
-
-                    //shTR = TR* shLambda;
-                    //shTG = TG* shLambda;
-                    //shTB = TB* shLambda;
 
                     xsh = xi + shiftsh*cos( PI*(*reliefOrentation)/180.0 );
                     ysh = yi - shiftsh*sin( PI*(*reliefOrentation)/180.0 );
