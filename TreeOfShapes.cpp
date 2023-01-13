@@ -487,7 +487,8 @@ void TreeOfShapes::MedianFilterAndGaussianBlur(float left, float right, float to
 //////////////////////////////////
 
 // Synthesis by Shape Shaking  
-// Before the Shaking, smooth the shape with a gaussian kernel or a median filter  
+// Before the Shaking, smooth the shape with a gaussian kernel or a median filter 
+/* 
 void TreeOfShapes::synshape(int model, Shape pShape,
                                   Ccimage imgsyn,
                                   Cimage imgShapeLabelSyn,
@@ -695,6 +696,161 @@ void TreeOfShapes::synshape(int model, Shape pShape,
         if ((i == pShape->area) && (model == 0))
             break; 
     }
+}
+*/
+
+// Synthesis by Shape Shaking  
+// Before the Shaking, smooth the shape with a gaussian kernel or a median filter  
+void TreeOfShapes::synshape(int model, Shape pShape,
+                                  Ccimage imgsyn,
+                                  Cimage imgShapeLabelSyn,
+                                  Fimage imgShapeBlurSyn,
+                                  Fsignal gaussKernel,
+                                  int *median,
+                                  float *alpha,
+                                  int *relief,
+                                  float *reliefOrentation, float *reliefHeight){
+
+    int xi, yi, x, y, iKer, jKer, KerSize, MedSize, xKer, yKer, numMedain;
+    float ALPHA, BETA, a, b, x0temp, y0temp, top, right, left, bottom;
+    float phi, xi_e, yi_e;
+    float xShift, yShift, theta, tR, tG, tB, TR, TG, TB, tr, tg, tb;
+    bool condition;
+
+    ALPHA = *alpha;
+    x0temp = (((Info*)(pShape->data))->x0);
+    y0temp = (((Info*)(pShape->data))->y0);
+
+    xShift = (((Info*)(pShape->data))->xShift);
+    yShift = (((Info*)(pShape->data))->yShift);
+    theta  = (((Info*)(pShape->data))->rotation);
+
+    x0temp += xShift;
+    y0temp += yShift;
+    phi = ((Info*)(pShape->data))->oren;
+
+    if (model == 1){ //Ellipse
+        a = 2.0 * sqrt(((Info*)(pShape->data))->lambda1);
+        b = 2.0 * sqrt(((Info*)(pShape->data))->lambda2);
+        left   = _MAX(0, x0temp - a);
+        right  = _MIN(_pTree->ncol -1, x0temp + a);
+        top    = _MAX(0, y0temp - a);
+        bottom = _MIN(_pTree->nrow - 1, y0temp + a);
+    } else if (model == 2){ //Rectangle
+        a = (sqrt(3.0 * ((Info*)(pShape->data))->lambda1));
+        b = (sqrt(3.0 * ((Info*)(pShape->data))->lambda2));
+        float bLimit = sqrt(2.0)*a;
+        left   = _MAX(0, x0temp - bLimit);
+        right  = _MIN(_pTree->ncol -1, x0temp + bLimit);
+        top    = _MAX(0, y0temp - bLimit);
+        bottom = _MIN(_pTree->nrow - 1, y0temp + bLimit);
+    }else if (model == 3){ //Circle
+        a = 2.0 * sqrt(((Info*)(pShape->data))->lambda1);
+        b = 2.0 * sqrt(((Info*)(pShape->data))->lambda2);
+        left   = _MAX(0, x0temp - b);
+        right  = _MIN(_pTree->ncol -1, x0temp + b);
+        top    = _MAX(0, y0temp - a);
+        bottom = _MIN(_pTree->nrow - 1, y0temp + b);
+    }
+
+    TR  = ((Info*)(pShape->data))->r;
+    TG  = ((Info*)(pShape->data))->g;
+    TB  = ((Info*)(pShape->data))->b;
+
+    for( xi= ceil(left); xi<= right; xi++)
+        for( yi= ceil(top); yi<= bottom; yi++){
+            xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
+            yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
+
+            if (model == 1){ //Ellipse
+                condition = ( xi_e*xi_e/(a*a) + yi_e*yi_e/(b*b) <= 1 );
+            } else if (model == 2){ //Rectangle
+                condition = ( xi_e >= -a && xi_e <= +a && yi_e >= -b && yi_e <= +b );
+            }else if (model == 3){ //Circle
+                condition = ( xi_e*xi_e/(b*b) + yi_e*yi_e/(b*b) <= 1 );
+            };
+
+            if( condition ){
+                if ((xi<0 || xi>= imgsyn->ncol || yi<0 || yi>= imgsyn->nrow ))
+                    continue;
+
+                imgShapeLabelSyn->gray[yi*imgShapeLabelSyn->ncol + xi] = 1;
+
+                left   = _MIN(xi, left);
+                top    = _MIN(yi, top);
+                right  = _MAX(xi, right);
+                bottom = _MAX(yi, bottom);
+            }
+        }
+
+    MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
+    
+    // Synthesis  
+    if(*relief == 1 && pShape->area > 10){
+        float shLambda, shTR, shTG, shTB;
+        int xsh, ysh, shiftsh;
+        if(pShape->area > 10)
+            shiftsh = *reliefHeight;
+        else
+            shiftsh = (*reliefHeight)*( (float) pShape->area /10.0);
+
+        shLambda = 0.3;
+        for(x = ceil(left); x <= right; x++)
+            for(y = ceil(top); y <= bottom; y++){
+                if(imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] == 0)
+                    continue;
+
+                BETA = imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
+
+                shTR = TR* shLambda;
+                shTG = TG* shLambda;
+                shTB = TB* shLambda;
+
+                xsh = x + shiftsh*cos( PI*(*reliefOrentation)/180.0 );
+                ysh = y - shiftsh*sin( PI*(*reliefOrentation)/180.0 );
+                xsh = _MAX(0, xsh);
+                xsh = _MIN(imgsyn->ncol - 1, xsh);
+                ysh = _MAX(0, ysh);
+                ysh = _MIN(imgsyn->nrow - 1, ysh);
+
+                tr = ((float) imgsyn->red[ysh*imgsyn->ncol + xsh])*(1-BETA)   + BETA*shTR;
+                tg = ((float) imgsyn->green[ysh*imgsyn->ncol + xsh])*(1-BETA) + BETA*shTG;
+                tb = ((float) imgsyn->blue[ysh*imgsyn->ncol + xsh])*(1-BETA)  + BETA*shTB;
+
+                tR = ((float) imgsyn->red[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*tr;
+                imgsyn->red[ysh*imgsyn->ncol + xsh]   = (int) tR;
+
+                tG = ((float) imgsyn->green[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*tg;
+                imgsyn->green[ysh*imgsyn->ncol + xsh] = (int) tG;
+
+                tB = ((float) imgsyn->blue[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*tb;
+                imgsyn->blue[ysh*imgsyn->ncol + xsh]  = (int) tB;
+            }
+    }
+
+    for(x = left; x <= right; x++)
+        for(y = top; y <= bottom; y++){
+            if(imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] == 0)
+                continue;
+
+            BETA = imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
+
+            tr = ((float) imgsyn->red[y*imgsyn->ncol + x])*(1-BETA)   + BETA*TR;
+            tg = ((float) imgsyn->green[y*imgsyn->ncol + x])*(1-BETA) + BETA*TG;
+            tb = ((float) imgsyn->blue[y*imgsyn->ncol + x])*(1-BETA)  + BETA*TB;
+
+            tR = ((float) imgsyn->red[y*imgsyn->ncol + x])*ALPHA + (1-ALPHA)*tr;
+            imgsyn->red[y*imgsyn->ncol + x]   = (int) tR;
+
+            tG = ((float) imgsyn->green[y*imgsyn->ncol + x])*ALPHA + (1-ALPHA)*tg;
+            imgsyn->green[y*imgsyn->ncol + x] = (int) tG; 
+
+            tB = ((float) imgsyn->blue[y*imgsyn->ncol + x])*ALPHA + (1-ALPHA)*tb;
+            imgsyn->blue[y*imgsyn->ncol + x]  = (int) tB;
+
+            imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x]  = 0.0;
+            imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] = 0;
+        }
 }
 
 
