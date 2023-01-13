@@ -642,7 +642,7 @@ void TreeOfShapes::synshape(int model, Shape pShape,
     
     int xi, yi, i;
     float a, b, x0temp, y0temp, top, right, left, bottom, ALPHA, shLambda, shTR, shTG, shTB;
-    float phi, xi_e, yi_e, xShift, yShift, theta, tR, tG, tB;
+    float phi, x, y, xr, yr, xi_e, yi_e, xShift, yShift, theta, tR, tG, tB;
     bool condition;
     shLambda = 0.3;
 
