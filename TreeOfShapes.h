@@ -83,17 +83,9 @@ protected:
                           float *alpha,
                           int *relief,
                           float *reliefOrentation, float *reliefHeight);
-    void synshapeOriginal( Shape pShape,
-                           Ccimage imgsyn,
-                           float *alpha,
-                           int *relief,
-                           float *reliefOrentation, float *reliefHeight);
-
     void top2bottom_index_tree(Fsignal t2b_index);
-
     Fsignal sgauss(float *std, Fsignal out, int *size);
     Fsignal Sgauss(float *std, Fsignal out, int *size);
-
     void compute_shape_attribute(int *ns);
     void filter_image(int *ns,
                       float *alpha,
@@ -109,7 +101,6 @@ protected:
 
     void shape_boundingbox(Shape pShape);
     void tree_boundingbox();
-
     void synShapeDict(Shape pShapeDict, Shape pShape,
                       Ccimage imgsyn,
                       Cfimage imgDict, Cfimage imgShapeColorSyn,
