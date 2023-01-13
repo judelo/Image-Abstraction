@@ -776,8 +776,10 @@ void TreeOfShapes::synshape(int model, Shape pShape,
             shiftsh = (*reliefHeight)*( (float) pShape->area /10.0);
         
         i = 0;
-        for( xi_iter= ceil(left); xi_iter<= right; xi_iter++){
-            for( yi_iter= ceil(top); yi_iter<= bottom; yi_iter++){
+        //for( xi_iter= ceil(left); xi_iter<= right; xi_iter++){
+        //    for( yi_iter= ceil(top); yi_iter<= bottom; yi_iter++){
+        for( xi= ceil(left); xi<= right; xi++){
+            for( yi= ceil(top); yi<= bottom; yi++){
                 
                 if (model == 0){
                    x = (float)((pShape->pixels+i)->x);
@@ -793,8 +795,8 @@ void TreeOfShapes::synshape(int model, Shape pShape,
                    if (i == pShape->area)
                       break; 
                 } else {
-                   xi = xi_iter;
-                   yi = yi_iter;
+                   //xi = xi_iter;
+                   //yi = yi_iter;
                    xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
                    yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
                    
@@ -834,8 +836,10 @@ void TreeOfShapes::synshape(int model, Shape pShape,
     }
     
     i = 0;
-    for( xi_iter= ceil(left); xi_iter<= right; xi_iter++){
-            for( yi_iter= ceil(top); yi_iter<= bottom; yi_iter++){
+    //for( xi_iter= ceil(left); xi_iter<= right; xi_iter++){
+    //        for( yi_iter= ceil(top); yi_iter<= bottom; yi_iter++){
+    for( xi= ceil(left); xi<= right; xi++){
+        for( yi= ceil(top); yi<= bottom; yi++){
 
             if (model == 0){
                 x = (float)((pShape->pixels+i)->x);
@@ -851,11 +855,11 @@ void TreeOfShapes::synshape(int model, Shape pShape,
                 if (i == pShape->area)
                     break; 
             } else {
+                //xi = xi_iter;
+                //yi = yi_iter;
                 xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
                 yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
-                xi = xi_iter;
-                yi = yi_iter;
-
+                
                 if (model == 1) //Ellipse
                     condition = ( xi_e*xi_e/(a*a) + yi_e*yi_e/(b*b) <= 1 );
                 else if (model == 2) //Rectangle
