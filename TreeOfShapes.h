@@ -70,8 +70,8 @@ protected:
     void fgrain_side(int MinArea, float *in, int nx, int ny, float *out, int sideflag);
     Shape m_order_parent(Shape pShape, int *mn, bool dict = false);
     void Order(Fsignal t2b_index, int *p, int *q);
-    void shape_orilam(Shape pShape,float *out_ori, float *out_e, float *out_k);
-    void shape_orilam(Shape pShape, float *out_ori, float *out_e, float *out_k, float *pX0, float *pY0);
+    //void shape_orilam(Shape pShape,float *out_ori, float *out_e, float *out_k);
+    void shape_orilam(Shape pShape, float *out_ori, float *out_e, float *out_k, float *pX0, float *pY0, int option);
     void compute_shape_attribute();
     float min_contrast(Shape pShape);
     void synshapeOriginal(Shape pShape,

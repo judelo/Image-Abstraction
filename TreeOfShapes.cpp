@@ -65,8 +65,7 @@ void TreeOfShapes::init(Cfimage inputImg, Shapes &pTree){
     for( int i= 0; i< inputImg->ncol; i++)
         for( int j= 0; j< inputImg->nrow; j++){
             imgIntensity->gray[j*inputImg->ncol + i] = (int)(inputImg->blue[j*inputImg->ncol + i] 
-                    + inputImg->red[j*inputImg->ncol + i]
-                    + inputImg->green[j*inputImg->ncol + i])/3;
+                    + inputImg->red[j*inputImg->ncol + i] + inputImg->green[j*inputImg->ncol + i])/3;
         }
 
     float fzero = 0.; 
@@ -106,6 +105,7 @@ void TreeOfShapes::init(Cfimage inputImg, Shapes &pTree){
 }
 
 
+// Delete tree of shapes
 TreeOfShapes::~TreeOfShapes(){
     if( _tree_computed ){
         mw_delete_shapes(_pTree);
@@ -113,26 +113,24 @@ TreeOfShapes::~TreeOfShapes(){
         mw_delete_cfimage(_imgin);
         if( _large_to_small_index_computed )
             mw_delete_fsignal(_large_to_small_index);
-        for (std::map<int, Fsignal>::iterator it = _dictionary_selections.begin(); it !=  _dictionary_selections.end(); ++it){
+        for (std::map<int, Fsignal>::iterator it = _dictionary_selections.begin(); it !=  _dictionary_selections.end(); ++it)
             mw_delete_fsignal( it->second );
-        }
         if( _texture_image_loaded )
             mw_delete_cfimage(_texture_image);
     }
 }
 
-
-// This computes the orientation and Elongation of shapes
+/*
+// Computes the orientation and Elongation of shapes
 void TreeOfShapes::shape_orilam(Shape pShape, float *out_ori, float *out_e, float *out_k){
 
-    float size;
-    float a11, a20, a02, x0, y0, sumx, sumy, lambda1, lambda2;
+    float size, a11, a20, a02, x0, y0, sumx, sumy, lambda1, lambda2;
     int i;
 
     size = (float)pShape->area;
-
     sumx = 0;
     sumy = 0;
+
     for(i = 0; i< size; i++){
         sumx += (double)((pShape->pixels+i)->x);
         sumy += (double)((pShape->pixels+i)->y);
@@ -150,28 +148,27 @@ void TreeOfShapes::shape_orilam(Shape pShape, float *out_ori, float *out_e, floa
     }
     a11 = a11 /(float)pow(size,1);
     a20 = a20 /(float)pow(size,1)+ 1.0/12.0;
-    a02 = a02 /(float)pow(size,1)+ 1.0/12.0;
-
-    *out_ori = (0.5*atan2(2*a11,(a20-a02)) + PI/2)/PI;
+    a02 = a02 /(float)pow(size,1)+ 1.0/12.0; 
 
     lambda1 =0.5*( a02 + a20 + sqrt((a20-a02)*(a20-a02) + 4*a11*a11));
     lambda2 =0.5*( a02 + a20 - sqrt((a20-a02)*(a20-a02) + 4*a11*a11));
 
+    *out_ori = (0.5*atan2(2*a11,(a20-a02)) + PI/2)/PI;
     *out_e = lambda2/lambda1;
     *out_k = ((float) pShape->area)/(sqrt(lambda2*lambda1)*4*PI);
 }
+*/
 
+// Compute the orientation elongation and engienvalues of shapes
+void TreeOfShapes::shape_orilam(Shape pShape, float *out_ori, float *out_e, float *out_k, float *pX0, float *pY0, int option){
 
-// This Compute the orientation and engienvalues of shapes
-void TreeOfShapes::shape_orilam(Shape pShape, float *out_ori, float *out_e, float *out_k, float *pX0, float *pY0){
-    float size;
-    float a11, a20, a02, x0, y0, sumx, sumy, lambda1, lambda2;
+    float size, a11, a20, a02, x0, y0, sumx, sumy, lambda1, lambda2;
     int i;
 
     size = (float)pShape->area;
-
     sumx = 0;
     sumy = 0;
+
     for(i = 0; i< size; i++){
         sumx += (double)((pShape->pixels+i)->x);
         sumy += (double)((pShape->pixels+i)->y);
@@ -191,20 +188,25 @@ void TreeOfShapes::shape_orilam(Shape pShape, float *out_ori, float *out_e, floa
     a20 = a20 /(float)pow(size,1)+ 1.0/12.0;
     a02 = a02 /(float)pow(size,1)+ 1.0/12.0;
 
-    *out_ori = (0.5*atan2(2*a11,(a20-a02)));
-
     lambda1 =0.5*( a02 + a20 + sqrt((a20-a02)*(a20-a02) + 4*a11*a11));
     lambda2 =0.5*( a02 + a20 - sqrt((a20-a02)*(a20-a02) + 4*a11*a11));
-
-    *out_e = lambda1;
-    *out_k = lambda2;
+    
+    if (option == 0){ // Compute the orientation and engienvalues of shapes
+        *out_ori = (0.5*atan2(2*a11,(a20-a02)));
+        *out_e = lambda1;
+        *out_k = lambda2;
+    } else{ //Computes the orientation and Elongation of shapes
+        *out_ori = (0.5*atan2(2*a11,(a20-a02)) + PI/2)/PI;
+        *out_e = lambda2/lambda1;
+        *out_k = ((float) pShape->area)/(sqrt(lambda2*lambda1)*4*PI);
+    }
 
     *pX0 = x0;
     *pY0 = y0;
 }
 
 
-// This sort two shapes according to their scales
+// Sort two shapes according to their scales
 void TreeOfShapes::Order(Fsignal t2b_index, int *p, int *q){
     int temp;
     Shape pShape1, pShape2;
@@ -219,7 +221,7 @@ void TreeOfShapes::Order(Fsignal t2b_index, int *p, int *q){
 }
 
 
-// Indexing the mn-order parent of the pShape
+// Index the mn-order parent of the pShape
 Shape TreeOfShapes::m_order_parent(Shape pShape, int *mn, bool dict){
     Shape pShapeTemp;
     pShapeTemp = pShape;
@@ -228,11 +230,10 @@ Shape TreeOfShapes::m_order_parent(Shape pShape, int *mn, bool dict){
         if(pShapeTemp->parent == NULL)
             break;
         
-        if( dict ){
+        if(dict)
             for(pShapeTemp=pShape->parent; ((Info*)(pShapeTemp->data))->show != 1 && pShapeTemp !=NULL; pShapeTemp=pShapeTemp->parent)
-            {;
-            }
-        } else 
+            {;}
+        else 
             pShapeTemp = pShapeTemp->parent;
     }
 
@@ -241,7 +242,7 @@ Shape TreeOfShapes::m_order_parent(Shape pShape, int *mn, bool dict){
 
 
 
-// Indexing the tree by the Breadth-first order
+// Index the tree by the Breadth-first order
 void TreeOfShapes::top2bottom_index_tree(Fsignal t2b_index){
     int queArr[_pTree->nb_shapes];
     int i, qInd;
@@ -296,17 +297,21 @@ float TreeOfShapes::min_contrast(Shape pShape){
         x = pBoundary->values[i*2];
         y = pBoundary->values[i*2+1];
 
-        if (i>0) per += sqrt((double)(x-ox)*(x-ox)+(y-oy)*(y-oy));
-        ox = x; oy = y;
-
+        if (i>0) 
+           per += sqrt((double)(x-ox)*(x-ox)+(y-oy)*(y-oy));
+        ox = x; 
+        oy = y;
         ix = (int)rint((double)x)-1;
         iy = (int)rint((double)y)-1;
+
         if (ix>=0 && iy>=0 && ix<_NormOfDu->ncol && iy<_NormOfDu->nrow){
             mu =_NormOfDu->gray[_NormOfDu->ncol*iy+ix];
-            if (mu<meanmu) meanmu=mu;
+            if (mu<meanmu) 
+               meanmu=mu;
         }
     }
-    if (meanmu == FLT_MAX) meanmu = 0.;
+    if (meanmu == FLT_MAX) 
+        meanmu = 0.;
 
     free(pBoundary->data);
     mw_delete_flist(pBoundary);
@@ -324,14 +329,13 @@ void TreeOfShapes::shape_boundingbox(Shape pShape){
 
     ncol = _pTree->ncol;
     nrow = _pTree->nrow;
-
     size = pShape->area;
     theta = ((Info*)(pShape->data))->oren;
     x0temp = ((Info*)(pShape->data))->x0;
     y0temp = ((Info*)(pShape->data))->y0;
-
     xmin = ncol;  xmax = -ncol;
     ymin = nrow;  ymax = -nrow;
+
     for(int i = 0; i< size; i++){
         x = (float)((pShape->pixels+i)->x - x0temp);
         y = (float)((pShape->pixels+i)->y - y0temp);
@@ -377,12 +381,11 @@ void TreeOfShapes::compute_shape_attribute(){
     for(int i = _pTree->nb_shapes-1; i>=0; i--){
         pShape = _pTree->the_shapes + i;
 
-        shape_orilam(pShape, &oren, &lamb1, &lamb2, &x0, &y0);
+        shape_orilam(pShape, &oren, &lamb1, &lamb2, &x0, &y0, 0);
 
         ((Info*)(pShape->data))->lambda1 = lamb1;
         ((Info*)(pShape->data))->lambda2 = lamb2;
         ((Info*)(pShape->data))->oren = oren;
-
         ((Info*)(pShape->data))->x0 = x0;
         ((Info*)(pShape->data))->y0 = y0;
 
@@ -406,23 +409,22 @@ void TreeOfShapes::compute_shape_attribute(){
 
 // Compute shape attribute  
 void TreeOfShapes::compute_shape_attribute(int *ns){
-    float oren, elg, kap;
+    float oren, elg, kap, x0, y0;
     Shape pShape, pShapeTemp;
     int nn = *ns; 
 
     for(int i = _pTree->nb_shapes-1; i>=0; i--){
         pShape = _pTree->the_shapes + i;
 
-        shape_orilam(pShape, &oren, &elg, &kap);
+        shape_orilam(pShape, &oren, &elg, &kap &x0, &y0, 1);
         pShapeTemp = m_order_parent(pShape, &nn);
         ((Info*)(pShape->data))->attribute[0] = ((float) pShape->area)/((float) pShapeTemp->area);
 
-        if( ((Info*)(pShape->data))->attribute[0] <= ((float) pShape->area)/((float) pShapeTemp->area)){
+        if( ((Info*)(pShape->data))->attribute[0] <= ((float) pShape->area)/((float) pShapeTemp->area))
             ((Info*)(pShape->data))->attribute[0] = ((float) pShape->area)/((float) pShapeTemp->area);
-        }
-        if( ((Info*)(pShapeTemp->data))->attribute[0] <= ((float) pShape->area)/((float) pShapeTemp->area)){
+        
+        if( ((Info*)(pShapeTemp->data))->attribute[0] <= ((float) pShape->area)/((float) pShapeTemp->area))
             ((Info*)(pShapeTemp->data))->attribute[0] = ((float) pShape->area)/((float) pShapeTemp->area);
-        }
 
         ((Info*)(pShape->data))->attribute[1] = kap;
         ((Info*)(pShape->data))->attribute[2] = elg;
