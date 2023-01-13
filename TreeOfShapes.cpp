@@ -201,12 +201,10 @@ Shape TreeOfShapes::m_order_parent(Shape pShape, int *mn, bool dict){
 }
 
 
-
 // Index the tree by the Breadth-first order
 void TreeOfShapes::top2bottom_index_tree(Fsignal t2b_index){
     int queArr[_pTree->nb_shapes];
-    int i, qInd;
-    int *head, *rear;
+    int i, qInd, *head, *rear;
     Shape pShape, pShapeTemp;
 
     mw_change_fsignal(t2b_index, _pTree->nb_shapes);
@@ -326,7 +324,7 @@ void TreeOfShapes::tree_boundingbox(){
 }
 
 
-// Compute shape attribute  
+// Compute shape attributes for the tree of shapes: orientation, elongarion, color, etc.  
 void TreeOfShapes::compute_shape_attribute(){
     float oren, lamb1, lamb2, x0, y0;
     Shape pShape;
@@ -473,6 +471,7 @@ void TreeOfShapes::synshape(int model, Shape pShape,
     y0temp += yShift;
     phi = ((Info*)(pShape->data))->oren;
 
+    // Compute limits of shape before shaking
     if (model == 1){ //Ellipse
         a = 2.0 * sqrt(((Info*)(pShape->data))->lambda1);
         b = 2.0 * sqrt(((Info*)(pShape->data))->lambda2);
@@ -619,6 +618,7 @@ void TreeOfShapes::synshape(int model, Shape pShape,Ccimage imgsyn, float *alpha
     y0temp += yShift;
     phi = ((Info*)(pShape->data))->oren;
 
+    // Compute limits of shape before shaking
     if (model == 0){ //Original
         left   = 0;
         right  = _pTree->ncol -1;
@@ -764,7 +764,7 @@ void TreeOfShapes::synshape(int model, Shape pShape,Ccimage imgsyn, float *alpha
     }
 }
 
-
+// Synthesis of shape using model dictionary and blur
 void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                                 Ccimage imgsyn,
                                 Cfimage imgDict, Cfimage imgShapeColorSyn,
@@ -1047,7 +1047,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
     }
 }
 
-// Synthesis by Shape Shaking  
+// Synthesis by Shape Shaking witn original shapes
 // Before the Shaking, smooth the shape with a gaussian kernel or a median filter  
 void TreeOfShapes::synshapeOriginal(Shape pShape,
                                     Ccimage imgsyn,
@@ -1172,6 +1172,7 @@ void TreeOfShapes::synshapeOriginal(Shape pShape,
 }
 
 
+// Sort shapes of the tree
 void TreeOfShapes::sortShapes(Fsignal t2b_index){
 
     std::priority_queue < std::pair<int, int>, std::deque< std::pair<int, int> > , std::less<std::pair<int, int> > > AreaShapeIDQueue;
@@ -1191,7 +1192,7 @@ void TreeOfShapes::sortShapes(Fsignal t2b_index){
 }
 
 
-// Generate a 1D Gaussian kernel
+// Generate a 1D Gaussian kernel. Used for generate a 2D Gaussian kernel
 Fsignal TreeOfShapes::sgauss(float *std, Fsignal out, int *size){
     
     int i,n;
@@ -1260,6 +1261,7 @@ Fsignal TreeOfShapes::Sgauss(float *std, Fsignal out, int *size){
 
     return(out);
 }
+
 
 void TreeOfShapes::get_shapes_truearea(Shape s, Shape root, int *truearea){
     int index;
@@ -1361,7 +1363,7 @@ void TreeOfShapes::filter_shapes( Cfimage out, char *local, float *eps){
 }
 
 
-// Filtering the image  
+// Filter the image  
 void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpixel){
     // Declare variables here
     int i, nn;
