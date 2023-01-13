@@ -713,7 +713,7 @@ void TreeOfShapes::synshape(int model, Shape pShape,
                                    int *relief,
                                    float *reliefOrentation, float *reliefHeight){
     
-    int xi, yi, i;
+    int xi, yi, i, x_iter, y_iter;
     float a, b, x0temp, y0temp, top, right, left, bottom, ALPHA, shLambda, shTR, shTG, shTB;
     float phi, x, y, xr, yr, xi_e, yi_e, xShift, yShift, theta, tR, tG, tB;
     bool condition;
