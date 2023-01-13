@@ -498,7 +498,7 @@ void TreeOfShapes::synshape(int model, Shape pShape,
                                   int *relief,
                                   float *reliefOrentation, float *reliefHeight){
 
-    int i, xi, yi, x, y, xr, yr,iKer, jKer, KerSize, MedSize, xKer, yKer, numMedain;
+    int i, xi, yi, x, y, xr, yr, xi_iter, yi_iter, iKer, jKer, KerSize, MedSize, xKer, yKer, numMedain;
     float ALPHA, BETA, a, b, x0temp, y0temp, top, right, left, bottom, phi, xi_e, yi_e;
     float xShift, yShift, theta, tR, tG, tB, tr, tg, tb, shLambda, shTR, shTG, shTB;
     bool condition;
@@ -552,8 +552,8 @@ void TreeOfShapes::synshape(int model, Shape pShape,
     shTB  = shLambda*((Info*)(pShape->data))->b;
     
     i =0;
-    for( xi= ceil(left); xi<= right; xi++)
-        for( yi= ceil(top); yi<= bottom; yi++){
+    for(xi_iter = ceil(left); xi_iter <= right; xi_iter++){
+        for(yi_iter = ceil(top); yi_iter <= bottom; yi_iter++){
 
             if (model == 0){
                    x = (float)((pShape->pixels+i)->x);
@@ -571,6 +571,8 @@ void TreeOfShapes::synshape(int model, Shape pShape,
                 } else {
                    xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
                    yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
+                   xi = xi_iter;
+                   yi = yi_iter;
 
                    if (model == 1) //Ellipse
                       condition = ( xi_e*xi_e/(a*a) + yi_e*yi_e/(b*b) <= 1 );
@@ -592,6 +594,9 @@ void TreeOfShapes::synshape(int model, Shape pShape,
                 bottom = _MAX(yi, bottom);
             }
         }
+        if ((i == pShape->area) && (model == 0))
+            break; 
+    }
 
     MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
     
@@ -604,37 +609,37 @@ void TreeOfShapes::synshape(int model, Shape pShape,
             shiftsh = (*reliefHeight)*( (float) pShape->area /10.0);
   
         i =0;
-        for(x = ceil(left); x <= right; x++){
-            for(y = ceil(top); y <= bottom; y++){
-                if(imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] == 0)
-                    continue;
-
+        for(xi_iter = ceil(left); xi_iter <= right; xi_iter++){
+            for(yi_iter = ceil(top); yi_iter <= bottom; yi_iter++){
                 if (model == 0){
-                   x = (float)((pShape->pixels+i)->x);
-                   y = (float)((pShape->pixels+i)->y);
+                    x = (float)((pShape->pixels+i)->x);
+                    y = (float)((pShape->pixels+i)->y);
 
-                   xr = (x - x0temp)*cos(theta) + (y - y0temp)*sin(theta);
-                   yr = (y - y0temp)*cos(theta) - (x - x0temp)*sin(theta);
+                    xr = (x - x0temp)*cos(theta) + (y - y0temp)*sin(theta);
+                    yr = (y - y0temp)*cos(theta) - (x - x0temp)*sin(theta);
 
-                   xi = floor(xShift + x0temp + xr);
-                   yi = floor(yShift + y0temp + yr);
+                    xi = floor(xShift + x0temp + xr);
+                    yi = floor(yShift + y0temp + yr);
 
-                   x = xi;
-                   y = yi;
-
-                   i++;
-                   if (i == pShape->area)
-                      break; 
+                    i++;
+                    if (i == pShape->area)
+                        break; 
+                } else{
+                    xi = xi_iter;
+                    yi = yi_iter;
                 }
 
-                xsh = x + shiftsh*cos( PI*(*reliefOrentation)/180.0 );
-                ysh = y - shiftsh*sin( PI*(*reliefOrentation)/180.0 );
+                if(imgShapeBlurSyn->gray[yi*imgShapeBlurSyn->ncol + xi] == 0)
+                    continue;
+
+                xsh = xi + shiftsh*cos( PI*(*reliefOrentation)/180.0 );
+                ysh = yi - shiftsh*sin( PI*(*reliefOrentation)/180.0 );
                 xsh = _MAX(0, xsh);
                 xsh = _MIN(imgsyn->ncol - 1, xsh);
                 ysh = _MAX(0, ysh);
                 ysh = _MIN(imgsyn->nrow - 1, ysh);
 
-                BETA = imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
+                BETA = imgShapeBlurSyn->gray[yi*imgShapeBlurSyn->ncol + xi];
                 tr = ((float) imgsyn->red[ysh*imgsyn->ncol + xsh])*(1-BETA)   + BETA*shTR;
                 tg = ((float) imgsyn->green[ysh*imgsyn->ncol + xsh])*(1-BETA) + BETA*shTG;
                 tb = ((float) imgsyn->blue[ysh*imgsyn->ncol + xsh])*(1-BETA)  + BETA*shTB;
@@ -654,45 +659,46 @@ void TreeOfShapes::synshape(int model, Shape pShape,
     }
     
     i =0;
-    for(x = left; x <= right; x++){
-        for(y = top; y <= bottom; y++){
-            if(imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] == 0)
-                continue;
+    for(xi_iter = left; xi_iter <= right; xi_iter++){
+        for(yi_iter = top; yi_iter <= bottom; yi_iter++){
             
             if (model == 0){
-                   x = (float)((pShape->pixels+i)->x);
-                   y = (float)((pShape->pixels+i)->y);
+                x = (float)((pShape->pixels+i)->x);
+                y = (float)((pShape->pixels+i)->y);
 
-                   xr = (x - x0temp)*cos(theta) + (y - y0temp)*sin(theta);
-                   yr = (y - y0temp)*cos(theta) - (x - x0temp)*sin(theta);
+                xr = (x - x0temp)*cos(theta) + (y - y0temp)*sin(theta);
+                yr = (y - y0temp)*cos(theta) - (x - x0temp)*sin(theta);
 
-                   xi = floor(xShift + x0temp + xr);
-                   yi = floor(yShift + y0temp + yr);
+                xi = floor(xShift + x0temp + xr);
+                yi = floor(yShift + y0temp + yr);
 
-                   x = xi;
-                   y = yi;
-
-                   i++;
-                   if (i == pShape->area)
-                      break; 
+                i++;
+                if (i == pShape->area)
+                    break; 
+            } else{
+                xi = xi_iter;
+                yi = yi_iter;
             }
 
+            if(imgShapeBlurSyn->gray[yi*imgShapeBlurSyn->ncol + xi] == 0)
+                continue;
+
             BETA = imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
-            tr = ((float) imgsyn->red[y*imgsyn->ncol + x])*(1-BETA)   + BETA*((Info*)(pShape->data))->r;
-            tg = ((float) imgsyn->green[y*imgsyn->ncol + x])*(1-BETA) + BETA*((Info*)(pShape->data))->g;
-            tb = ((float) imgsyn->blue[y*imgsyn->ncol + x])*(1-BETA)  + BETA*((Info*)(pShape->data))->b;
+            tr = ((float) imgsyn->red[yi*imgsyn->ncol + xi])*(1-BETA)   + BETA*((Info*)(pShape->data))->r;
+            tg = ((float) imgsyn->green[yi*imgsyn->ncol + xi])*(1-BETA) + BETA*((Info*)(pShape->data))->g;
+            tb = ((float) imgsyn->blue[yi*imgsyn->ncol + xi])*(1-BETA)  + BETA*((Info*)(pShape->data))->b;
 
-            tR = ((float) imgsyn->red[y*imgsyn->ncol + x])*ALPHA + (1-ALPHA)*tr;
-            imgsyn->red[y*imgsyn->ncol + x]   = (int) tR;
+            tR = ((float) imgsyn->red[yi*imgsyn->ncol + xi])*ALPHA + (1-ALPHA)*tr;
+            imgsyn->red[y*imgsyn->ncol + xi]   = (int) tR;
 
-            tG = ((float) imgsyn->green[y*imgsyn->ncol + x])*ALPHA + (1-ALPHA)*tg;
-            imgsyn->green[y*imgsyn->ncol + x] = (int) tG; 
+            tG = ((float) imgsyn->green[yi*imgsyn->ncol + xi])*ALPHA + (1-ALPHA)*tg;
+            imgsyn->green[y*imgsyn->ncol + xi] = (int) tG; 
 
-            tB = ((float) imgsyn->blue[y*imgsyn->ncol + x])*ALPHA + (1-ALPHA)*tb;
-            imgsyn->blue[y*imgsyn->ncol + x]  = (int) tB;
+            tB = ((float) imgsyn->blue[yi*imgsyn->ncol + xi])*ALPHA + (1-ALPHA)*tb;
+            imgsyn->blue[y*imgsyn->ncol + xi]  = (int) tB;
 
-            imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x]  = 0.0;
-            imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] = 0;
+            imgShapeBlurSyn->gray[yi*imgShapeBlurSyn->ncol + xi]  = 0.0;
+            imgShapeLabelSyn->gray[yi*imgShapeLabelSyn->ncol + xi] = 0;
         }
         if ((i == pShape->area) && (model == 0))
             break; 
@@ -770,8 +776,8 @@ void TreeOfShapes::synshape(int model, Shape pShape,
             shiftsh = (*reliefHeight)*( (float) pShape->area /10.0);
         
         i = 0;
-        for( xi= ceil(left); xi<= right; xi++){
-            for( yi= ceil(top); yi<= bottom; yi++){
+        for( xi_iter= ceil(left); xi_iter<= right; xi_iter++){
+            for( yi_iter= ceil(top); yi_iter<= bottom; yi_iter++){
                 
                 if (model == 0){
                    x = (float)((pShape->pixels+i)->x);
@@ -789,6 +795,8 @@ void TreeOfShapes::synshape(int model, Shape pShape,
                 } else {
                    xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
                    yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
+                   xi = xi_iter;
+                   yi = yi_iter;
 
                    if (model == 1) //Ellipse
                       condition = ( xi_e*xi_e/(a*a) + yi_e*yi_e/(b*b) <= 1 );
@@ -826,8 +834,8 @@ void TreeOfShapes::synshape(int model, Shape pShape,
     }
     
     i = 0;
-    for( xi= ceil(left); xi<= right; xi++){
-        for( yi= ceil(top); yi<= bottom; yi++){
+    for( xi_iter= ceil(left); xi_iter<= right; xi_iter++){
+            for( yi_iter= ceil(top); yi_iter<= bottom; yi_iter++){
 
             if (model == 0){
                 x = (float)((pShape->pixels+i)->x);
@@ -845,6 +853,8 @@ void TreeOfShapes::synshape(int model, Shape pShape,
             } else {
                 xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
                 yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
+                xi = xi_iter;
+                yi = yi_iter;
 
                 if (model == 1) //Ellipse
                     condition = ( xi_e*xi_e/(a*a) + yi_e*yi_e/(b*b) <= 1 );
