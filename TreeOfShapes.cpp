@@ -585,8 +585,6 @@ void TreeOfShapes::synshape(int model, Shape pShape,
                 if(imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] == 0)
                     continue;
 
-                BETA = imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
-
                 xsh = x + shiftsh*cos( PI*(*reliefOrentation)/180.0 );
                 ysh = y - shiftsh*sin( PI*(*reliefOrentation)/180.0 );
                 xsh = _MAX(0, xsh);
@@ -594,6 +592,7 @@ void TreeOfShapes::synshape(int model, Shape pShape,
                 ysh = _MAX(0, ysh);
                 ysh = _MIN(imgsyn->nrow - 1, ysh);
 
+                BETA = imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
                 tr = ((float) imgsyn->red[ysh*imgsyn->ncol + xsh])*(1-BETA)   + BETA*shTR;
                 tg = ((float) imgsyn->green[ysh*imgsyn->ncol + xsh])*(1-BETA) + BETA*shTG;
                 tb = ((float) imgsyn->blue[ysh*imgsyn->ncol + xsh])*(1-BETA)  + BETA*shTB;
@@ -615,10 +614,9 @@ void TreeOfShapes::synshape(int model, Shape pShape,
                 continue;
 
             BETA = imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
-
-            tr = ((float) imgsyn->red[y*imgsyn->ncol + x])*(1-BETA)   + BETA*TR;
-            tg = ((float) imgsyn->green[y*imgsyn->ncol + x])*(1-BETA) + BETA*TG;
-            tb = ((float) imgsyn->blue[y*imgsyn->ncol + x])*(1-BETA)  + BETA*TB;
+            tr = ((float) imgsyn->red[y*imgsyn->ncol + x])*(1-BETA)   + BETA*((Info*)(pShape->data))->r;
+            tg = ((float) imgsyn->green[y*imgsyn->ncol + x])*(1-BETA) + BETA*((Info*)(pShape->data))->g;
+            tb = ((float) imgsyn->blue[y*imgsyn->ncol + x])*(1-BETA)  + BETA*((Info*)(pShape->data))->b;
 
             tR = ((float) imgsyn->red[y*imgsyn->ncol + x])*ALPHA + (1-ALPHA)*tr;
             imgsyn->red[y*imgsyn->ncol + x]   = (int) tR;
