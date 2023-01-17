@@ -372,7 +372,7 @@ void TreeOfShapes::compute_shape_attribute(int *ns){
         pShape = _pTree->the_shapes + i;
 
         shape_orilam(pShape, &oren, &elg, &kap, &x0, &y0, 1);
-        pShapeTemp = m_order_parent(pShape, &ns);
+        pShapeTemp = m_order_parent(pShape, *ns);
         ((Info*)(pShape->data))->attribute[0] = ((float) pShape->area)/((float) pShapeTemp->area);
 
         if( ((Info*)(pShape->data))->attribute[0] <= ((float) pShape->area)/((float) pShapeTemp->area))
