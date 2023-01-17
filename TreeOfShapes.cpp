@@ -1670,10 +1670,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     Cfimage imgShapeColorSyn, imgDict;
 
     Ccimage imgsyn = mw_change_ccimage(imgsyn, _imgin->nrow, _imgin->ncol);
-   
-    // Compute FLST on Intensity image     
-    if  ( ((t2b_index = mw_new_fsignal()) == NULL) ||(mw_alloc_fsignal(t2b_index,_pTree->nb_shapes) == NULL) )
-        mwerror(FATAL,1,"Not enough memory.\n");
 
     // Compute List of pixels of mask (mask select parts to change by alternative shapes)  
     _len_ArrayPixelsMask = 0;
@@ -1693,8 +1689,12 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     std::cout << "Image filtering" << std::endl;
     filter_image(&tosParameters.ns,&tosParameters.threshold, &tosParameters.mpixel, &tosParameters.maxarea);
 
-    // Select the rendering order
+    // Select the rendering order 
     std::cout << "Rendering order " << tosParameters.order <<std::endl;
+
+    if  ( ((t2b_index = mw_new_fsignal()) == NULL) ||(mw_alloc_fsignal(t2b_index,_pTree->nb_shapes) == NULL) )
+        mwerror(FATAL,1,"Not enough memory.\n");
+
     if(tosParameters.order == 0)
         top2bottom_index_tree(t2b_index);
     else{ // tosParameters.order == 1
@@ -1867,7 +1867,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     }
     if (tosParameters.model == 4){
         mw_delete_cfimage(imgShapeColorSyn);
-        mw_delete_cimage(imgShapeLabel);
         mw_delete_cimage(imgShapeLabelSyn);
         mw_delete_fimage(imgShapeBlurSyn);
     }
