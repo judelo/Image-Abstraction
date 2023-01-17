@@ -1658,17 +1658,16 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     tree_recomputed = _tree_recomputed;
 
     //Declare variables
-    int i,j, mn, modelToUse, maskIntersectionWithShape;
-    Shape pShape, pShapeTemp, pShapeDict;
-    float pa;
-    Fsignal t2b_index, gaussKernel, dictionary_correspondance;
+    int i,j, mn, modelToUse, maskIntersectionWithShape, shape_id;
+    Shape pShape, pShapeTemp, pShapeDict;  
     Point_plane p, pCurrentPoint;
     Cimage imgShapeLabel, imgShapeLabelSyn;
+    Cfimage imgShapeColorSyn, imgDict;
     Fimage imgShapeBlur, imgShapeBlurSyn;
+    Fsignal t2b_index, gaussKernel, dictionary_correspondance;
     bool correspondance_computed = false;
     QColor color_ij;
-    Cfimage imgShapeColorSyn, imgDict;
-
+    
     Ccimage imgsyn = mw_change_ccimage(imgsyn, _imgin->nrow, _imgin->ncol);
 
     // Compute List of pixels of mask (mask select parts to change by alternative shapes)  
@@ -1784,28 +1783,24 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
             float ALPHA = 0.0;
             synshape(2, pShape, imgsyn, &ALPHA, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);              
         } 
-        else{
+        else if(pShape->removed != 1){
 
-            // verify if some poinf of the mask touch the shape. 
-            maskIntersectionWithShape = 0;
-            modelToUse = tosParameters.model;
-            for (j=0; j<_len_ArrayPixelsMask; j++){
-                p = &_ArrayPixelsMask[j];
-                if (point_in_shape(p->x, p->y, pShape, _pTree)){
-                    maskIntersectionWithShape = 1;
-                    modelToUse = alternative_model;
-                    break;
-                }; 
-            };
-
-           if(pShape->removed != 1){
+                // verify if some poinf of the mask touch the shape. 
+                maskIntersectionWithShape = 0;
+                modelToUse = tosParameters.model;
+                for (j=0; j<_len_ArrayPixelsMask; j++){
+                    p = &_ArrayPixelsMask[j];
+                    if (point_in_shape(p->x, p->y, pShape, _pTree)){
+                        maskIntersectionWithShape = 1;
+                        modelToUse = alternative_model;
+                        break;
+                    }; 
+                };
 
                 // Attribute filtering
                 mn=3;
                 pShapeTemp =  m_order_parent(pShape, &mn);
-                pa = ((float) pShape->area)/((float) pShapeTemp->area);
-
-                if(pa < tosParameters.kappa)
+                if(((float) pShape->area)/((float) pShapeTemp->area) < tosParameters.kappa)
                     continue;
 
                 if (modelToUse < 4){ // Rendering Model: Original, Rectangle, Ellipse or Circular
@@ -1817,9 +1812,8 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                         synshape(modelToUse, pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
                 }
                 else{ // modelToUse ==4 -> Rendering Model: Dictionary
-
                     if( correspondance_computed ){
-                        int shape_id = (int)dictionary_correspondance->values[(int)t2b_index->values[i]];
+                        shape_id = (int)dictionary_correspondance->values[(int)t2b_index->values[i]];
                         if ( shape_id >= 0 )
                             pShapeDict = tosDictionary->getShape(shape_id);
                         if ( pShapeDict == NULL || shape_id < 0 ){
@@ -1827,25 +1821,17 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                             _dictionary_selections[ tosDictionary->getTreeId() ]->values[(int)t2b_index->values[i]] = shape_id;
                         }
                     } else {
-                        int shape_id;
                         pShapeDict = tosDictionary->selectShapeDict(pShape, &dictionaryParameters.kappaDict, &dictionaryParameters.randS, shape_id, _average_r, _average_g, _average_b);
                         dictionary_correspondance->values[(int)t2b_index->values[i]] = shape_id;
                     }
                     synShapeDict( pShapeDict, pShape, imgsyn, imgDict, imgShapeColorSyn, imgShapeLabel, imgShapeLabelSyn, imgShapeBlurSyn, gaussKernel, &tosParameters.median, &tosParameters.alpha,
                                     &dictionaryParameters.equal, &dictionaryParameters.mcolor,&tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-                    /*
-                    mw_delete_cfimage(imgShapeColorSyn);
-                    mw_delete_cimage(imgShapeLabel);
-                    mw_delete_cimage(imgShapeLabelSyn);
-                    mw_delete_fimage(imgShapeBlurSyn);
-                    */
-                } 
-             }
+                }
         }
     }
 
-    if( tosParameters.model == 4 && !correspondance_computed )
-        mw_copy_fsignal_values( dictionary_correspondance, _dictionary_selections[ tosDictionary->getTreeId() ]);
+    //if( tosParameters.model == 4 && !correspondance_computed )
+    //    mw_copy_fsignal_values( dictionary_correspondance, _dictionary_selections[ tosDictionary->getTreeId() ]);
 
     QImage result_image( QSize(imgsyn->ncol, imgsyn->nrow), QImage::Format_RGB32 );
 
@@ -1857,6 +1843,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         }
     
     // Delete image and signals
+    std::cout << "Delete auxiliar images and signals" << std::endl;
     mw_delete_fsignal(t2b_index);
     if (imgsyn != NULL)
         mw_delete_ccimage(imgsyn);
