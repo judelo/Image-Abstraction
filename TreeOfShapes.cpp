@@ -184,11 +184,11 @@ void TreeOfShapes::Order(Fsignal t2b_index, int *p, int *q){
 
 
 // Index the mn-order parent of the pShape
-Shape TreeOfShapes::m_order_parent(Shape pShape, int *mn, bool dict){
+Shape TreeOfShapes::m_order_parent(Shape pShape, int mn, bool dict){
     Shape pShapeTemp;
     pShapeTemp = pShape;
 
-    for(int t=0; t<(*mn); t++){
+    for(int t=0; t<mn; t++){
         if(pShapeTemp->parent == NULL)
             break; 
         if(dict)
@@ -367,13 +367,12 @@ void TreeOfShapes::compute_shape_attribute(){
 void TreeOfShapes::compute_shape_attribute(int *ns){
     float oren, elg, kap, x0, y0;
     Shape pShape, pShapeTemp;
-    int nn = *ns; 
 
     for(int i = _pTree->nb_shapes-1; i>=0; i--){
         pShape = _pTree->the_shapes + i;
 
         shape_orilam(pShape, &oren, &elg, &kap, &x0, &y0, 1);
-        pShapeTemp = m_order_parent(pShape, &nn);
+        pShapeTemp = m_order_parent(pShape, &ns);
         ((Info*)(pShape->data))->attribute[0] = ((float) pShape->area)/((float) pShapeTemp->area);
 
         if( ((Info*)(pShape->data))->attribute[0] <= ((float) pShape->area)/((float) pShapeTemp->area))
@@ -1503,7 +1502,7 @@ Shape TreeOfShapes::selectShapeDict(Shape pShape,
 
     Shape pShapeDict, pShapeTemp;
     float sca, scaDict, pa, elong, kappa, elongDict, kappaDict, Dist, minDist, lambda1, lambda2;
-    int i, mn, temp;
+    int i, temp;
 
     lambda1 = ((Info*)(pShape->data))->lambda1;
     lambda2 = ((Info*)(pShape->data))->lambda2;
@@ -1520,9 +1519,7 @@ Shape TreeOfShapes::selectShapeDict(Shape pShape,
         if (!_use_kdtree){
             for(i= 1; i<_pTree->nb_shapes; i++){
                 pShapeDict = _pTree->the_shapes + i;
-
-                mn=3;
-                pShapeTemp =  m_order_parent(pShapeDict, &mn, true);
+                pShapeTemp =  m_order_parent(pShapeDict, 3, true);
                 pa = ((float) pShapeDict->area)/((float) pShapeTemp->area);
 
                 if(pa < *paDict)
@@ -1566,9 +1563,7 @@ Shape TreeOfShapes::selectShapeDict(Shape pShape,
 
             for(i= 1; i<k; i++){
                 pShapeDict = _pTree->the_shapes + (int)neighbors[i];
-
-                mn=3;
-                pShapeTemp =  m_order_parent(pShapeDict, &mn, true);
+                pShapeTemp =  m_order_parent(pShapeDict, 3, true);
                 pa = ((float) pShapeDict->area)/((float) pShapeTemp->area);
 
                 if(pa < *paDict)
@@ -1772,8 +1767,8 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         // Compute background with average color and rectangle. 
         if((int)t2b_index->values[i] == 0 ) {
             
-            // Take color from dictionary for background
             if (tosParameters.model == 4 && (dictionaryParameters.mcolor == 1 || dictionaryParameters.mcolor ==2)){
+                // Take color from dictionary for background
                 pShapeDict = tosDictionary->getShape(0);
                 ((Info*)(pShape->data))->r = ((Info*)(pShapeDict->data))->r;
                 ((Info*)(pShape->data))->g = ((Info*)(pShapeDict->data))->g;
@@ -1797,9 +1792,8 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                     }; 
                 };
 
-                // Attribute filtering
-                mn=3;
-                pShapeTemp =  m_order_parent(pShape, &mn);
+                // Attribute filtering. Index the 3th parent of the shape. 
+                pShapeTemp =  m_order_parent(pShape, 3);
                 if(((float) pShape->area)/((float) pShapeTemp->area) < tosParameters.kappa)
                     continue;
 
@@ -1830,11 +1824,8 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         }
     }
 
-    //if( tosParameters.model == 4 && !correspondance_computed )
-    //    mw_copy_fsignal_values( dictionary_correspondance, _dictionary_selections[ tosDictionary->getTreeId() ]);
-
+    // Compute Resulting image
     QImage result_image( QSize(imgsyn->ncol, imgsyn->nrow), QImage::Format_RGB32 );
-
     for( int j= 0; j< imgsyn->nrow; j++)
         for( int i= 0; i< imgsyn->ncol; i++){
             int comp = j*imgsyn->ncol + i;
@@ -1857,8 +1848,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         mw_delete_cimage(imgShapeLabelSyn);
         mw_delete_fimage(imgShapeBlurSyn);
     }
-
-    std::cout << "***************************" << std::endl << std::endl << std::endl;
 
     return result_image;
 }
