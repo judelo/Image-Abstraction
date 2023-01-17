@@ -453,7 +453,7 @@ void TreeOfShapes::synshape(int model, Shape pShape,
                                   int *relief,
                                   float *reliefOrentation, float *reliefHeight){
 
-    int xi, yi, x, y, iKer, jKer, KerSize, MedSize, xKer, yKer, numMedain;
+    int xi, yi, x, y;
     float ALPHA, BETA, a, b, x0temp, y0temp, top, right, left, bottom, phi, xi_e, yi_e;
     float xShift, yShift, theta, tR, tG, tB, TR, TG, TB, tr, tg, tb;
     bool condition;
@@ -1058,7 +1058,7 @@ void TreeOfShapes::synshapeOriginal(Shape pShape,
                                     int *relief,
                                     float *reliefOrentation, float *reliefHeight){
 
-    int i, xi, yi, x, y, iKer, jKer, KerSize, MedSize, xKer, yKer, numMedain;
+    int i, xi, yi, x, y;
     float xr, yr, x0temp, y0temp, ALPHA, BETA;
     float xShift, yShift, theta, tR, tG, tB, tr, tg, tb, TR, TG, TB;
     float top, right, left, bottom;
@@ -1653,7 +1653,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     tree_recomputed = _tree_recomputed;
 
     //Declare variables
-    int i,j, mn, modelToUse, maskIntersectionWithShape, shape_id;
+    int i,j, modelToUse, maskIntersectionWithShape, shape_id;
     Shape pShape, pShapeTemp, pShapeDict;  
     Point_plane p, pCurrentPoint;
     Cimage imgShapeLabel, imgShapeLabelSyn;
