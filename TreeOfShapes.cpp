@@ -1660,23 +1660,11 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     //Declare variables
     int i,j, mn, modelToUse, maskIntersectionWithShape;
     Shape pShape, pShapeTemp, pShapeDict;
-    float pa, ALPHA;
-    Cimage imgShapeLabel;
-    Fimage imgShapeBlur;
-    Fsignal t2b_index = NULL, gaussKernel;
+    float pa;
+    Fsignal t2b_index;
+    Point_plane p;
 
-    ALPHA = 0.0;
     Ccimage imgsyn = mw_change_ccimage(imgsyn, _imgin->nrow, _imgin->ncol);
-
-    if  ( ((imgShapeLabel = mw_new_cimage()) == NULL) || (mw_alloc_cimage(imgShapeLabel, _imgin->nrow, _imgin->ncol) == NULL) )
-        mwerror(FATAL,1,"Not enough memory.\n");
-
-    if  ( ((imgShapeBlur = mw_new_fimage()) == NULL) || (mw_alloc_fimage(imgShapeBlur, _imgin->nrow, _imgin->ncol) == NULL) )
-        mwerror(FATAL,1,"Not enough memory.\n");
-
-    imgsyn = mw_change_ccimage(imgsyn, _imgin->nrow, _imgin->ncol);
-    imgShapeLabel = mw_change_cimage(imgShapeLabel, _imgin->nrow, _imgin->ncol);
-    imgShapeBlur  = mw_change_fimage(imgShapeBlur, _imgin->nrow, _imgin->ncol);
    
     // Compute FLST on Intensity image     
     if  ( ((t2b_index = mw_new_fsignal()) == NULL) ||(mw_alloc_fsignal(t2b_index,_pTree->nb_shapes) == NULL) )
@@ -1700,16 +1688,13 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
 
     // Image filtering    
     std::cout << "Image filtering" << std::endl;
-
-    int max_area = tosParameters.maxarea;
-    filter_image(&tosParameters.ns,&tosParameters.threshold, &tosParameters.mpixel, &max_area);
-    Point_plane p;
+    filter_image(&tosParameters.ns,&tosParameters.threshold, &tosParameters.mpixel, &tosParameters.maxarea);
 
     // Select the rendering order
     std::cout << "Rendering order " << tosParameters.order <<std::endl;
     if(tosParameters.order == 0)
         top2bottom_index_tree(t2b_index);
-    else{ //(tosParameters.order == 1)
+    else{ // tosParameters.order == 1
         if( !_large_to_small_index_computed ){
             if  ( ((_large_to_small_index = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(_large_to_small_index,_pTree->nb_shapes) == NULL) )
                 mwerror(FATAL,1,"Not enough memory.\n");
@@ -1719,22 +1704,37 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         mw_copy_fsignal_values(_large_to_small_index, t2b_index);
     } 
   
-    // Compute a Gaussian kernel
-    std::cout << "Compute a Gaussian kernel" << std::endl;
-     
-    mw_clear_cimage(imgShapeLabel,0);
-    mw_clear_fimage(imgShapeBlur,0.0);
-    if  ( ((gaussKernel = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(gaussKernel, tosParameters.kerSize*tosParameters.kerSize) == NULL) )
-        mwerror(FATAL,1,"Not enough memory.\n");
-    gaussKernel = Sgauss(&tosParameters.kerStd, gaussKernel, &tosParameters.kerSize);
+    if (tosParameters.blur == 1){
+        Fsignal gaussKernel;
+        Cimage imgShapeLabel;
+        Fimage imgShapeBlur;
 
-    // Check if correspondance computed for dictionary
-    Fsignal dictionary_correspondance;
-    if  ( ((dictionary_correspondance = mw_new_fsignal()) == NULL) ||(mw_alloc_fsignal(dictionary_correspondance,_pTree->nb_shapes) == NULL) )
-        mwerror(FATAL,1,"Not enough memory.\n");
+        if  ( ((imgShapeLabel = mw_new_cimage()) == NULL) || (mw_alloc_cimage(imgShapeLabel, _imgin->nrow, _imgin->ncol) == NULL) )
+            mwerror(FATAL,1,"Not enough memory.\n");
 
-    bool correspondance_computed = false;
+        if  ( ((imgShapeBlur = mw_new_fimage()) == NULL) || (mw_alloc_fimage(imgShapeBlur, _imgin->nrow, _imgin->ncol) == NULL) )
+            mwerror(FATAL,1,"Not enough memory.\n");
+
+        imgShapeLabel = mw_change_cimage(imgShapeLabel, _imgin->nrow, _imgin->ncol);
+        imgShapeBlur  = mw_change_fimage(imgShapeBlur, _imgin->nrow, _imgin->ncol);
+
+        // Compute a Gaussian kernel
+        std::cout << "Compute a Gaussian kernel" << std::endl;
+        
+        mw_clear_cimage(imgShapeLabel,0);
+        mw_clear_fimage(imgShapeBlur,0.0);
+        if  ( ((gaussKernel = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(gaussKernel, tosParameters.kerSize*tosParameters.kerSize) == NULL) )
+            mwerror(FATAL,1,"Not enough memory.\n");
+        gaussKernel = Sgauss(&tosParameters.kerStd, gaussKernel, &tosParameters.kerSize);
+    }
+
+    // Check if correspondance computed for dictionary 
     if( tosParameters.model == 4 ){
+        bool correspondance_computed = false;
+        Fsignal dictionary_correspondance;
+        if  ( ((dictionary_correspondance = mw_new_fsignal()) == NULL) ||(mw_alloc_fsignal(dictionary_correspondance,_pTree->nb_shapes) == NULL) )
+            mwerror(FATAL,1,"Not enough memory.\n");
+
         std::map<int, Fsignal>::iterator it = _dictionary_selections.find( tosDictionary->getTreeId() );
 
         if( it != _dictionary_selections.end() ){
@@ -1742,8 +1742,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
             correspondance_computed = true;
         } 
         else {
-            if  ( ((_dictionary_selections[ tosDictionary->getTreeId() ] = mw_new_fsignal()) == NULL) ||
-                  (mw_alloc_fsignal(_dictionary_selections[ tosDictionary->getTreeId() ],_pTree->nb_shapes) == NULL) )
+            if  ( ((_dictionary_selections[ tosDictionary->getTreeId() ] = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(_dictionary_selections[ tosDictionary->getTreeId() ],_pTree->nb_shapes) == NULL) )
                 mwerror(FATAL,1,"Not enough memory.\n");
             mw_clear_fsignal(_dictionary_selections[ tosDictionary->getTreeId() ],-1.0);
             tosDictionary->computeKdTree(_average_r, _average_g, _average_b);
@@ -1767,6 +1766,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                 ((Info*)(pShape->data))->b = ((Info*)(pShapeDict->data))->b;
             }
             // background rectangle
+            float ALPHA = 0.0;
             synshape(2, pShape, imgsyn, &ALPHA, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);              
         } 
         else{
@@ -1855,11 +1855,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         }
     }
 
-    mw_delete_fsignal(t2b_index);
-    mw_delete_cimage(imgShapeLabel);
-    mw_delete_fimage(imgShapeBlur);
-    mw_delete_fsignal(gaussKernel);
-
     if( tosParameters.model == 4 && !correspondance_computed )
         mw_copy_fsignal_values( dictionary_correspondance, _dictionary_selections[ tosDictionary->getTreeId() ]);
 
@@ -1871,9 +1866,16 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
             QColor color (imgsyn->red[comp], imgsyn->green[comp], imgsyn->blue[comp]);
             result_image.setPixel(i, j , qRgb(color.red(), color.green(), color.blue()));
         }
-
-    if( imgsyn != NULL )
+    
+    // Delete image and signals
+    mw_delete_fsignal(t2b_index);
+    if (imgsyn != NULL)
         mw_delete_ccimage(imgsyn);
+    if (tosParameters.blur == 1){
+        mw_delete_cimage(imgShapeLabel);
+        mw_delete_fimage(imgShapeBlur);
+        mw_delete_fsignal(gaussKernel);
+    }
 
     std::cout << "***************************" << std::endl << std::endl << std::endl;
 
