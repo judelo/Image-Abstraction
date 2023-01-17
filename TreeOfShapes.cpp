@@ -1661,8 +1661,12 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     int i,j, mn, modelToUse, maskIntersectionWithShape;
     Shape pShape, pShapeTemp, pShapeDict;
     float pa;
-    Fsignal t2b_index;
-    Point_plane p;
+    Fsignal t2b_index, gaussKernel, dictionary_correspondance;
+    Point_plane p, pCurrentPoint;
+    Cimage imgShapeLabel;
+    Fimage imgShapeBlur;
+    bool correspondance_computed = false;
+    QColor color_ij;
 
     Ccimage imgsyn = mw_change_ccimage(imgsyn, _imgin->nrow, _imgin->ncol);
    
@@ -1670,9 +1674,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     if  ( ((t2b_index = mw_new_fsignal()) == NULL) ||(mw_alloc_fsignal(t2b_index,_pTree->nb_shapes) == NULL) )
         mwerror(FATAL,1,"Not enough memory.\n");
 
-    // Compute List of pixels of mask (mask select parts to change by alternative shapes)
-    QColor color_ij;
-    Point_plane pCurrentPoint;  
+    // Compute List of pixels of mask (mask select parts to change by alternative shapes)  
     _len_ArrayPixelsMask = 0;
 
     for( int i= 0; i< image_mask.width() ; i++)
@@ -1705,10 +1707,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     } 
   
     if (tosParameters.blur == 1){
-        Fsignal gaussKernel;
-        Cimage imgShapeLabel;
-        Fimage imgShapeBlur;
-
         if  ( ((imgShapeLabel = mw_new_cimage()) == NULL) || (mw_alloc_cimage(imgShapeLabel, _imgin->nrow, _imgin->ncol) == NULL) )
             mwerror(FATAL,1,"Not enough memory.\n");
 
@@ -1730,8 +1728,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
 
     // Check if correspondance computed for dictionary 
     if( tosParameters.model == 4 ){
-        bool correspondance_computed = false;
-        Fsignal dictionary_correspondance;
         if  ( ((dictionary_correspondance = mw_new_fsignal()) == NULL) ||(mw_alloc_fsignal(dictionary_correspondance,_pTree->nb_shapes) == NULL) )
             mwerror(FATAL,1,"Not enough memory.\n");
 
