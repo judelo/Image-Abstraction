@@ -357,7 +357,8 @@ void TreeOfShapes::compute_shape_attribute(){
 
             //flstb_boundary(prec,image,tree,s,NULL,l,tabsaddles);
             //data->min_contrast = min_contrast(l,&data->length,NormofDu);
-            Flist pBoundary = mw_change_flist(pBoundary, 4*pShape->area+1, 0, 2);
+            Flist pBoundary = NULL;
+            pBoundary = mw_change_flist(pBoundary, 4*pShape->area+1, 0, 2);
             flst_boundary(_pTree, pShape, pBoundary);
             ((Info*)(pShape->data))->contrast = fabs(min_contrast(pBoundary,&length,_NormOfDu));
 
