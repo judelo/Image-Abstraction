@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
         dictionary->compute_tree( getDefaultTOSParameters(), true);
 
         // Run abstraction
-        resulting_image = TOS->render(TOSParameters, tree_recomputed,  NULL, alternative_model, dictionary, dictionaryParameters);
+        resulting_image = TOS->render(TOSParameters, tree_recomputed,  image_mask, 4, dictionary, dictionaryParameters);
     } else {
         // Run abstraction
         resulting_image = TOS->render(TOSParameters, tree_recomputed, image_mask, alternative_model);
