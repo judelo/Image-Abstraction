@@ -1648,7 +1648,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     Ccimage imgsyn = mw_change_ccimage(imgsyn, _imgin->nrow, _imgin->ncol);
 
     // Compute list of pixels of mask 
-    compute_list_pixels_mask(QImage image_mask)
+    compute_list_pixels_mask(image_mask);
 
     // Image filtering    
     std::cout << "Image filtering" << std::endl;
@@ -1751,7 +1751,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                 // Verify if some point of the mask touch the shape. 
                 modelToUse = tosParameters.model;
                 for (j=0; j<_len_ArrayPixelsMask; j++) //p = &_ArrayPixelsMask[j];
-                    if (point_in_shape(&_ArrayPixelsMask[j]->x, &_ArrayPixelsMask[j]->y, pShape, _pTree)){
+                    if (point_in_shape((&_ArrayPixelsMask[j])->x, (&_ArrayPixelsMask[j])->y, pShape, _pTree)){
                         modelToUse = alternative_model;
                         break;
                     }; 
