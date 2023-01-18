@@ -237,7 +237,8 @@ void TreeOfShapes::top2bottom_index_tree(Fsignal t2b_index){
 
 
 // The mean contrast of the curve l
-float TreeOfShapes::min_contrast(Shape pShape){
+// Compute the mean contrast and the length of the curve l
+float TreeOfShapes::mean_contrast(Shape pShape){
 
     double per;
     float mu,meanmu,x,y,ox,oy;
@@ -326,7 +327,7 @@ void TreeOfShapes::tree_boundingbox(){
 
 // Compute shape attributes for the tree of shapes: orientation, elongarion, color, etc.  
 void TreeOfShapes::compute_shape_attribute(){
-    float oren, lamb1, lamb2, x0, y0;
+    float oren, lamb1, lamb2, x0, y0, length;
     Shape pShape;
 
     _average_r = 0.;
@@ -352,7 +353,14 @@ void TreeOfShapes::compute_shape_attribute(){
         _average_b += ((Info*)(pShape->data))->b ;
 
         if(i != 0){
-            ((Info*)(pShape->data))->contrast = fabs(min_contrast(pShape));
+            //((Info*)(pShape->data))->contrast = fabs(mean_contrast(pShape));
+
+            //flstb_boundary(prec,image,tree,s,NULL,l,tabsaddles);
+            //data->min_contrast = min_contrast(l,&data->length,NormofDu);
+            Flist pBoundary = mw_change_flist(pBoundary, 4*pShape->area+1, 0, 2);
+            flst_boundary(_pTree, pShape, pBoundary);
+            ((Info*)(pShape->data))->contrast = fabs(min_contrast(pBoundary,&length,_NormofDu));
+
             _maxArea = std::max( pShape->area, _maxArea );
         }
     }
@@ -1299,7 +1307,8 @@ void TreeOfShapes::filter_shapes( Cfimage out, char *local, float *eps){
     ncol = _imgin->ncol;
     for(i=0;i<ncol*nrow;i++)
         Fv->gray[i] = (_imgin->red[i]+_imgin->green[i]+_imgin->blue[i])/3.;
-
+    
+    // Function from MegaWave module. Extract (local or not) meaningful boundaries from FV
     ll_boundaries2(Fv,eps,NULL,&step,&prec,&std,&hstep,NULL,&visit,NULL,NULL,tree);
 
     // Compute recursively integral of gray level saturation cos and sin of hue 
@@ -1797,6 +1806,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                 if(((float) pShape->area)/((float) pShapeTemp->area) < tosParameters.kappa)
                     continue;
 
+                // Modification of shape according to model
                 if (modelToUse < 4){ // Rendering Model: Original, Rectangle, Ellipse or Circular
                     if(tosParameters.blur == 0)
                        synshape(modelToUse, pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
