@@ -359,7 +359,7 @@ void TreeOfShapes::compute_shape_attribute(){
             //data->min_contrast = min_contrast(l,&data->length,NormofDu);
             Flist pBoundary = mw_change_flist(pBoundary, 4*pShape->area+1, 0, 2);
             flst_boundary(_pTree, pShape, pBoundary);
-            ((Info*)(pShape->data))->contrast = fabs(min_contrast(pBoundary,&length,_NormofDu));
+            ((Info*)(pShape->data))->contrast = fabs(min_contrast(pBoundary,&length,_NormOfDu));
 
             _maxArea = std::max( pShape->area, _maxArea );
         }
