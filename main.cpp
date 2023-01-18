@@ -117,12 +117,7 @@ int main(int argc, char *argv[])
     } else if( mode==4 ){
         std::cout << "Style transfer " << std::endl;
         TOSParameters =  getStyleTransferTOSParameters();
-        if (model!=4){
-           std::ofstream demo_failure("demo_failure.txt");
-           demo_failure << "For Style Transfer, model has to be dictionary.\n";
-           demo_failure.close();
-           return 0;
-        };
+        model= 4;
     };
 
     TOSParameters.model = model; 
@@ -139,15 +134,6 @@ int main(int argc, char *argv[])
     };
     
     if (model == 4) { 
-        std::cout << "Model Dictionary" << std::endl; 
-
-        if (mode!=4){
-           std::ofstream demo_failure("demo_failure.txt");
-           demo_failure << "Use Dictionary only for Style transfer.\n";
-           demo_failure.close();
-           return 0;
-        };
-
         // Load dictionary parameters
         DictionaryParameters dictionaryParameters = getDefaultDictionaryParameters();
 
@@ -156,19 +142,17 @@ int main(int argc, char *argv[])
             dictionaryParameters.mcolor = mcolor;
             dictionaryParameters.equal = equal; 
             dictionaryParameters.kappaDict = kappaDict; 
-            std::cout << "mcolor " << mcolor << std::endl;
         };
 
         // Load dictionary of dictionary image
         QImage image_dict(dictionary_file_name);
 
         if (image_dict.isNull()){
-           std::cout << "An image for dictionary it is necessary" << std::endl; 
+           std::cout << "A Style image it is necessary" << std::endl; 
            std::ofstream demo_failure;
            demo_failure.open ("demo_failure.txt");
-           demo_failure << "An image for dictionary it is necessary.\n";
+           demo_failure << "A Style image it is necessary.\n";
            demo_failure.close();
-           return 0;
            return 0;
         };
 
@@ -176,7 +160,7 @@ int main(int argc, char *argv[])
         dictionary->compute_tree( getDefaultTOSParameters(), true);
 
         // Run abstraction
-        resulting_image = TOS->render(TOSParameters, tree_recomputed,  image_mask, alternative_model, dictionary, dictionaryParameters);
+        resulting_image = TOS->render(TOSParameters, tree_recomputed,  NULL, alternative_model, dictionary, dictionaryParameters);
     } else {
         // Run abstraction
         resulting_image = TOS->render(TOSParameters, tree_recomputed, image_mask, alternative_model);
