@@ -1224,12 +1224,10 @@ Fsignal TreeOfShapes::Sgauss(float *std, Fsignal out, int *size){
 
 
 void TreeOfShapes::get_shapes_truearea(Shape s, Shape root, int *truearea){
-    int index;
-    Shape t;
 
-    index = s-root;
+    int index = s-root;
     truearea[index] = s->area;
-    t = mw_get_first_child_shape(s);
+    Shape t = mw_get_first_child_shape(s);
     while(t){
         get_shapes_truearea(t,root,truearea);
         truearea[index] -= t->area;
@@ -1320,7 +1318,6 @@ void TreeOfShapes::filter_shapes( Cfimage out, char *local, float *eps){
     free(green);
     free(blue);
     free(truearea);
-    std::cout <<"TreeOfShapes::filter_shapes()::end"<< std::endl;
 }
 
 
@@ -1359,8 +1356,8 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpix
         Dist = sqrt((elong - elong_pre)*(elong - elong_pre) +
                     (kappa - kappa_pre)*(kappa - kappa_pre) +
                     (oren - oren_pre)*(oren - oren_pre)/(PI*PI) +
-                    (1 - _MIN(sca_pre/sca, sca/sca_pre))*(1 - _MIN(sca_pre/sca, sca/sca_pre)));
-        Dist /= 4;
+                    (1 - _MIN(sca_pre/sca, sca/sca_pre))*(1 - _MIN(sca_pre/sca, sca/sca_pre)))/4;
+        //Dist /= 4;
 
         if(pShape->area <= *mpixel || *maxpixel < pShape->area || (((Info*)(pShape->data))->attribute[0])*CONTR<= thre || Dist*CONTR < 0.)
             pShape->removed = 1;
@@ -1400,12 +1397,11 @@ int TreeOfShapes::random_number(int *M){
 
     temp = ((float)rand())/RAND_MAX;
 
-    for(i= 0; i< size; i++){
+    for(i= 0; i< size; i++)
         if( temp <= pb->values[i]){
             select_i = i;
             break;
         }
-    }
 
     mw_delete_fsignal(pb);
     return select_i;
@@ -1414,6 +1410,7 @@ int TreeOfShapes::random_number(int *M){
 
 void TreeOfShapes::computeKdTree(float average_r, float average_g, float average_b ){
     _use_kdtree = false;
+    float lambda1, lambda2, elongDict, kappaDict, scaDict;
 
     if( _pTree->nb_shapes > 1000 ){
         std::cout <<"Building KD tree" << std::endl;
@@ -1423,11 +1420,6 @@ void TreeOfShapes::computeKdTree(float average_r, float average_g, float average
         std::vector<std::vector<float>> values;
         for(int i=1; i < _pTree->nb_shapes; i++){
             pShape = _pTree->the_shapes + i;
-
-            float lambda1, lambda2;
-            float elongDict, kappaDict;
-            float scaDict;
-
             lambda1 = ((Info*)(pShape->data))->lambda1;
             lambda2 = ((Info*)(pShape->data))->lambda2;
             elongDict = lambda2 / lambda1;
@@ -1447,7 +1439,6 @@ void TreeOfShapes::computeKdTree(float average_r, float average_g, float average
         _annTree.build(values);
         _use_kdtree = true;
     }
-
 }
 
 // Select Shape according to the distance of its attributes
@@ -1588,14 +1579,10 @@ void TreeOfShapes::compute_tree( TOSParameters tosParameters, bool dictionary ){
         _tree_recomputed = true;
         _use_kdtree = false;
 
-        //if( _large_to_small_index_computed )
-        //    mw_delete_fsignal(_large_to_small_index);
-
         for (std::map<int, Fsignal>::iterator it = _dictionary_selections.begin(); it !=  _dictionary_selections.end(); ++it)
             mw_delete_fsignal( it->second );
         
         _dictionary_selections.clear();
-        //_large_to_small_index_computed = false;
     }
     
     // Compute shape attribute if dictionary
@@ -1632,13 +1619,12 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     //Declare variables
     int i,j, modelToUse, shape_id;
     Shape pShape, pShapeTemp, pShapeDict;  
-    Point_plane p; // pCurrentPoint;
+    Point_plane p;
     Cimage imgShapeLabel, imgShapeLabelSyn;
     Cfimage imgShapeColorSyn, imgDict;
     Fimage imgShapeBlur, imgShapeBlurSyn;
     Fsignal t2b_index, gaussKernel, dictionary_correspondance;
     bool correspondance_computed = false;
-    //QColor color_ij;
 
     //Step 1: Decomposition. 
     compute_tree(tosParameters, false);
@@ -1750,7 +1736,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
 
                 // Verify if some point of the mask touch the shape. 
                 modelToUse = tosParameters.model;
-                for (j=0; j<_len_ArrayPixelsMask; j++) //p = &_ArrayPixelsMask[j];
+                for (j=0; j<_len_ArrayPixelsMask; j++)
                     if (point_in_shape((&_ArrayPixelsMask[j])->x, (&_ArrayPixelsMask[j])->y, pShape, _pTree)){
                         modelToUse = alternative_model;
                         break;
