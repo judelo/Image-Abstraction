@@ -236,47 +236,6 @@ void TreeOfShapes::top2bottom_index_tree(Fsignal t2b_index){
 }
 
 
-// The mean contrast of the curve l
-// Compute the mean contrast and the length of the curve l
-float TreeOfShapes::mean_contrast(Shape pShape){
-
-    double per;
-    float mu,meanmu,x,y,ox,oy;
-    int i,ix,iy;
-
-    Flist pBoundary = NULL;
-    pBoundary = mw_change_flist(pBoundary, 4*pShape->area+1, 0, 2);
-    flst_boundary(_pTree, pShape, pBoundary);
-
-    per = 0.;
-    meanmu = FLT_MAX;
-
-    for(i=0; i<pBoundary->size;i++){
-        x = pBoundary->values[i*2];
-        y = pBoundary->values[i*2+1];
-
-        if (i>0) 
-           per += sqrt((double)(x-ox)*(x-ox)+(y-oy)*(y-oy));
-        ox = x; 
-        oy = y;
-        ix = (int)rint((double)x)-1;
-        iy = (int)rint((double)y)-1;
-
-        if (ix>=0 && iy>=0 && ix<_NormOfDu->ncol && iy<_NormOfDu->nrow){
-            mu =_NormOfDu->gray[_NormOfDu->ncol*iy+ix];
-            if (mu<meanmu) 
-               meanmu=mu;
-        }
-    }
-    if (meanmu == FLT_MAX) 
-        meanmu = 0.;
-
-    free(pBoundary->data);
-    mw_delete_flist(pBoundary);
-    return(meanmu);
-}
-
-
 // Compute boundingbox of each shape on the tree                    
 // shape_boundingbox(pTree, pShape) and tree_boundingbox(pTree, pShape)                
 void TreeOfShapes::shape_boundingbox(Shape pShape){
@@ -353,15 +312,10 @@ void TreeOfShapes::compute_shape_attribute(){
         _average_b += ((Info*)(pShape->data))->b ;
 
         if(i != 0){
-            //((Info*)(pShape->data))->contrast = fabs(mean_contrast(pShape));
-
-            //flstb_boundary(prec,image,tree,s,NULL,l,tabsaddles);
-            //data->min_contrast = min_contrast(l,&data->length,NormofDu);
             Flist pBoundary = NULL;
             pBoundary = mw_change_flist(pBoundary, 4*pShape->area+1, 0, 2);
             flst_boundary(_pTree, pShape, pBoundary);
             ((Info*)(pShape->data))->contrast = fabs(min_contrast(pBoundary,&length,_NormOfDu));
-
             _maxArea = std::max( pShape->area, _maxArea );
         }
     }
@@ -1242,11 +1196,9 @@ Fsignal TreeOfShapes::Sgauss(float *std, Fsignal out, int *size){
     float sum;
     n = *size;
 
-    if  ( ((sgaussX = mw_new_fsignal()) == NULL) ||
-          (mw_alloc_fsignal(sgaussX, n) == NULL) )
+    if  ( ((sgaussX = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(sgaussX, n) == NULL) )
         mwerror(FATAL,1,"Not enough memory.\n");
-    if  ( ((sgaussY = mw_new_fsignal()) == NULL) ||
-          (mw_alloc_fsignal(sgaussY, n) == NULL) )
+    if  ( ((sgaussY = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(sgaussY, n) == NULL) )
         mwerror(FATAL,1,"Not enough memory.\n");
 
     sgaussX = sgauss(std, sgaussX, size);
@@ -1636,14 +1588,14 @@ void TreeOfShapes::compute_tree( TOSParameters tosParameters, bool dictionary ){
         _tree_recomputed = true;
         _use_kdtree = false;
 
-        if( _large_to_small_index_computed )
-            mw_delete_fsignal(_large_to_small_index);
+        //if( _large_to_small_index_computed )
+        //    mw_delete_fsignal(_large_to_small_index);
 
         for (std::map<int, Fsignal>::iterator it = _dictionary_selections.begin(); it !=  _dictionary_selections.end(); ++it)
             mw_delete_fsignal( it->second );
         
         _dictionary_selections.clear();
-        _large_to_small_index_computed = false;
+        //_large_to_small_index_computed = false;
     }
     
     // Compute shape attribute if dictionary
@@ -1654,28 +1606,10 @@ void TreeOfShapes::compute_tree( TOSParameters tosParameters, bool dictionary ){
     }
 }
 
-
-QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, QImage image_mask, int alternative_model, TreeOfShapes *tosDictionary, DictionaryParameters dictionaryParameters ){
-    
-    std::cout <<"TreeOfShapes::Abstraction started"<< std::endl;
-
-    compute_tree(tosParameters, false);
-    tree_recomputed = _tree_recomputed;
-
-    //Declare variables
-    int i,j, modelToUse, maskIntersectionWithShape, shape_id;
-    Shape pShape, pShapeTemp, pShapeDict;  
-    Point_plane p, pCurrentPoint;
-    Cimage imgShapeLabel, imgShapeLabelSyn;
-    Cfimage imgShapeColorSyn, imgDict;
-    Fimage imgShapeBlur, imgShapeBlurSyn;
-    Fsignal t2b_index, gaussKernel, dictionary_correspondance;
-    bool correspondance_computed = false;
+// Compute list of pixels of mask (mask select shapes to transform by alternative shapes)  
+void TreeOfShapes::compute_list_pixels_mask(QImage image_mask){
     QColor color_ij;
-    
-    Ccimage imgsyn = mw_change_ccimage(imgsyn, _imgin->nrow, _imgin->ncol);
-
-    // Compute List of pixels of mask (mask select parts to change by alternative shapes)  
+    Point_plane pCurrentPoint;
     _len_ArrayPixelsMask = 0;
 
     for( int i= 0; i< image_mask.width() ; i++)
@@ -1688,6 +1622,33 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                 _len_ArrayPixelsMask = _len_ArrayPixelsMask +1;   
             };
         };
+}
+
+
+QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, QImage image_mask, int alternative_model, TreeOfShapes *tosDictionary, DictionaryParameters dictionaryParameters ){
+    
+    std::cout <<"TreeOfShapes::Abstraction started"<< std::endl;
+
+    //Declare variables
+    int i,j, modelToUse, shape_id;
+    Shape pShape, pShapeTemp, pShapeDict;  
+    Point_plane p; // pCurrentPoint;
+    Cimage imgShapeLabel, imgShapeLabelSyn;
+    Cfimage imgShapeColorSyn, imgDict;
+    Fimage imgShapeBlur, imgShapeBlurSyn;
+    Fsignal t2b_index, gaussKernel, dictionary_correspondance;
+    bool correspondance_computed = false;
+    //QColor color_ij;
+
+    //Step 1: Decomposition. 
+    compute_tree(tosParameters, false);
+    tree_recomputed = _tree_recomputed;
+
+    // Define synthesis image
+    Ccimage imgsyn = mw_change_ccimage(imgsyn, _imgin->nrow, _imgin->ncol);
+
+    // Compute list of pixels of mask 
+    compute_list_pixels_mask(QImage image_mask)
 
     // Image filtering    
     std::cout << "Image filtering" << std::endl;
@@ -1701,16 +1662,15 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
 
     if(tosParameters.order == 0)
         top2bottom_index_tree(t2b_index);
-    else{ // tosParameters.order == 1
-        if( !_large_to_small_index_computed ){
-            if  ( ((_large_to_small_index = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(_large_to_small_index,_pTree->nb_shapes) == NULL) )
-                mwerror(FATAL,1,"Not enough memory.\n");
-            sortShapes(_large_to_small_index);
-            _large_to_small_index_computed = true;
-        }
+    else{ // tosParameters.order == 1     
+        if ( ((_large_to_small_index = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(_large_to_small_index,_pTree->nb_shapes) == NULL) )
+            mwerror(FATAL,1,"Not enough memory.\n");
+        sortShapes(_large_to_small_index);
+        _large_to_small_index_computed = true;     
         mw_copy_fsignal_values(_large_to_small_index, t2b_index);
     } 
   
+    // Sepcial resources needed if blur is selected
     if (tosParameters.blur == 1){
         // Define auxiliar images for abstraction
         if  ( ((imgShapeLabel = mw_new_cimage()) == NULL) || (mw_alloc_cimage(imgShapeLabel, _imgin->nrow, _imgin->ncol) == NULL) )
@@ -1730,6 +1690,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         gaussKernel = Sgauss(&tosParameters.kerStd, gaussKernel, &tosParameters.kerSize);
     }
     
+    // Sepcial resources needed if dictionary is selected
     if( tosParameters.model == 4 ){
         // Define auxiliar images for abstraction
         imgDict = tosDictionary->getCfImage();
@@ -1773,10 +1734,8 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
 
     for(i=0; i < _pTree->nb_shapes; i++) {
         pShape = _pTree->the_shapes + (int)t2b_index->values[i];
-        
-        // Compute background with average color and rectangle. 
-        if((int)t2b_index->values[i] == 0 ) {
-            
+         
+        if((int)t2b_index->values[i] == 0 ) { // Background shape: Rectangle and average color. 
             if (tosParameters.model == 4 && (dictionaryParameters.mcolor == 1 || dictionaryParameters.mcolor ==2)){
                 // Take color from dictionary for background
                 pShapeDict = tosDictionary->getShape(0);
@@ -1784,23 +1743,18 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                 ((Info*)(pShape->data))->g = ((Info*)(pShapeDict->data))->g;
                 ((Info*)(pShape->data))->b = ((Info*)(pShapeDict->data))->b;
             }
-            // background rectangle
             float ALPHA = 0.0;
             synshape(2, pShape, imgsyn, &ALPHA, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);              
         } 
         else if(pShape->removed != 1){
 
-                // verify if some poinf of the mask touch the shape. 
-                maskIntersectionWithShape = 0;
+                // Verify if some point of the mask touch the shape. 
                 modelToUse = tosParameters.model;
-                for (j=0; j<_len_ArrayPixelsMask; j++){
-                    p = &_ArrayPixelsMask[j];
-                    if (point_in_shape(p->x, p->y, pShape, _pTree)){
-                        maskIntersectionWithShape = 1;
+                for (j=0; j<_len_ArrayPixelsMask; j++) //p = &_ArrayPixelsMask[j];
+                    if (point_in_shape(&_ArrayPixelsMask[j]->x, &_ArrayPixelsMask[j]->y, pShape, _pTree)){
                         modelToUse = alternative_model;
                         break;
                     }; 
-                };
 
                 // Attribute filtering. Index the 3th parent of the shape. 
                 pShapeTemp =  m_order_parent(pShape, 3);
@@ -1829,8 +1783,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                         pShapeDict = tosDictionary->selectShapeDict(pShape, &dictionaryParameters.kappaDict, &dictionaryParameters.randS, shape_id, _average_r, _average_g, _average_b);
                         dictionary_correspondance->values[(int)t2b_index->values[i]] = shape_id;
                     }
-                    synShapeDict( pShapeDict, pShape, imgsyn, imgDict, imgShapeColorSyn, imgShapeLabel, imgShapeLabelSyn, imgShapeBlurSyn, gaussKernel, &tosParameters.median, &tosParameters.alpha,
-                                    &dictionaryParameters.equal, &dictionaryParameters.mcolor,&tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
+                    synShapeDict( pShapeDict, pShape, imgsyn, imgDict, imgShapeColorSyn, imgShapeLabel, imgShapeLabelSyn, imgShapeBlurSyn, gaussKernel, &tosParameters.median, &tosParameters.alpha, &dictionaryParameters.equal, &dictionaryParameters.mcolor,&tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
                 }
         }
     }
