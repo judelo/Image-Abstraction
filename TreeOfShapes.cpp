@@ -1690,15 +1690,15 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, QImage image_mask, int 
         if  ( ((dictionary_correspondance = mw_new_fsignal()) == NULL) ||(mw_alloc_fsignal(dictionary_correspondance,_pTree->nb_shapes) == NULL) )
             mwerror(FATAL,1,"Not enough memory.\n");
 
-        std::map<int, Fsignal>::iterator it = _dictionary_selections.find( tosDictionary->getTreeId() );
+        std::map<int, Fsignal>::iterator it = _dictionary_selections.find(1);
 
         if( it != _dictionary_selections.end() ){
             mw_copy_fsignal_values(it->second, dictionary_correspondance);
             correspondance_computed = true;
         } else {
-            if  ( ((_dictionary_selections[ tosDictionary->getTreeId() ] = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(_dictionary_selections[ tosDictionary->getTreeId() ],_pTree->nb_shapes) == NULL) )
+            if  ( ((_dictionary_selections[1] = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(_dictionary_selections[1],_pTree->nb_shapes) == NULL) )
                 mwerror(FATAL,1,"Not enough memory.\n");
-            mw_clear_fsignal(_dictionary_selections[ tosDictionary->getTreeId() ],-1.0);
+            mw_clear_fsignal(_dictionary_selections[1],-1.0);
             tosDictionary->computeKdTree(_average_r, _average_g, _average_b);
         }
     }
@@ -1751,7 +1751,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, QImage image_mask, int 
                             pShapeDict = tosDictionary->getShape(shape_id);
                         if ( pShapeDict == NULL || shape_id < 0 ){
                             pShapeDict = tosDictionary->selectShapeDict(pShape, &dictionaryParameters.kappaDict, &dictionaryParameters.randS, shape_id, _average_r, _average_g, _average_b);
-                            _dictionary_selections[ tosDictionary->getTreeId() ]->values[(int)t2b_index->values[i]] = shape_id;
+                            _dictionary_selections[1]->values[(int)t2b_index->values[i]] = shape_id;
                         }
                     } else {
                         pShapeDict = tosDictionary->selectShapeDict(pShape, &dictionaryParameters.kappaDict, &dictionaryParameters.randS, shape_id, _average_r, _average_g, _average_b);
