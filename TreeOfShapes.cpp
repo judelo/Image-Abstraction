@@ -24,6 +24,8 @@ extern void flst();
 #define _MIN(x, y) ( (x)<(y) ? (x) : (y) )
 #define _MAX(x, y) ( (x)>(y) ? (x) : (y) )
 
+int TreeOfShapes::_tree_count = 0;
+
 TreeOfShapes::TreeOfShapes( Cfimage imageIn ){
     
     // Read input image
@@ -32,6 +34,9 @@ TreeOfShapes::TreeOfShapes( Cfimage imageIn ){
     // Set default input options   
     _tosParameters = getDefaultTOSParameters();
     _dictionaryParameters = getDefaultDictionaryParameters();
+    _tree_computed = false;
+    _tree_recomputed = false;
+    _tree_id = _tree_count++;
     _large_to_small_index = NULL;
     _large_to_small_index_computed = false;
     _texture_image_loaded = false;
@@ -1578,8 +1583,10 @@ void TreeOfShapes::compute_tree( TOSParameters tosParameters, bool dictionary ){
     if( dictionary ){
         std::cout << "Compute shape attributes if dictionary" << std::endl;
         compute_shape_attribute();
+        std::cout << "tree_boundingbox" << std::endl;
         tree_boundingbox();
     }
+    std::cout << "End compute_tree" << std::endl;
 }
 
 // Compute list of pixels of mask (mask select shapes to transform by alternative shapes)  
@@ -1690,15 +1697,15 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, QImage image_mask, int 
         if  ( ((dictionary_correspondance = mw_new_fsignal()) == NULL) ||(mw_alloc_fsignal(dictionary_correspondance,_pTree->nb_shapes) == NULL) )
             mwerror(FATAL,1,"Not enough memory.\n");
 
-        std::map<int, Fsignal>::iterator it = _dictionary_selections.find(0);
+        std::map<int, Fsignal>::iterator it = _dictionary_selections.find( tosDictionary->getTreeId() );
 
         if( it != _dictionary_selections.end() ){
             mw_copy_fsignal_values(it->second, dictionary_correspondance);
             correspondance_computed = true;
         } else {
-            if  ( ((_dictionary_selections[0] = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(_dictionary_selections[0],_pTree->nb_shapes) == NULL) )
+            if  ( ((_dictionary_selections[ tosDictionary->getTreeId() ] = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(_dictionary_selections[ tosDictionary->getTreeId() ],_pTree->nb_shapes) == NULL) )
                 mwerror(FATAL,1,"Not enough memory.\n");
-            mw_clear_fsignal(_dictionary_selections[0],-1.0);
+            mw_clear_fsignal(_dictionary_selections[ tosDictionary->getTreeId() ],-1.0);
             tosDictionary->computeKdTree(_average_r, _average_g, _average_b);
         }
     }
@@ -1751,7 +1758,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, QImage image_mask, int 
                             pShapeDict = tosDictionary->getShape(shape_id);
                         if ( pShapeDict == NULL || shape_id < 0 ){
                             pShapeDict = tosDictionary->selectShapeDict(pShape, &dictionaryParameters.kappaDict, &dictionaryParameters.randS, shape_id, _average_r, _average_g, _average_b);
-                            _dictionary_selections[0]->values[(int)t2b_index->values[i]] = shape_id;
+                            _dictionary_selections[tosDictionary->getTreeId()]->values[(int)t2b_index->values[i]] = shape_id;
                         }
                     } else {
                         pShapeDict = tosDictionary->selectShapeDict(pShape, &dictionaryParameters.kappaDict, &dictionaryParameters.randS, shape_id, _average_r, _average_g, _average_b);
