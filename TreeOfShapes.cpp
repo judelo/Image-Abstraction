@@ -34,8 +34,6 @@ TreeOfShapes::TreeOfShapes( Cfimage imageIn ){
     // Set default input options   
     _tosParameters = getDefaultTOSParameters();
     _dictionaryParameters = getDefaultDictionaryParameters();
-    _tree_computed = false;
-    _tree_recomputed = false;
     _tree_id = _tree_count++;
     _large_to_small_index = NULL;
     _large_to_small_index_computed = false;
@@ -1615,7 +1613,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, QImage image_mask, int 
     //Declare variables
     int i,j, modelToUse, shape_id;
     Shape pShape, pShapeTemp, pShapeDict;  
-    Point_plane p;
     Cimage imgShapeLabel, imgShapeLabelSyn;
     Cfimage imgShapeColorSyn, imgDict;
     Fimage imgShapeBlur, imgShapeBlurSyn;
