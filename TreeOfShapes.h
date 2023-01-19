@@ -36,7 +36,6 @@ public:
     Cfimage getCfImage(){ if( _texture_image_loaded ) return _texture_image; else return _imgin; }
     Shape selectShapeDict(Shape pShape, float *paDict, int *randS, int &index, float average_r, float average_g, float average_b);
     Shape getShape(int index);
-    int getTreeId(){ return _tree_id; }
     int getMaxArea(){ return _maxArea; }
 protected:
     bool _texture_image_loaded;
