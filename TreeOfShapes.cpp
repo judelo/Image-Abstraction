@@ -34,6 +34,8 @@ TreeOfShapes::TreeOfShapes( Cfimage imageIn ){
     // Set default input options   
     _tosParameters = getDefaultTOSParameters();
     _dictionaryParameters = getDefaultDictionaryParameters();
+    _tree_computed = false;
+    _tree_recomputed = false;
     _tree_id = _tree_count++;
     _large_to_small_index = NULL;
     _large_to_small_index_computed = false;
@@ -105,15 +107,17 @@ void TreeOfShapes::init(Cfimage inputImg, Shapes &pTree){
 
 // Delete tree of shapes
 TreeOfShapes::~TreeOfShapes(){
-    mw_delete_shapes(_pTree);
-    mw_delete_fimage(_NormOfDu);
-    mw_delete_cfimage(_imgin);
-    if( _large_to_small_index_computed )
-        mw_delete_fsignal(_large_to_small_index);
-    for (std::map<int, Fsignal>::iterator it = _dictionary_selections.begin(); it !=  _dictionary_selections.end(); ++it)
-        mw_delete_fsignal( it->second );
-    if( _texture_image_loaded )
-        mw_delete_cfimage(_texture_image);
+    if( _tree_computed ){
+        mw_delete_shapes(_pTree);
+        mw_delete_fimage(_NormOfDu);
+        mw_delete_cfimage(_imgin);
+        if( _large_to_small_index_computed )
+            mw_delete_fsignal(_large_to_small_index);
+        for (std::map<int, Fsignal>::iterator it = _dictionary_selections.begin(); it !=  _dictionary_selections.end(); ++it)
+            mw_delete_fsignal( it->second );
+        if( _texture_image_loaded )
+            mw_delete_cfimage(_texture_image);
+    }
 }
 
 
@@ -1558,7 +1562,8 @@ void TreeOfShapes::compute_tree( TOSParameters tosParameters, bool dictionary ){
 
     std::cout <<"Compute_tree started"<< std::endl;
 
-    if( _tosParameters.color_sketch != tosParameters.color_sketch || ( _tosParameters.color_sketch == 1 & _tosParameters.eps != tosParameters.eps ) ){
+    if( !_tree_computed || _tosParameters.color_sketch != tosParameters.color_sketch ||
+            ( _tosParameters.color_sketch == 1 & _tosParameters.eps != tosParameters.eps ) ){
 
         if(tosParameters.color_sketch == 1){
             char local=NULL ; // "local boundaries, default NULL"
@@ -1566,9 +1571,11 @@ void TreeOfShapes::compute_tree( TOSParameters tosParameters, bool dictionary ){
             filter_shapes(out,&local,&tosParameters.eps);
             init(out, _pTree);
             mw_delete_cfimage(out);
-        }else if( _tosParameters.color_sketch == 1 & tosParameters.color_sketch == 0)
+        }else if( _tosParameters.color_sketch == 1 & tosParameters.color_sketch == 0 || !_tree_computed)
             init(_imgin, _pTree);
 
+        _tree_computed = true;
+        _tree_recomputed = true;
         _use_kdtree = false;
 
         for (std::map<int, Fsignal>::iterator it = _dictionary_selections.begin(); it !=  _dictionary_selections.end(); ++it)
@@ -1581,10 +1588,8 @@ void TreeOfShapes::compute_tree( TOSParameters tosParameters, bool dictionary ){
     if( dictionary ){
         std::cout << "Compute shape attributes if dictionary" << std::endl;
         compute_shape_attribute();
-        std::cout << "tree_boundingbox" << std::endl;
         tree_boundingbox();
     }
-    std::cout << "End compute_tree" << std::endl;
 }
 
 // Compute list of pixels of mask (mask select shapes to transform by alternative shapes)  
@@ -1606,13 +1611,14 @@ void TreeOfShapes::compute_list_pixels_mask(QImage image_mask){
 }
 
 
-QImage TreeOfShapes::render(TOSParameters tosParameters, QImage image_mask, int alternative_model, TreeOfShapes *tosDictionary, DictionaryParameters dictionaryParameters ){
+QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int alternative_model, TreeOfShapes *tosDictionary, DictionaryParameters dictionaryParameters ){
     
     std::cout <<"TreeOfShapes::Abstraction started"<< std::endl;
 
     //Declare variables
     int i,j, modelToUse, shape_id;
     Shape pShape, pShapeTemp, pShapeDict;  
+    Point_plane p;
     Cimage imgShapeLabel, imgShapeLabelSyn;
     Cfimage imgShapeColorSyn, imgDict;
     Fimage imgShapeBlur, imgShapeBlurSyn;
@@ -1755,7 +1761,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, QImage image_mask, int 
                             pShapeDict = tosDictionary->getShape(shape_id);
                         if ( pShapeDict == NULL || shape_id < 0 ){
                             pShapeDict = tosDictionary->selectShapeDict(pShape, &dictionaryParameters.kappaDict, &dictionaryParameters.randS, shape_id, _average_r, _average_g, _average_b);
-                            _dictionary_selections[tosDictionary->getTreeId()]->values[(int)t2b_index->values[i]] = shape_id;
+                            _dictionary_selections[ tosDictionary->getTreeId() ]->values[(int)t2b_index->values[i]] = shape_id;
                         }
                     } else {
                         pShapeDict = tosDictionary->selectShapeDict(pShape, &dictionaryParameters.kappaDict, &dictionaryParameters.randS, shape_id, _average_r, _average_g, _average_b);

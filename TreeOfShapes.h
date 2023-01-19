@@ -40,7 +40,9 @@ public:
     int getTreeId(){ return _tree_id; }
     int getMaxArea(){ return _maxArea; }
 protected:
+    bool _tree_computed;
     bool _texture_image_loaded;
+    bool _tree_recomputed;
     bool _large_to_small_index_computed;
     bool _use_kdtree;
     BasicANNkdTree _annTree;
