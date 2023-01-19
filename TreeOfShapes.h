@@ -28,10 +28,9 @@ class TreeOfShapes
 {
 public:
 
-    static int _tree_count;
     TreeOfShapes( Cfimage imageIn );
     ~TreeOfShapes();
-    QImage render(TOSParameters tosParameters, bool &tree_recomputed, QImage image_mask, int alternative_model, TreeOfShapes *tosDictionary=NULL, DictionaryParameters dictionaryParameters=getDefaultDictionaryParameters() );
+    QImage render(TOSParameters tosParameters, QImage image_mask, int alternative_model, TreeOfShapes *tosDictionary=NULL, DictionaryParameters dictionaryParameters=getDefaultDictionaryParameters() );
     void compute_tree( TOSParameters tosParameters, bool dictionary=false );
     void computeKdTree(float average_r, float average_g, float average_b );
     Cfimage getCfImage(){ if( _texture_image_loaded ) return _texture_image; else return _imgin; }
@@ -40,13 +39,10 @@ public:
     int getTreeId(){ return _tree_id; }
     int getMaxArea(){ return _maxArea; }
 protected:
-    bool _tree_computed;
     bool _texture_image_loaded;
-    bool _tree_recomputed;
     bool _large_to_small_index_computed;
     bool _use_kdtree;
     BasicANNkdTree _annTree;
-    int _tree_id;
     int _maxArea;
     Point_plane  _ArrayPixelsMask;
     int _len_ArrayPixelsMask;

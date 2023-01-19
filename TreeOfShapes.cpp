@@ -24,8 +24,6 @@ extern void flst();
 #define _MIN(x, y) ( (x)<(y) ? (x) : (y) )
 #define _MAX(x, y) ( (x)>(y) ? (x) : (y) )
 
-int TreeOfShapes::_tree_count = 0;
-
 TreeOfShapes::TreeOfShapes( Cfimage imageIn ){
     
     // Read input image
@@ -34,9 +32,6 @@ TreeOfShapes::TreeOfShapes( Cfimage imageIn ){
     // Set default input options   
     _tosParameters = getDefaultTOSParameters();
     _dictionaryParameters = getDefaultDictionaryParameters();
-    _tree_computed = false;
-    _tree_recomputed = false;
-    _tree_id = _tree_count++;
     _large_to_small_index = NULL;
     _large_to_small_index_computed = false;
     _texture_image_loaded = false;
@@ -107,17 +102,15 @@ void TreeOfShapes::init(Cfimage inputImg, Shapes &pTree){
 
 // Delete tree of shapes
 TreeOfShapes::~TreeOfShapes(){
-    if( _tree_computed ){
-        mw_delete_shapes(_pTree);
-        mw_delete_fimage(_NormOfDu);
-        mw_delete_cfimage(_imgin);
-        if( _large_to_small_index_computed )
-            mw_delete_fsignal(_large_to_small_index);
-        for (std::map<int, Fsignal>::iterator it = _dictionary_selections.begin(); it !=  _dictionary_selections.end(); ++it)
-            mw_delete_fsignal( it->second );
-        if( _texture_image_loaded )
-            mw_delete_cfimage(_texture_image);
-    }
+    mw_delete_shapes(_pTree);
+    mw_delete_fimage(_NormOfDu);
+    mw_delete_cfimage(_imgin);
+    if( _large_to_small_index_computed )
+        mw_delete_fsignal(_large_to_small_index);
+    for (std::map<int, Fsignal>::iterator it = _dictionary_selections.begin(); it !=  _dictionary_selections.end(); ++it)
+        mw_delete_fsignal( it->second );
+    if( _texture_image_loaded )
+        mw_delete_cfimage(_texture_image);
 }
 
 
@@ -1357,7 +1350,6 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpix
                     (kappa - kappa_pre)*(kappa - kappa_pre) +
                     (oren - oren_pre)*(oren - oren_pre)/(PI*PI) +
                     (1 - _MIN(sca_pre/sca, sca/sca_pre))*(1 - _MIN(sca_pre/sca, sca/sca_pre)))/4;
-        //Dist /= 4;
 
         if(pShape->area <= *mpixel || *maxpixel < pShape->area || (((Info*)(pShape->data))->attribute[0])*CONTR<= thre || Dist*CONTR < 0.)
             pShape->removed = 1;
@@ -1563,8 +1555,7 @@ void TreeOfShapes::compute_tree( TOSParameters tosParameters, bool dictionary ){
 
     std::cout <<"Compute_tree started"<< std::endl;
 
-    if( !_tree_computed || _tosParameters.color_sketch != tosParameters.color_sketch ||
-            ( _tosParameters.color_sketch == 1 & _tosParameters.eps != tosParameters.eps ) ){
+    if( _tosParameters.color_sketch != tosParameters.color_sketch || ( _tosParameters.color_sketch == 1 & _tosParameters.eps != tosParameters.eps ) ){
 
         if(tosParameters.color_sketch == 1){
             char local=NULL ; // "local boundaries, default NULL"
@@ -1572,11 +1563,9 @@ void TreeOfShapes::compute_tree( TOSParameters tosParameters, bool dictionary ){
             filter_shapes(out,&local,&tosParameters.eps);
             init(out, _pTree);
             mw_delete_cfimage(out);
-        }else if( _tosParameters.color_sketch == 1 & tosParameters.color_sketch == 0 || !_tree_computed)
+        }else if( _tosParameters.color_sketch == 1 & tosParameters.color_sketch == 0)
             init(_imgin, _pTree);
 
-        _tree_computed = true;
-        _tree_recomputed = true;
         _use_kdtree = false;
 
         for (std::map<int, Fsignal>::iterator it = _dictionary_selections.begin(); it !=  _dictionary_selections.end(); ++it)
@@ -1612,7 +1601,7 @@ void TreeOfShapes::compute_list_pixels_mask(QImage image_mask){
 }
 
 
-QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, QImage image_mask, int alternative_model, TreeOfShapes *tosDictionary, DictionaryParameters dictionaryParameters ){
+QImage TreeOfShapes::render(TOSParameters tosParameters, QImage image_mask, int alternative_model, TreeOfShapes *tosDictionary, DictionaryParameters dictionaryParameters ){
     
     std::cout <<"TreeOfShapes::Abstraction started"<< std::endl;
 
@@ -1626,12 +1615,11 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     Fsignal t2b_index, gaussKernel, dictionary_correspondance;
     bool correspondance_computed = false;
 
-    //Step 1: Decomposition. 
-    compute_tree(tosParameters, false);
-    tree_recomputed = _tree_recomputed;
-
     // Define synthesis image
     Ccimage imgsyn = mw_change_ccimage(imgsyn, _imgin->nrow, _imgin->ncol);
+
+    //Step 1: Decomposition. 
+    compute_tree(tosParameters, false);
 
     // Compute list of pixels of mask 
     compute_list_pixels_mask(image_mask);
