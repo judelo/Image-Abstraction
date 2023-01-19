@@ -1654,7 +1654,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
         mw_copy_fsignal_values(_large_to_small_index, t2b_index);
     } 
   
-    // Sepcial resources needed if blur is selected
+    // Special resources needed if blur is selected
     if (tosParameters.blur == 1){
         // Define auxiliar images for abstraction
         if  ( ((imgShapeLabel = mw_new_cimage()) == NULL) || (mw_alloc_cimage(imgShapeLabel, _imgin->nrow, _imgin->ncol) == NULL) )
@@ -1732,21 +1732,22 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
         } 
         else if(pShape->removed != 1){
 
-                // Verify if some point of the mask touch the shape. 
-                modelToUse = tosParameters.model;
-                for (j=0; j<_len_ArrayPixelsMask; j++)
-                    if (point_in_shape((&_ArrayPixelsMask[j])->x, (&_ArrayPixelsMask[j])->y, pShape, _pTree)){
-                        modelToUse = alternative_model;
-                        break;
-                    }; 
-
                 // Attribute filtering. Index the 3th parent of the shape. 
                 pShapeTemp =  m_order_parent(pShape, 3);
                 if(((float) pShape->area)/((float) pShapeTemp->area) < tosParameters.kappa)
                     continue;
 
                 // Modification of shape according to model
-                if (modelToUse < 4){ // Rendering Model: Original, Rectangle, Ellipse or Circular
+                if (tosParameters.model < 4){ // Rendering Model: Original, Rectangle, Ellipse or Circular
+
+                    // Verify if some point of the mask touch the shape. 
+                    modelToUse = tosParameters.model;
+                    for (j=0; j<_len_ArrayPixelsMask; j++)
+                        if (point_in_shape((&_ArrayPixelsMask[j])->x, (&_ArrayPixelsMask[j])->y, pShape, _pTree)){
+                            modelToUse = alternative_model;
+                            break;
+                        }; 
+
                     if(tosParameters.blur == 0)
                        synshape(modelToUse, pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
                     else if (modelToUse == 0)
