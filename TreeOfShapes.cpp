@@ -2874,7 +2874,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
 
      
     // Add a random shift to each shape
-    /*
+    
     std::cout << "Image Shaking" << std::endl;
      
     if(tosParameters.smodel == 0)
@@ -2883,7 +2883,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
         adaptive_shift_shape(&tosParameters.shift, &tosParameters.theta);
     else
         adaptive_shift_shape(&tosParameters.shift, &tosParameters.theta);
-    */
+    
   
     // Compute a Gaussian kernel
     std::cout << "Compute a Gaussian kernel" << std::endl;
