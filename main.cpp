@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
     char * model_char = argv[3];              // Synthesis model: orignal shape: m=0; ellipse: m=1; rectangle: m=2; circle m=3,  dictionary m=4, random: m=5 (not use);
     std::stringstream ss(argv[4]);
     char * color_sketch_char = argv[5];       // Keep meaningful boundaries: No 0, Yes 1;
-    char * renderOrder_char = argv[6];        //rendering order of the shapes: top->down: o=0 ; large->small: o=1;"
+    char * renderOrder_char = argv[6];        //rendering order of the shapes: top->down: o=0 ; large->small: o=1; random: o=2"
     char * alpha_char = argv[7];              // Transparency (between 0 and 1)
     char * modelDictionary_char = argv[8];    // Selection model: randS=0, randomly select shapes; randS=1, select shapes according to elongation, compactness and scale; randS=2, select shapes according to elongation, compactness, scale and color",
     char * mcolor_char = argv[9];             // Select de source of color
@@ -66,10 +66,9 @@ int main(int argc, char *argv[])
     char * ScaleRatio_char = argv[14];          // "scale ratio order for color filtering",
     char * Threshold_char = argv[15];           // "threshold for color filtering",
     char * eps_char = argv[16];                 // "-log10(max number of false alarms)",
-    char * alternative_model_char = argv[17];  // Synthesis model for shapes that interact with mask: orignal shape: m=0 (default); ellipse: m=1; rectangle: m=2; circle m=3,  dictionary m=4, random: m=5 (not use);  
-    char * dictionary_file_name = argv[18];    // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/VanGogh.jpg"
-    char * mask_file_name = argv[19];  
-    
+    char * dictionary_file_name = argv[17];    // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/VanGogh.jpg"
+    char * mask_file_name = argv[18];    
+
     int mode = atoi(mode_char);
     int model = atoi(model_char);
     int renderOrder = atoi(renderOrder_char);
@@ -84,7 +83,6 @@ int main(int argc, char *argv[])
     int ScaleRatio = atoi(ScaleRatio_char);
     int Threshold = atoi(Threshold_char);
     int eps = atoi(eps_char);
-    int alternative_model = atoi(alternative_model_char);
     bool advanceOptions;
     ss >> std::boolalpha >> advanceOptions;
     
@@ -118,6 +116,7 @@ int main(int argc, char *argv[])
         std::cout << "Style transfer " << std::endl;
         TOSParameters =  getStyleTransferTOSParameters();
         if (model!=4){
+           std::cout << "For Style Transfer, model has to be dictionary." << std::endl;
            std::ofstream demo_failure("demo_failure.txt");
            demo_failure << "For Style Transfer, model has to be dictionary.\n";
            demo_failure.close();
@@ -142,6 +141,7 @@ int main(int argc, char *argv[])
         std::cout << "Model Dictionary" << std::endl; 
 
         if (mode!=4){
+           std::cout << "Use Dictionary only for Style transfer." << std::endl;
            std::ofstream demo_failure("demo_failure.txt");
            demo_failure << "Use Dictionary only for Style transfer.\n";
            demo_failure.close();
@@ -176,11 +176,13 @@ int main(int argc, char *argv[])
         dictionary->compute_tree( getDefaultTOSParameters(), true);
 
         // Run abstraction
-        resulting_image = TOS->render(TOSParameters, tree_recomputed,  image_mask, alternative_model, dictionary, dictionaryParameters);
+        resulting_image = TOS->render(TOSParameters, tree_recomputed,  image_mask, dictionary, dictionaryParameters);
     } else {
         // Run abstraction
-        resulting_image = TOS->render(TOSParameters, tree_recomputed, image_mask, alternative_model);
+        TreeOfShapes * TOS2 = new TreeOfShapes(cfimages_from_qimage(image));
+        resulting_image = TOS2->render(TOSParameters, tree_recomputed, image_mask);
     };
 
-    resulting_image.save("result.png");   
+    resulting_image.save("result.png");
+    
 }
