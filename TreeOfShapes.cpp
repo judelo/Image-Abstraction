@@ -127,7 +127,7 @@ void TreeOfShapes::shape_orilam(Shape pShape, float *out_ori, float *out_e, floa
 
     float size;
     float a11, a20, a02, x0, y0, sumx, sumy, lambda1, lambda2;
-    int i;
+    int i,j;
 
     size = (float)pShape->area;
 
@@ -166,7 +166,7 @@ void TreeOfShapes::shape_orilam(Shape pShape, float *out_ori, float *out_e, floa
 void TreeOfShapes::shape_orilam(Shape pShape, float *out_ori, float *out_e, float *out_k, float *pX0, float *pY0){
     float size;
     float a11, a20, a02, x0, y0, sumx, sumy, lambda1, lambda2;
-    int i;
+    int i,j;
 
     size = (float)pShape->area;
 
@@ -319,7 +319,7 @@ float TreeOfShapes::min_contrast(Shape pShape){
 void TreeOfShapes::shape_boundingbox(Shape pShape){
 
     float xmin, xmax, ymin, ymax, theta, x0temp, y0temp;
-    float x, y, xr, yr;
+    float x, y, xr, yr, sx, sy;
     int size, ncol, nrow, i;
 
     ncol = _pTree->ncol;
@@ -332,11 +332,12 @@ void TreeOfShapes::shape_boundingbox(Shape pShape){
 
     xmin = ncol;  xmax = -ncol;
     ymin = nrow;  ymax = -nrow;
+    sx = 1.0; sy = 1.0;
     for(i = 0; i< size; i++){
         x = (float)((pShape->pixels+i)->x - x0temp);
         y = (float)((pShape->pixels+i)->y - y0temp);
 
-        // Scaling_rotation_dict2(&x, &y, &theta, &xr, &yr);
+        // Scaling_rotation_dict2(&x, &y, &sx, &sy, &theta, &xr, &yr);
         xr = (int)( x*cos(theta) + y*sin(theta));
         yr = (int)( y*cos(theta) - x*sin(theta));
 
@@ -411,11 +412,12 @@ void TreeOfShapes::compute_shape_attribute(){
 // Compute shape attribute  
 void TreeOfShapes::compute_shape_attribute(int *ns)
 {
-    int i, nn;
-    float oren, elg, kap;
-    Shape pShape, pShapeTemp;
+    int i, j, kn, nb, nn, nsize, num;
+    float oren, elg, kap, stdtemp, meantemp, mmin, mmax;
+    int *pKN;
+    Shape pShape, pShapeTemp, pShapeCh;
 
-    nn = *ns; 
+    nn = *ns; nsize = 3;
 
     for(i = _pTree->nb_shapes-1; i>=0; i--){
         pShape = _pTree->the_shapes + i;
@@ -555,7 +557,58 @@ void TreeOfShapes::synshapeRect(Shape pShape,
             }
         }
     
-    MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
+    MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, *median);
+    
+    // Median Filter  
+    /*
+    MedSize = (int)((*median)/2.0);
+    for(x = left; x <= right; x++)
+        for(y = top; y <= bottom; y++){
+            numMedain = 0;
+            for(iKer = - MedSize; iKer <= MedSize; iKer++)
+                for(jKer = - MedSize; jKer <= MedSize; jKer++){
+                    xKer = x + iKer;
+                    yKer = y + jKer;
+
+                    if(xKer<0 || xKer>= imgShapeLabelSyn->ncol ||
+                            yKer<0 || yKer>= imgShapeLabelSyn->nrow )
+                        continue;
+
+                    imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] +=
+                            (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
+                    numMedain++;
+                }
+            if( imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] < ((float) numMedain)/2.0 )
+                imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
+            else
+                imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 1.0;
+        }
+
+    for(x = left; x <= right; x++)
+        for(y = top; y <= bottom; y++){
+            imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] = (int) imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
+            imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
+        }
+
+    // Add Gaussian Blur  
+    KerSize = (int) ( sqrt( (double) gaussKernel->size) /2.0 );
+    for(x = left; x <= right; x++)
+        for(y = top; y <= bottom; y++){
+            for(iKer = -KerSize; iKer <= KerSize; iKer++)
+                for(jKer = -KerSize; jKer <= KerSize; jKer++){
+                    xKer = x + iKer;
+                    yKer = y + jKer;
+
+                    if(xKer<0 || xKer>= imgShapeLabelSyn->ncol ||
+                            yKer<0 || yKer>= imgShapeLabelSyn->nrow )
+                        continue;
+
+                    imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] +=
+                            gaussKernel->values[(iKer + KerSize)*KerSize + (jKer + KerSize)]*
+                            (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
+                }
+        }
+    */
 
     // Synthesis  
     if(*relief == 1 && pShape->area > 10)
@@ -665,7 +718,7 @@ void TreeOfShapes::synshapeRect(Shape pShape, Ccimage imgsyn, float *alpha, int 
     // Synthesis  
     if(*relief == 1 && pShape->area > 10)
     {
-        float shLambda;
+        float shLambda, shTR, shTG, shTB;
         int xsh, ysh, shiftsh;
         if(pShape->area > 10)
             shiftsh = *reliefHeight;
@@ -735,7 +788,7 @@ void TreeOfShapes::synshapeEllipse(Shape pShape,
                                    float *reliefOrentation, float *reliefHeight){
 
     int xi, yi, x, y, iKer, jKer, KerSize, MedSize, xKer, yKer, numMedain;
-    float ALPHA, BETA, a, b, x0temp, y0temp, top, right, left, bottom;
+    float xr, yr, ALPHA, BETA, a, b, x0temp, y0temp, top, right, left, bottom;
     float phi, xi_e, yi_e;
     float xShift, yShift, theta, tR, tG, tB, TR, TG, TB, tr, tg, tb;
 
@@ -781,8 +834,55 @@ void TreeOfShapes::synshapeEllipse(Shape pShape,
             }
         }
 
-    MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
-   
+    // Median Filter  
+    MedSize = (int)((*median)/2.0);
+    for(x = left; x <= right; x++)
+        for(y = top; y <= bottom; y++){
+            numMedain = 0;
+            for(iKer = - MedSize; iKer <= MedSize; iKer++)
+                for(jKer = - MedSize; jKer <= MedSize; jKer++){
+                    xKer = x + iKer;
+                    yKer = y + jKer;
+
+                    if(xKer<0 || xKer>= imgShapeLabelSyn->ncol ||
+                            yKer<0 || yKer>= imgShapeLabelSyn->nrow )
+                        continue;
+
+                    imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] +=
+                            (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
+                    numMedain++;
+                }
+            if( imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] < ((float) numMedain)/2.0 )
+                imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
+            else
+                imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 1.0;
+        }
+
+    for(x = left; x <= right; x++)
+        for(y = top; y <= bottom; y++){
+            imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] = (int) imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
+            imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
+        }
+
+    // Add Gaussian Blur  
+    KerSize = (int) ( sqrt( (double) gaussKernel->size) /2.0 );
+    for(x = left; x <= right; x++)
+        for(y = top; y <= bottom; y++){
+            for(iKer = -KerSize; iKer <= KerSize; iKer++)
+                for(jKer = -KerSize; jKer <= KerSize; jKer++){
+                    xKer = x + iKer;
+                    yKer = y + jKer;
+
+                    if(xKer<0 || xKer>= imgShapeLabelSyn->ncol ||
+                            yKer<0 || yKer>= imgShapeLabelSyn->nrow )
+                        continue;
+
+                    imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] +=
+                            gaussKernel->values[(iKer + KerSize)*KerSize + (jKer + KerSize)]*
+                            (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
+                }
+        }
+
     // Synthesis  
     if(*relief == 1 && pShape->area > 10){
         float shLambda, shTR, shTG, shTB;
@@ -866,7 +966,7 @@ void TreeOfShapes::synshapeCircle(Shape pShape,
                                   float *reliefOrentation, float *reliefHeight){
 
     int xi, yi, x, y, iKer, jKer, KerSize, MedSize, xKer, yKer, numMedain;
-    float ALPHA, BETA, a, b, x0temp, y0temp, top, right, left, bottom;
+    float xr, yr, ALPHA, BETA, a, b, x0temp, y0temp, top, right, left, bottom;
     float phi, xi_e, yi_e;
     float xShift, yShift, theta, tR, tG, tB, TR, TG, TB, tr, tg, tb;
 
@@ -910,8 +1010,56 @@ void TreeOfShapes::synshapeCircle(Shape pShape,
                 bottom = _MAX(yi, bottom);
             }
         }
-    MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
-    
+
+    // Median Filter  
+    MedSize = (int)((*median)/2.0);
+    for(x = left; x <= right; x++)
+        for(y = top; y <= bottom; y++){
+            numMedain = 0;
+            for(iKer = - MedSize; iKer <= MedSize; iKer++)
+                for(jKer = - MedSize; jKer <= MedSize; jKer++){
+                    xKer = x + iKer;
+                    yKer = y + jKer;
+
+                    if(xKer<0 || xKer>= imgShapeLabelSyn->ncol ||
+                            yKer<0 || yKer>= imgShapeLabelSyn->nrow )
+                        continue;
+
+                    imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] +=
+                            (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
+                    numMedain++;
+                }
+            if( imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] < ((float) numMedain)/2.0 )
+                imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
+            else
+                imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 1.0;
+        }
+
+    for(x = left; x <= right; x++)
+        for(y = top; y <= bottom; y++){
+            imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] = (int) imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
+            imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
+        }
+
+    // Add Gaussian Bulr  
+    KerSize = (int) ( sqrt( (double) gaussKernel->size) /2.0 );
+    for(x = left; x <= right; x++)
+        for(y = top; y <= bottom; y++){
+            for(iKer = -KerSize; iKer <= KerSize; iKer++)
+                for(jKer = -KerSize; jKer <= KerSize; jKer++){
+                    xKer = x + iKer;
+                    yKer = y + jKer;
+
+                    if(xKer<0 || xKer>= imgShapeLabelSyn->ncol ||
+                            yKer<0 || yKer>= imgShapeLabelSyn->nrow )
+                        continue;
+
+                    imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] +=
+                            gaussKernel->values[(iKer + KerSize)*KerSize + (jKer + KerSize)]*
+                            (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
+                }
+        }
+
     // Synthesis  
     if(*relief == 1 && pShape->area > 10){
         float shLambda, shTR, shTG, shTB;
@@ -1178,6 +1326,205 @@ void TreeOfShapes::synshapeEllipse(Shape pShape,
         }
 }
 
+void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
+                                Ccimage imgsyn,
+                                Cfimage imgDict, Cfimage imgShapeColorSyn,
+                                Cimage imgShapeLabel, Cimage imgShapeLabelSyn,
+                                float *alpha,
+                                int *equal, int *mcolor, int *relief,
+                                float *reliefOrentation, float *reliefHeight){
+
+    int i, x, y,  xi, yi;
+    float xr, yr, xt, yt, x0temp, y0temp, x0tempDict, y0tempDict, x0tempTransformed, y0tempTransformed;
+    float tR, tG, tB, ALPHA, TR, TG, TB;
+    float xBound_l, xBound_r, yBound_t, yBound_b;
+    float SCALEx, SCALEy, theta, thetaDict, rotation, xShift, yShift;
+    float top, right, left, bottom;
+    float a, b, bLimit, tempx;
+    ALPHA = *alpha;
+
+    xBound_l = (int) ((Info*)(pShapeDict->data))->boundingbox[0];
+    xBound_r = (int) ((Info*)(pShapeDict->data))->boundingbox[1];
+    yBound_t = (int) ((Info*)(pShapeDict->data))->boundingbox[2];
+    yBound_b = (int) ((Info*)(pShapeDict->data))->boundingbox[3];
+
+    // Begin Label pShapeDict
+    for(i=0; i < pShapeDict->area; i++){
+        x = (pShapeDict->pixels+i)->x;
+        y = (pShapeDict->pixels+i)->y;
+        imgShapeLabel->gray[y*imgShapeLabel->ncol + x] = 1;
+    }
+
+    srand( time(NULL) );
+    if(*mcolor == 1){
+        tempx = (rand()%10);
+        TR = ((Info*)(pShapeDict->data))->r + tempx*0;
+        TG = ((Info*)(pShapeDict->data))->g + tempx*0;
+        TB = ((Info*)(pShapeDict->data))->b + tempx*0;
+    }
+    else{
+        TR  = ((Info*)(pShape->data))->r + tempx*0;
+        TG  = ((Info*)(pShape->data))->g + tempx*0;
+        TB  = ((Info*)(pShape->data))->b + tempx*0;
+    }
+
+    if(*mcolor == 2){
+        TR  = ((Info*)(pShapeDict->data))->r;
+        TG  = ((Info*)(pShapeDict->data))->g;
+        TB  = ((Info*)(pShapeDict->data))->b;
+    }
+
+    if(*equal == 1){
+        SCALEx = sqrt( (double) pShape->area / (double) pShapeDict->area );
+        SCALEy = SCALEx;
+    }
+    else{
+        SCALEx =  sqrt( ((Info*)(pShape->data))->lambda1) /  sqrt(((Info*)(pShapeDict->data))->lambda1 );
+        SCALEy =  sqrt( ((Info*)(pShape->data))->lambda2) /  sqrt(((Info*)(pShapeDict->data))->lambda2 );
+    }
+
+    a = SCALEx * (xBound_r - xBound_l);
+    b = SCALEy * (yBound_b - yBound_t);
+
+    bLimit = (1.0*sqrt(a*a + b*b)/2.0);
+
+    x0temp = ((Info*)(pShape->data))->x0;
+    y0temp = ((Info*)(pShape->data))->y0;
+
+    x0tempDict =  ((Info*)(pShapeDict->data))->x0;
+    y0tempDict =  ((Info*)(pShapeDict->data))->y0;
+
+    theta  = ((Info*)(pShape->data))->oren;
+    thetaDict = ((Info*)(pShapeDict->data))->oren;
+
+    xShift = (((Info*)(pShape->data))->xShift);
+    yShift = (((Info*)(pShape->data))->yShift);
+
+    rotation  = (((Info*)(pShape->data))->rotation);
+
+    left   = _MAX(0, x0temp - bLimit);
+    right  = _MIN(imgsyn->ncol - 1, x0temp + bLimit );
+    top    = _MAX(0, y0temp - bLimit);
+    bottom = _MIN(imgsyn->nrow - 1, y0temp + bLimit);
+
+    // Transformation  
+    for(x = ceil(left); x <= right; x++)
+        for(y = ceil(top); y <= bottom; y++){
+            xt = (x - x0temp);
+            yt = (y - y0temp);
+
+            // Rotate to the major axis for scaling
+            xi = ( (1/SCALEx)* (xt*cos(theta) + yt*sin(theta)));
+            yi = ( (1/SCALEy)* (yt*cos(theta) - xt*sin(theta)));
+
+            // Inverse-transformation
+            xr = ( (xi*cos(thetaDict) - yi*sin(thetaDict)) + x0tempDict);
+            yr = ( (yi*cos(thetaDict) + xi*sin(thetaDict)) + y0tempDict);
+
+            if(xr <0 || xr >=imgShapeLabel->ncol ||
+                    yr <0 || yr >=imgShapeLabel->nrow)
+                continue;
+
+            if( imgShapeLabel->gray[(int)(yr)*imgShapeLabel->ncol + (int)(xr)] == 1 ){
+                imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] = 1;
+                imgShapeColorSyn->red[y*imgShapeLabelSyn->ncol + x]   =  imgDict->red[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
+                imgShapeColorSyn->green[y*imgShapeLabelSyn->ncol + x] =  imgDict->green[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
+                imgShapeColorSyn->blue[y*imgShapeLabelSyn->ncol + x]  =  imgDict->blue[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
+            }
+        }
+
+    x0tempTransformed = (x0tempDict - x0temp)*cos(theta) + (y0tempDict - y0temp)*sin(theta) +x0temp;
+    y0tempTransformed = (y0tempDict - y0temp)*cos(theta) - (x0tempDict - x0temp)*sin(theta) +y0temp;
+
+    if(*relief == 1 && pShape->area > 30){
+        float shLambda, shTR, shTG, shTB;
+        int xsh, ysh, shiftsh;
+        if(pShape->area > 30)
+            shiftsh = (*reliefHeight);
+        else
+            shiftsh = (*reliefHeight)*( (float) pShape->area /30.0);;
+
+        shLambda = 0.3;
+        for(x = ceil(left); x <= right; x++)
+            for(y = ceil(top); y <= bottom; y++){
+                if(imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] == 0)
+                    continue;
+
+                if(*mcolor == 1){
+                    TR  = imgShapeColorSyn->red[y*imgShapeLabelSyn->ncol + x];
+                    TG  = imgShapeColorSyn->green[y*imgShapeLabelSyn->ncol + x];
+                    TB  = imgShapeColorSyn->blue[y*imgShapeLabelSyn->ncol + x];
+                }
+
+                xr = (x - x0tempTransformed)*cos(rotation) + (y - y0tempTransformed)*sin(rotation);
+                yr = (y - y0tempTransformed)*cos(rotation) - (x - x0tempTransformed)*sin(rotation);
+
+                xi = floor(xShift + x0tempTransformed + xr);
+                yi = floor(yShift + y0tempTransformed + yr);
+
+                shTR = TR* shLambda;
+                shTG = TG* shLambda;
+                shTB = TB* shLambda;
+
+                xsh = xi + shiftsh*cos( PI*(*reliefOrentation)/180.0 );
+                ysh = yi - shiftsh*sin( PI*(*reliefOrentation)/180.0 );
+                xsh = _MAX(0, xsh);
+                xsh = _MIN(imgsyn->ncol - 1, xsh);
+                ysh = _MAX(0, ysh);
+                ysh = _MIN(imgsyn->nrow - 1, ysh);
+
+                if(xsh>= 0 && xsh< _pTree->ncol && ysh>= 0 && ysh< _pTree->nrow){
+                    tR = ((float) imgsyn->red[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*shTR;
+                    imgsyn->red[ysh*imgsyn->ncol + xsh]   = (int) tR; 
+
+                    tG = ((float) imgsyn->green[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*shTG;
+                    imgsyn->green[ysh*imgsyn->ncol + xsh] = (int) tG;  
+
+                    tB = ((float) imgsyn->blue[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*shTB;
+                    imgsyn->blue[ysh*imgsyn->ncol + xsh]  = (int) tB;  
+                }
+            }
+    }
+
+    TR  = ((Info*)(pShape->data))->r + tempx*0;
+    TG  = ((Info*)(pShape->data))->g + tempx*0;
+    TB  = ((Info*)(pShape->data))->b + tempx*0;
+
+    if(*mcolor == 2){
+        TR  = ((Info*)(pShapeDict->data))->r;
+        TG  = ((Info*)(pShapeDict->data))->g;
+        TB  = ((Info*)(pShapeDict->data))->b;
+    }
+    for(x = ceil(left); x <= right; x++)
+        for(y = ceil(top); y <= bottom; y++){
+            if(imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] == 0)
+                continue;
+
+            if(*mcolor == 1){
+                TR  = imgShapeColorSyn->red[y*imgShapeLabelSyn->ncol + x];
+                TG  = imgShapeColorSyn->green[y*imgShapeLabelSyn->ncol + x];
+                TB  = imgShapeColorSyn->blue[y*imgShapeLabelSyn->ncol + x];
+            }
+
+            xr = (x - x0tempTransformed)*cos(rotation) + (y - y0tempTransformed)*sin(rotation);
+            yr = (y - y0tempTransformed)*cos(rotation) - (x - x0tempTransformed)*sin(rotation);
+
+            xi = floor(xShift + x0tempTransformed + xr);
+            yi = floor(yShift + y0tempTransformed + yr);
+
+            if(xi>= 0 && xi< _pTree->ncol && yi>= 0 && yi< _pTree->nrow){
+                tR = ((float) imgsyn->red[yi*_pTree->ncol + xi])*ALPHA + (1-ALPHA)*TR;
+                imgsyn->red[yi*_pTree->ncol + xi] = (int)rint((double) tR);
+
+                tG = ((float) imgsyn->green[yi*_pTree->ncol + xi])*ALPHA + (1-ALPHA)*TG;
+                imgsyn->green[yi*_pTree->ncol + xi] = (int)rint((double) tG);
+
+                tB = ((float) imgsyn->blue[yi*_pTree->ncol + xi])*ALPHA + (1-ALPHA)*TB;
+                imgsyn->blue[yi*_pTree->ncol + xi] = (int)rint((double) tB);
+            }
+        }
+}
+
 
 void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                                 Ccimage imgsyn,
@@ -1281,8 +1628,6 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 imgShapeColorSyn->blue[y*imgShapeLabelSyn->ncol + x]  =  imgDict->blue[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
             }
         }
-    
-    //MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
 
     // Median Filter  
     MedSize = (int)((*median)/2.0);
@@ -1332,7 +1677,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
             imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
         }
 
-    // Add Gaussian Blur  
+    // Add Gaussian Bulr  
     KerSize = (int) ( sqrt( (double) gaussKernel->size) /2.0 );
     for(x = ceil(left); x <= right; x++)
         for(y = ceil(top); y <= bottom; y++){
@@ -1368,7 +1713,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 }
 
         }
-    
+
     if(*relief == 1 && pShape->area > 30){
         float shLambda, shTR, shTG, shTB;
         int xsh, ysh, shiftsh;
@@ -1477,8 +1822,9 @@ void TreeOfShapes::synshapeOriginal(Shape pShape,
                                     float *reliefOrentation, float *reliefHeight){
 
     int i, xi, yi, x, y, iKer, jKer, KerSize, MedSize, xKer, yKer, numMedain;
-    float xr, yr, x0temp, y0temp, ALPHA, BETA;
+    float xr, yr, x0temp, y0temp, ALPHA, BETA, a, b;
     float xShift, yShift, theta, tR, tG, tB, tr, tg, tb, TR, TG, TB;
+    float minX, maxX, minY, maxY;
     float top, right, left, bottom;
 
     ALPHA = *alpha;
@@ -1518,7 +1864,54 @@ void TreeOfShapes::synshapeOriginal(Shape pShape,
         bottom = _MAX(yi, bottom);
     }
 
-    MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
+    // Median Filter  
+    MedSize = (int)((*median)/2.0);
+    for(x = left; x <= right; x++)
+        for(y = top; y <= bottom; y++){
+            numMedain = 0;
+            for(iKer = - MedSize; iKer <= MedSize; iKer++)
+                for(jKer = - MedSize; jKer <= MedSize; jKer++){
+                    xKer = x + iKer;
+                    yKer = y + jKer;
+
+                    if(xKer<0 || xKer>= imgShapeLabelSyn->ncol ||
+                            yKer<0 || yKer>= imgShapeLabelSyn->nrow )
+                        continue;
+
+                    imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] +=
+                            (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
+                    numMedain++;
+                }
+            if( imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] < ((float) numMedain)/2.0 )
+                imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
+            else
+                imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 1.0;
+        }
+
+    for(x = left; x <= right; x++)
+        for(y = top; y <= bottom; y++){
+            imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] = (int) imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
+            imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
+        }
+
+    // Add Gaussian Blur  
+    KerSize = (int) ( sqrt( (double) gaussKernel->size) /2.0 );
+    for(x = left; x <= right; x++)
+        for(y = top; y <= bottom; y++){
+            for(iKer = -KerSize; iKer <= KerSize; iKer++)
+                for(jKer = -KerSize; jKer <= KerSize; jKer++){
+                    xKer = x + iKer;
+                    yKer = y + jKer;
+
+                    if(xKer<0 || xKer>= imgShapeLabelSyn->ncol ||
+                            yKer<0 || yKer>= imgShapeLabelSyn->nrow )
+                        continue;
+
+                    imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] +=
+                            gaussKernel->values[(iKer + KerSize)*KerSize + (jKer + KerSize)]*
+                            (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
+                }
+        }
 
     // Synthesis  
     if(*relief == 1 && pShape->area > 10){
@@ -1596,7 +1989,7 @@ void TreeOfShapes::synshapeOriginal( Shape pShape,
     
     int i, xi, yi;
     float x, y, xr, yr, x0temp, y0temp, ALPHA;
-    float xShift, yShift, theta, tR, tG, tB, TR, TG, TB;
+    float xShift, yShift, theta, tR, tG, tB, tb, TR, TG, TB;
 
     ALPHA = *alpha;
     x0temp = (((Info*)(pShape->data))->x0);
@@ -1877,9 +2270,9 @@ void TreeOfShapes::filter_shapes( Cfimage out, char *local, float *eps){
 // Filtering the image  
 void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpixel){
     // Declare variables here
-    int i, nn;
+    int i ,j, rmn, nn;
     float thre;
-    float CONTR;
+    float  R,G,B,H,S,L, CONTR;
     float elong, elong_pre, kappa, kappa_pre, oren, oren_pre, sca, sca_pre, Dist;
     Shape pShape;
     thre = *threshold;
@@ -1981,8 +2374,9 @@ void TreeOfShapes::computeKdTree(float average_r, float average_g, float average
             pShape = _pTree->the_shapes + i;
 
             float lambda1, lambda2;
-            float elongDict, kappaDict;
-            float scaDict;
+            float elong, kappa, elongDict, kappaDict, Dist, minDist;
+            float sca, scaDict, pa;
+            int mn, temp;
 
             lambda1 = ((Info*)(pShape->data))->lambda1;
             lambda2 = ((Info*)(pShape->data))->lambda2;
@@ -2138,6 +2532,7 @@ Shape TreeOfShapes::getShape(int index){
 
 void TreeOfShapes::compute_tree( TOSParameters tosParameters, bool dictionary ){
 
+    double elapsedTime = 0., current_time = 0.;
     std::cout <<"Compute_tree started"<< std::endl;
     if( !_tree_computed || _tosParameters.color_sketch != tosParameters.color_sketch ||
             ( _tosParameters.color_sketch == 1 & _tosParameters.eps != tosParameters.eps ) ){
@@ -2187,10 +2582,10 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
     tree_recomputed = _tree_recomputed;
 
     //Declare variables
-    int i,j, mn;
+    int i,j, k, minArea, mn, nsize;
     Shape pShape, pShapeTemp, pShapeDict;
     int maskIntersectionWithShape;
-    float pa, ALPHA;
+    float pa, fzero, ALPHA;
     Cimage imgShapeLabel;
     Fimage imgShapeBlur;
     Fsignal t2b_index = NULL, gaussKernel;
@@ -2386,9 +2781,13 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, 
                         pShapeDict = tosDictionary->selectShapeDict(pShape, &dictionaryParameters.kappaDict, &dictionaryParameters.randS, shape_id, _average_r, _average_g, _average_b);
                         dictionary_correspondance->values[(int)t2b_index->values[i]] = shape_id;
                     }
-                    synShapeDict( pShapeDict, pShape, imgsyn, imgDict, imgShapeColorSyn, imgShapeLabel, imgShapeLabelSyn, imgShapeBlurSyn, gaussKernel, &tosParameters.median, &tosParameters.alpha,
+                    if( tosParameters.blur == 1 )
+                        synShapeDict( pShapeDict, pShape, imgsyn, imgDict, imgShapeColorSyn, imgShapeLabel, imgShapeLabelSyn, imgShapeBlurSyn, gaussKernel, &tosParameters.median, &tosParameters.alpha,
                                     &dictionaryParameters.equal, &dictionaryParameters.mcolor,&tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-                    
+                    else
+                        synShapeDict( pShapeDict, pShape, imgsyn, imgDict, imgShapeColorSyn, imgShapeLabel, imgShapeLabelSyn, &tosParameters.alpha,
+                                    &dictionaryParameters.equal, &dictionaryParameters.mcolor,&tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
+
                     mw_delete_cfimage(imgShapeColorSyn);
                     mw_delete_cimage(imgShapeLabel);
                     mw_delete_cimage(imgShapeLabelSyn);

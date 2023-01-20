@@ -87,7 +87,9 @@ TOSParameters getShapeShakingTOSParameters ();
 TOSParameters getAbstractionTOSParameters ();
 TOSParameters getStyleTransferTOSParameters();
 TOSParameters getShapeSmoothingTOSParameters();
+
 DictionaryParameters getDefaultDictionaryParameters ();
+TOSParameters getDictionaryTOSParameters ();
 
 void shapeInitialize(Shapes pTree);
 
