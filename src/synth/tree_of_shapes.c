@@ -86,7 +86,7 @@ void shapeInitialize(Shapes pTree)
 TOSParameters getDefaultTOSParameters (){
 
     TOSParameters tosParam;
-    tosParam.order=0; // rendering order of the shapes: top->down: o=0 ; large->small: o=1;
+    tosParam.order=0; // rendering order of the shapes: top->down: o=0 ; large->small: o=1; random: o=2"
     tosParam.model=2; // synthesis model: rectangle: m=0; ellipse: m=1; orignal shape: m=2
     tosParam.alpha=0.; // alpha for transparent",
     tosParam.ns=3; // "scale ratio order for color filtering",
@@ -113,7 +113,7 @@ TOSParameters getDefaultTOSParameters (){
 TOSParameters getWaterColorTOSParameters (){
 
     TOSParameters tosParam;
-    tosParam.order=0; // rendering order of the shapes: top->down: o=0 ; large->small: o=1; 
+    tosParam.order=0; // rendering order of the shapes: top->down: o=0 ; large->small: o=1; random: o=2"
     tosParam.model=0; // synthesis model: rectangle: m=0; ellipse: m=1; orignal shape: m=2
     tosParam.alpha=0.; // alpha for transparent",
     tosParam.ns=3; // "scale ratio order for color filtering",
@@ -139,7 +139,7 @@ TOSParameters getWaterColorTOSParameters (){
 TOSParameters getShapeShakingTOSParameters (){
 
     TOSParameters tosParam;
-    tosParam.order=0; // rendering order of the shapes: top->down: o=0 ; large->small: o=1; 
+    tosParam.order=0; // rendering order of the shapes: top->down: o=0 ; large->small: o=1; random: o=2"
     tosParam.model=0; // synthesis model: rectangle: m=0; ellipse: m=1; orignal shape: m=2
     tosParam.alpha=0.; // alpha for transparent",
     tosParam.ns=3; // "scale ratio order for color filtering",
@@ -165,7 +165,7 @@ TOSParameters getShapeShakingTOSParameters (){
 TOSParameters getAbstractionTOSParameters (){
 
     TOSParameters tosParam;
-    tosParam.order=1; // rendering order of the shapes: top->down: o=0 ; large->small: o=1; 
+    tosParam.order=1; // rendering order of the shapes: top->down: o=0 ; large->small: o=1; random: o=2"
     tosParam.model=2; // synthesis model: rectangle: m=0; ellipse: m=1; orignal shape: m=2
     tosParam.alpha=0.; // alpha for transparent",
     tosParam.ns=3; // "scale ratio order for color filtering",
@@ -191,7 +191,7 @@ TOSParameters getAbstractionTOSParameters (){
 TOSParameters getStyleTransferTOSParameters (){
 
     TOSParameters tosParam;
-    tosParam.order=1; // rendering order of the shapes: top->down: o=0 ; large->small: o=1; 
+    tosParam.order=1; // rendering order of the shapes: top->down: o=0 ; large->small: o=1; random: o=2"
     tosParam.model=4; // synthesis model: rectangle: m=0; ellipse: m=1; orignal shape: m=2
     tosParam.alpha=0.2; // alpha for transparent",
     tosParam.ns=3; // "scale ratio order for color filtering",
@@ -217,7 +217,7 @@ TOSParameters getStyleTransferTOSParameters (){
 TOSParameters getDictionaryTOSParameters (){
 
     TOSParameters tosParam;
-    tosParam.order=0; // rendering order of the shapes: top->down: o=0 ; large->small: o=1; 
+    tosParam.order=0; // rendering order of the shapes: top->down: o=0 ; large->small: o=1; random: o=2"
     tosParam.model=2; // synthesis model: rectangle: m=0; ellipse: m=1; orignal shape: m=2
     tosParam.alpha=0.; // alpha for transparent",
     tosParam.ns=3; // "scale ratio order for color filtering",
@@ -243,7 +243,7 @@ TOSParameters getDictionaryTOSParameters (){
 TOSParameters getShapeSmoothingTOSParameters (){
 
     TOSParameters tosParam;
-    tosParam.order=0; // rendering order of the shapes: top->down: o=0 ; large->small: o=1; 
+    tosParam.order=0; // rendering order of the shapes: top->down: o=0 ; large->small: o=1; random: o=2"
     tosParam.model=0; // synthesis model: rectangle: m=0; ellipse: m=1; orignal shape: m=2
     tosParam.alpha=0.; // alpha for transparent",
     tosParam.ns=3; // "scale ratio order for color filtering",

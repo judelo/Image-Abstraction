@@ -132,8 +132,20 @@ protected:
                            float *reliefOrentation, float *reliefHeight);
 
     void top2bottom_index_tree(Fsignal t2b_index);
+    void random_tree_order(Fsignal t2b_index);
 
-    Fsignal sgauss(float *std, Fsignal out, int *size);
+    void random_leaf(Fsignal leaf,
+                     Fsignal t2b_index,
+                     int *k_ind);
+
+    void random_shift_shape(float *shift, float * theta);
+    void adaptive_shift_shape(float *shift,
+                              float *theta);
+    float mean_contrast(Shape pShape);
+
+    Fsignal sgauss(float *std,
+                   Fsignal out,
+                   int *size);
     Fsignal Sgauss(float *std, Fsignal out, int *size);
 
     void compute_shape_attribute(int *ns);
@@ -141,6 +153,11 @@ protected:
                       float *alpha,
                       int *mpixel,
                       int *maxpixel);
+    void filter_image2(int *ns,
+                      float *alpha,
+                      int *mpixel,
+                      int *maxpixel, 
+                      QImage  image_mask);
     void filter_shapes( Cfimage out,
                         char *local,
                         float *eps);
