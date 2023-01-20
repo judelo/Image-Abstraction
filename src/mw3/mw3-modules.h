@@ -662,6 +662,8 @@ Flists ll_boundaries2(Fimage in, float *eps, Shapes tree, float *step,
                       int *prec, float *std, float *hstep, char *all,
                       int *visit, char *loc, Fimage image_out,
                       Shapes keep_tree);
+/* src/image/detection/ll_boundaries2.c */
+float min_contrast(Flist l,float *length,Fimage NormofDu);
 /* src/image/detection/falign_mdl.c */
 Fimage falign_mdl(Fimage u, int *d, int *nd, int *no_mdl, int *nl,
                   double *eps, float *g, Flists crv);

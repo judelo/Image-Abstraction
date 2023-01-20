@@ -86,7 +86,7 @@ void shapeInitialize(Shapes pTree)
 TOSParameters getDefaultTOSParameters (){
 
     TOSParameters tosParam;
-    tosParam.order=0; // rendering order of the shapes: top->down: o=0 ; large->small: o=1; random: o=2"
+    tosParam.order=0; // rendering order of the shapes: top->down: o=0 ; large->small: o=1;
     tosParam.model=2; // synthesis model: rectangle: m=0; ellipse: m=1; orignal shape: m=2
     tosParam.alpha=0.; // alpha for transparent",
     tosParam.ns=3; // "scale ratio order for color filtering",
@@ -113,7 +113,7 @@ TOSParameters getDefaultTOSParameters (){
 TOSParameters getWaterColorTOSParameters (){
 
     TOSParameters tosParam;
-    tosParam.order=0; // rendering order of the shapes: top->down: o=0 ; large->small: o=1; random: o=2"
+    tosParam.order=0; // rendering order of the shapes: top->down: o=0 ; large->small: o=1; 
     tosParam.model=0; // synthesis model: rectangle: m=0; ellipse: m=1; orignal shape: m=2
     tosParam.alpha=0.; // alpha for transparent",
     tosParam.ns=3; // "scale ratio order for color filtering",
@@ -139,24 +139,24 @@ TOSParameters getWaterColorTOSParameters (){
 TOSParameters getShapeShakingTOSParameters (){
 
     TOSParameters tosParam;
-    tosParam.order=0; // rendering order of the shapes: top->down: o=0 ; large->small: o=1; random: o=2"
-    tosParam.model=0; // synthesis model: rectangle: m=0; ellipse: m=1; orignal shape: m=2
-    tosParam.alpha=0.; // alpha for transparent",
-    tosParam.ns=3; // "scale ratio order for color filtering",
-    tosParam.threshold=0.6; // "threshold for color filtering",
-    tosParam.smodel=0; // shaking type: uniform shaking: smode=0, dominant shaking: smode=1",
-    tosParam.shift=10.0; // add a random shiftS to each shape, shiftS = shift*rand()",
-    tosParam.theta=0.0; // add a random rotation to each shape, thetaS = theta*rand()",
-    tosParam.mpixel=5; // minimal area (in pixel) for FLST",
-    tosParam.maxarea=INT_MAX; // large shape",
-    tosParam.kappa=0.; // compactness parameter of the attribute filtering on the orignal image",
-    tosParam.relief=0; // "add relief effects, if relief =1",
-    tosParam.reliefOrientation=45; // "relief orentation, in degree",
-    tosParam.reliefHeight=3; // "relief height",
-    tosParam.blur=0;  // "add blur effects, if blur =1",
-    tosParam.median=3; // kernel size for median filter",
-    tosParam.kerSize=3; // kernel size for Gaussian blur",
-    tosParam.kerStd=0.4; // std for the gaussian kernel",
+    tosParam.order=0; //rendering order of the shapes: top->down: o=0 ; large->small: o=1; random: o=2"
+    tosParam.model=0; //synthesis model: rectangle: m=0; ellipse: m=1; orignal shape: m=2
+    tosParam.alpha=0.; //alpha for transparent",
+    tosParam.ns=3; //  "scale ratio order for color filtering",
+    tosParam.threshold=0.6; //  "threshold for color filtering",
+    tosParam.smodel=0; //shaking type: uniform shaking: smode=0, dominant shaking: smode=1",
+    tosParam.shift=10.0; //add a random shiftS to each shape, shiftS = shift*rand()",
+    tosParam.theta=0.0; //add a random rotation to each shape, thetaS = theta*rand()",
+    tosParam.mpixel=5; //minimal area (in pixel) for FLST",
+    tosParam.maxarea=INT_MAX; //large shape",
+    tosParam.kappa=0.; //compactness parameter of the attribute filtering on the orignal image",
+    tosParam.relief=0; //     "add relief effects, if relief =1",
+    tosParam.reliefOrientation=45; //    "relief orentation, in degree",
+    tosParam.reliefHeight=3; //     "relief height",
+    tosParam.blur=0;  //     "add blur effects, if blur =1",
+    tosParam.median=3; //kernel size for median filter",
+    tosParam.kerSize=3; //kernel size for Gaussian blur",
+    tosParam.kerStd=0.4; //std for the gaussian kernel",
     tosParam.color_sketch=0; // "compute the sketch: filter shapes based on contrast if=1",
     tosParam.eps=0.0; // "-log10(max number of false alarms)",
     return tosParam;
@@ -165,7 +165,7 @@ TOSParameters getShapeShakingTOSParameters (){
 TOSParameters getAbstractionTOSParameters (){
 
     TOSParameters tosParam;
-    tosParam.order=1; // rendering order of the shapes: top->down: o=0 ; large->small: o=1; random: o=2"
+    tosParam.order=1; // rendering order of the shapes: top->down: o=0 ; large->small: o=1; 
     tosParam.model=2; // synthesis model: rectangle: m=0; ellipse: m=1; orignal shape: m=2
     tosParam.alpha=0.; // alpha for transparent",
     tosParam.ns=3; // "scale ratio order for color filtering",
@@ -191,7 +191,7 @@ TOSParameters getAbstractionTOSParameters (){
 TOSParameters getStyleTransferTOSParameters (){
 
     TOSParameters tosParam;
-    tosParam.order=1; // rendering order of the shapes: top->down: o=0 ; large->small: o=1; random: o=2"
+    tosParam.order=1; // rendering order of the shapes: top->down: o=0 ; large->small: o=1; 
     tosParam.model=4; // synthesis model: rectangle: m=0; ellipse: m=1; orignal shape: m=2
     tosParam.alpha=0.2; // alpha for transparent",
     tosParam.ns=3; // "scale ratio order for color filtering",
@@ -214,36 +214,10 @@ TOSParameters getStyleTransferTOSParameters (){
     return tosParam;
 }
 
-TOSParameters getDictionaryTOSParameters (){
-
-    TOSParameters tosParam;
-    tosParam.order=0; // rendering order of the shapes: top->down: o=0 ; large->small: o=1; random: o=2"
-    tosParam.model=2; // synthesis model: rectangle: m=0; ellipse: m=1; orignal shape: m=2
-    tosParam.alpha=0.; // alpha for transparent",
-    tosParam.ns=3; // "scale ratio order for color filtering",
-    tosParam.threshold=0.6; // "threshold for color filtering",
-    tosParam.smodel=0; // shaking type: uniform shaking: smode=0, dominant shaking: smode=1",
-    tosParam.shift=0.0; // add a random shiftS to each shape, shiftS = shift*rand()",
-    tosParam.theta=0.0; // add a random rotation to each shape, thetaS = theta*rand()",
-    tosParam.mpixel=20; // minimal area (in pixel) for FLST",
-    tosParam.maxarea=INT_MAX; // large shape",
-    tosParam.kappa=0.; // compactness parameter of the attribute filtering on the orignal image",
-    tosParam.relief=0; // "add relief effects, if relief =1",
-    tosParam.reliefOrientation=45; // "relief orentation, in degree",
-    tosParam.reliefHeight=3; // "relief height",
-    tosParam.blur=0;  // "add blur effects, if blur =1",
-    tosParam.median=13; // kernel size for median filter",
-    tosParam.kerSize=3; // kernel size for Gaussian blur",
-    tosParam.kerStd=0.8; // std for the gaussian kernel",
-    tosParam.color_sketch=0; // "compute the sketch: filter shapes based on contrast if=1",
-    tosParam.eps=0.0; // "-log10(max number of false alarms)",
-    return tosParam;
-}
-
 TOSParameters getShapeSmoothingTOSParameters (){
 
     TOSParameters tosParam;
-    tosParam.order=0; // rendering order of the shapes: top->down: o=0 ; large->small: o=1; random: o=2"
+    tosParam.order=0; // rendering order of the shapes: top->down: o=0 ; large->small: o=1; 
     tosParam.model=0; // synthesis model: rectangle: m=0; ellipse: m=1; orignal shape: m=2
     tosParam.alpha=0.; // alpha for transparent",
     tosParam.ns=3; // "scale ratio order for color filtering",

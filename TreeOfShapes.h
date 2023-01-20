@@ -31,7 +31,7 @@ public:
     static int _tree_count;
     TreeOfShapes( Cfimage imageIn );
     ~TreeOfShapes();
-    QImage render(TOSParameters tosParameters, bool &tree_recomputed, QImage image_mask, int alternative_model, TreeOfShapes *tosDictionary=NULL, DictionaryParameters dictionaryParameters=getDefaultDictionaryParameters() );
+    QImage render(TOSParameters tosParameters, QImage image_mask, int alternative_model, TreeOfShapes *tosDictionary=NULL, DictionaryParameters dictionaryParameters=getDefaultDictionaryParameters() );
     void compute_tree( TOSParameters tosParameters, bool dictionary=false );
     void computeKdTree(float average_r, float average_g, float average_b );
     Cfimage getCfImage(){ if( _texture_image_loaded ) return _texture_image; else return _imgin; }
@@ -68,54 +68,10 @@ protected:
     void init(Cfimage inputImg, Shapes &pTree);
     void sortShapes(Fsignal t2b_index);
     void fgrain_side(int MinArea, float *in, int nx, int ny, float *out, int sideflag);
-    Shape m_order_parent(Shape pShape, int *mn, bool dict = false);
+    Shape m_order_parent(Shape pShape, int mn, bool dict = false);
     void Order(Fsignal t2b_index, int *p, int *q);
-    void shape_orilam(Shape pShape,float *out_ori, float *out_e, float *out_k);
-    void shape_orilam(Shape pShape, float *out_ori, float *out_e, float *out_k, float *pX0, float *pY0);
+    void shape_orilam(Shape pShape, float *out_ori, float *out_e, float *out_k, float *pX0, float *pY0, int option);
     void compute_shape_attribute();
-    float min_contrast(Shape pShape);
-    void synshapeCircle(Shape pShape,
-                        Ccimage imgsyn,
-                        float *alpha,
-                        int *relief,
-                        float *reliefOrentation, float *reliefHeight);
-    void synshapeCircle(Shape pShape,
-                        Ccimage imgsyn,
-                        Cimage imgShapeLabelSyn,
-                        Fimage imgShapeBlurSyn,
-                        Fsignal gaussKernel,
-                        int *median,
-                        float *alpha,
-                        int *relief,
-                        float *reliefOrentation, float *reliefHeight);
-    void synshapeEllipse(Shape pShape,
-                         Ccimage imgsyn,
-                         float *alpha,
-                         int *relief,
-                         float *reliefOrentation, float *reliefHeight);
-    void synshapeEllipse(Shape pShape,
-                         Ccimage imgsyn,
-                         Cimage imgShapeLabelSyn,
-                         Fimage imgShapeBlurSyn,
-                         Fsignal gaussKernel,
-                         int *median,
-                         float *alpha,
-                         int *relief,
-                         float *reliefOrentation, float *reliefHeight);
-    void synshapeRect(Shape pShape,
-                      Ccimage imgsyn,
-                      float *alpha,
-                      int *relief,
-                      float *reliefOrentation, float *reliefHeight);
-    void synshapeRect(Shape pShape,
-                      Ccimage imgsyn,
-                      Cimage imgShapeLabelSyn,
-                      Fimage imgShapeBlurSyn,
-                      Fsignal gaussKernel,
-                      int *median,
-                      float *alpha,
-                      int *relief,
-                      float *reliefOrentation, float *reliefHeight);
     void synshapeOriginal(Shape pShape,
                           Ccimage imgsyn,
                           Cimage imgShapeLabelSyn,
@@ -125,50 +81,25 @@ protected:
                           float *alpha,
                           int *relief,
                           float *reliefOrentation, float *reliefHeight);
-    void synshapeOriginal( Shape pShape,
-                           Ccimage imgsyn,
-                           float *alpha,
-                           int *relief,
-                           float *reliefOrentation, float *reliefHeight);
-
     void top2bottom_index_tree(Fsignal t2b_index);
-    void random_tree_order(Fsignal t2b_index);
-
-    void random_leaf(Fsignal leaf,
-                     Fsignal t2b_index,
-                     int *k_ind);
-
-    void random_shift_shape(float *shift, float * theta);
-    void adaptive_shift_shape(float *shift,
-                              float *theta);
-    float mean_contrast(Shape pShape);
-
-    Fsignal sgauss(float *std,
-                   Fsignal out,
-                   int *size);
+    Fsignal sgauss(float *std, Fsignal out, int *size);
     Fsignal Sgauss(float *std, Fsignal out, int *size);
-
     void compute_shape_attribute(int *ns);
     void filter_image(int *ns,
                       float *alpha,
                       int *mpixel,
                       int *maxpixel);
-    void filter_image2(int *ns,
-                      float *alpha,
-                      int *mpixel,
-                      int *maxpixel, 
-                      QImage  image_mask);
     void filter_shapes( Cfimage out,
                         char *local,
                         float *eps);
     void get_shapes_truearea(Shape s, Shape root,
                              int *truearea);
-
     int random_number(int *M);
-
+    void random_shift_shape(float *shift, float * theta);
+    void adaptive_shift_shape(float *shift,float *theta);
     void shape_boundingbox(Shape pShape);
     void tree_boundingbox();
-
+    void compute_list_pixels_mask(QImage image_mask);
     void synShapeDict(Shape pShapeDict, Shape pShape,
                       Ccimage imgsyn,
                       Cfimage imgDict, Cfimage imgShapeColorSyn,
@@ -179,13 +110,23 @@ protected:
                       float *alpha,
                       int *equal, int *mcolor, int *relief,
                       float *reliefOrentation, float *reliefHeight);
-    void synShapeDict(Shape pShapeDict, Shape pShape,
-                      Ccimage imgsyn,
-                      Cfimage imgDict, Cfimage imgShapeColorSyn,
-                      Cimage imgShapeLabel, Cimage imgShapeLabelSyn,
-                      float *alpha,
-                      int *equal, int *mcolor, int *relief,
-                      float *reliefOrentation, float *reliefHeight);
+    void MedianFilterAndGaussianBlur(float left, float right, float top, float bottom, 
+                                               Cimage imgShapeLabelSyn,Fimage imgShapeBlurSyn,
+                                               Fsignal gaussKernel, int *median);
+    void synshape(int model, Shape pShape,
+                                   Ccimage imgsyn,
+                                   float *alpha,
+                                   int *relief,
+                                   float *reliefOrentation, float *reliefHeight);
+    void synshape(int model, Shape pShape,
+                                  Ccimage imgsyn,
+                                  Cimage imgShapeLabelSyn,
+                                  Fimage imgShapeBlurSyn,
+                                  Fsignal gaussKernel,
+                                  int *median,
+                                  float *alpha,
+                                  int *relief,
+                                  float *reliefOrentation, float *reliefHeight);
 };
 
 #endif // TREEOFSHAPES_H

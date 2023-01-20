@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
     char * model_char = argv[3];              // Synthesis model: orignal shape: m=0; ellipse: m=1; rectangle: m=2; circle m=3,  dictionary m=4, random: m=5 (not use);
     std::stringstream ss(argv[4]);
     char * color_sketch_char = argv[5];       // Keep meaningful boundaries: No 0, Yes 1;
-    char * renderOrder_char = argv[6];        //rendering order of the shapes: top->down: o=0 ; large->small: o=1; random: o=2"
+    char * renderOrder_char = argv[6];        //rendering order of the shapes: top->down: o=0 ; large->small: o=1;"
     char * alpha_char = argv[7];              // Transparency (between 0 and 1)
     char * modelDictionary_char = argv[8];    // Selection model: randS=0, randomly select shapes; randS=1, select shapes according to elongation, compactness and scale; randS=2, select shapes according to elongation, compactness, scale and color",
     char * mcolor_char = argv[9];             // Select de source of color
@@ -97,7 +97,6 @@ int main(int argc, char *argv[])
     TreeOfShapes * TOS = new TreeOfShapes(cfimages_from_qimage(image));
 
     QImage resulting_image;
-    bool tree_recomputed = false;
 
     // Load parameters depending on the task
     TOSParameters TOSParameters = getAbstractionTOSParameters();
@@ -117,12 +116,7 @@ int main(int argc, char *argv[])
     } else if( mode==4 ){
         std::cout << "Style transfer " << std::endl;
         TOSParameters =  getStyleTransferTOSParameters();
-        if (model!=4){
-           std::ofstream demo_failure("demo_failure.txt");
-           demo_failure << "For Style Transfer, model has to be dictionary.\n";
-           demo_failure.close();
-           return 0;
-        };
+        model= 4;
     };
 
     TOSParameters.model = model; 
@@ -139,15 +133,6 @@ int main(int argc, char *argv[])
     };
     
     if (model == 4) { 
-        std::cout << "Model Dictionary" << std::endl; 
-
-        if (mode!=4){
-           std::ofstream demo_failure("demo_failure.txt");
-           demo_failure << "Use Dictionary only for Style transfer.\n";
-           demo_failure.close();
-           return 0;
-        };
-
         // Load dictionary parameters
         DictionaryParameters dictionaryParameters = getDefaultDictionaryParameters();
 
@@ -156,19 +141,17 @@ int main(int argc, char *argv[])
             dictionaryParameters.mcolor = mcolor;
             dictionaryParameters.equal = equal; 
             dictionaryParameters.kappaDict = kappaDict; 
-            std::cout << "mcolor " << mcolor << std::endl;
         };
 
         // Load dictionary of dictionary image
         QImage image_dict(dictionary_file_name);
 
         if (image_dict.isNull()){
-           std::cout << "An image for dictionary it is necessary" << std::endl; 
+           std::cout << "A Style image it is necessary" << std::endl; 
            std::ofstream demo_failure;
            demo_failure.open ("demo_failure.txt");
-           demo_failure << "An image for dictionary it is necessary.\n";
+           demo_failure << "A Style image it is necessary.\n";
            demo_failure.close();
-           return 0;
            return 0;
         };
 
@@ -176,10 +159,10 @@ int main(int argc, char *argv[])
         dictionary->compute_tree( getDefaultTOSParameters(), true);
 
         // Run abstraction
-        resulting_image = TOS->render(TOSParameters, tree_recomputed,  image_mask, alternative_model, dictionary, dictionaryParameters);
+        resulting_image = TOS->render(TOSParameters, image_mask, 4, dictionary, dictionaryParameters);
     } else {
         // Run abstraction
-        resulting_image = TOS->render(TOSParameters, tree_recomputed, image_mask, alternative_model);
+        resulting_image = TOS->render(TOSParameters, image_mask, alternative_model);
     };
 
     resulting_image.save("result.png");   
