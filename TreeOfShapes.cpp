@@ -1357,6 +1357,7 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpix
                     (kappa - kappa_pre)*(kappa - kappa_pre) +
                     (oren - oren_pre)*(oren - oren_pre)/(PI*PI) +
                     (1 - _MIN(sca_pre/sca, sca/sca_pre))*(1 - _MIN(sca_pre/sca, sca/sca_pre)))/4;
+        //Dist /= 4;
 
         if(pShape->area <= *mpixel || *maxpixel < pShape->area || (((Info*)(pShape->data))->attribute[0])*CONTR<= thre || Dist*CONTR < 0.)
             pShape->removed = 1;
@@ -1611,7 +1612,7 @@ void TreeOfShapes::compute_list_pixels_mask(QImage image_mask){
 }
 
 
-QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int alternative_model, TreeOfShapes *tosDictionary, DictionaryParameters dictionaryParameters ){
+QImage TreeOfShapes::render(TOSParameters tosParameters, bool &tree_recomputed, QImage image_mask, int alternative_model, TreeOfShapes *tosDictionary, DictionaryParameters dictionaryParameters ){
     
     std::cout <<"TreeOfShapes::Abstraction started"<< std::endl;
 
@@ -1625,11 +1626,12 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
     Fsignal t2b_index, gaussKernel, dictionary_correspondance;
     bool correspondance_computed = false;
 
-    // Define synthesis image
-    Ccimage imgsyn = mw_change_ccimage(imgsyn, _imgin->nrow, _imgin->ncol);
-
     //Step 1: Decomposition. 
     compute_tree(tosParameters, false);
+    tree_recomputed = _tree_recomputed;
+
+    // Define synthesis image
+    Ccimage imgsyn = mw_change_ccimage(imgsyn, _imgin->nrow, _imgin->ncol);
 
     // Compute list of pixels of mask 
     compute_list_pixels_mask(image_mask);
@@ -1654,7 +1656,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
         mw_copy_fsignal_values(_large_to_small_index, t2b_index);
     } 
   
-    // Special resources needed if blur is selected
+    // Sepcial resources needed if blur is selected
     if (tosParameters.blur == 1){
         // Define auxiliar images for abstraction
         if  ( ((imgShapeLabel = mw_new_cimage()) == NULL) || (mw_alloc_cimage(imgShapeLabel, _imgin->nrow, _imgin->ncol) == NULL) )
@@ -1732,22 +1734,21 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
         } 
         else if(pShape->removed != 1){
 
+                // Verify if some point of the mask touch the shape. 
+                modelToUse = tosParameters.model;
+                for (j=0; j<_len_ArrayPixelsMask; j++)
+                    if (point_in_shape((&_ArrayPixelsMask[j])->x, (&_ArrayPixelsMask[j])->y, pShape, _pTree)){
+                        modelToUse = alternative_model;
+                        break;
+                    }; 
+
                 // Attribute filtering. Index the 3th parent of the shape. 
                 pShapeTemp =  m_order_parent(pShape, 3);
                 if(((float) pShape->area)/((float) pShapeTemp->area) < tosParameters.kappa)
                     continue;
 
                 // Modification of shape according to model
-                if (tosParameters.model < 4){ // Rendering Model: Original, Rectangle, Ellipse or Circular
-
-                    // Verify if some point of the mask touch the shape. 
-                    modelToUse = tosParameters.model;
-                    for (j=0; j<_len_ArrayPixelsMask; j++)
-                        if (point_in_shape((&_ArrayPixelsMask[j])->x, (&_ArrayPixelsMask[j])->y, pShape, _pTree)){
-                            modelToUse = alternative_model;
-                            break;
-                        }; 
-
+                if (modelToUse < 4){ // Rendering Model: Original, Rectangle, Ellipse or Circular
                     if(tosParameters.blur == 0)
                        synshape(modelToUse, pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
                     else if (modelToUse == 0)

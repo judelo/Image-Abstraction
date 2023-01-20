@@ -97,6 +97,7 @@ int main(int argc, char *argv[])
     TreeOfShapes * TOS = new TreeOfShapes(cfimages_from_qimage(image));
 
     QImage resulting_image;
+    bool tree_recomputed = false;
 
     // Load parameters depending on the task
     TOSParameters TOSParameters = getAbstractionTOSParameters();
@@ -159,10 +160,10 @@ int main(int argc, char *argv[])
         dictionary->compute_tree( getDefaultTOSParameters(), true);
 
         // Run abstraction
-        resulting_image = TOS->render(TOSParameters, image_mask, 4, dictionary, dictionaryParameters);
+        resulting_image = TOS->render(TOSParameters, tree_recomputed,  image_mask, 4, dictionary, dictionaryParameters);
     } else {
         // Run abstraction
-        resulting_image = TOS->render(TOSParameters, image_mask, alternative_model);
+        resulting_image = TOS->render(TOSParameters, tree_recomputed, image_mask, alternative_model);
     };
 
     resulting_image.save("result.png");   

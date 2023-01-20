@@ -31,7 +31,7 @@ public:
     static int _tree_count;
     TreeOfShapes( Cfimage imageIn );
     ~TreeOfShapes();
-    QImage render(TOSParameters tosParameters, QImage image_mask, int alternative_model, TreeOfShapes *tosDictionary=NULL, DictionaryParameters dictionaryParameters=getDefaultDictionaryParameters() );
+    QImage render(TOSParameters tosParameters, bool &tree_recomputed, QImage image_mask, int alternative_model, TreeOfShapes *tosDictionary=NULL, DictionaryParameters dictionaryParameters=getDefaultDictionaryParameters() );
     void compute_tree( TOSParameters tosParameters, bool dictionary=false );
     void computeKdTree(float average_r, float average_g, float average_b );
     Cfimage getCfImage(){ if( _texture_image_loaded ) return _texture_image; else return _imgin; }
