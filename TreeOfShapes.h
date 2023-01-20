@@ -72,6 +72,7 @@ protected:
     void Order(Fsignal t2b_index, int *p, int *q);
     void shape_orilam(Shape pShape, float *out_ori, float *out_e, float *out_k, float *pX0, float *pY0, int option);
     void compute_shape_attribute();
+    float min_contrast(Shape pShape);
     void synshapeOriginal(Shape pShape,
                           Ccimage imgsyn,
                           Cimage imgShapeLabelSyn,
@@ -94,10 +95,11 @@ protected:
                         float *eps);
     void get_shapes_truearea(Shape s, Shape root,
                              int *truearea);
+
     int random_number(int *M);
+
     void shape_boundingbox(Shape pShape);
     void tree_boundingbox();
-    void compute_list_pixels_mask(QImage image_mask);
     void synShapeDict(Shape pShapeDict, Shape pShape,
                       Ccimage imgsyn,
                       Cfimage imgDict, Cfimage imgShapeColorSyn,
