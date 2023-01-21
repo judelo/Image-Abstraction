@@ -1614,7 +1614,7 @@ void TreeOfShapes::adaptive_shift_shape(float *shift, float *theta){
     int i,j;
     Shape pShape;
     float SHIFT, THETA, tempx, tempy, tempt, tempShiftx, tempShifty;
-    float a,b,phi, CONTRAST;
+    float a,b,phi, CONTRAST, length;
     SHIFT = *shift;
     THETA = *theta;
 
@@ -1661,7 +1661,11 @@ void TreeOfShapes::adaptive_shift_shape(float *shift, float *theta){
 
         ((Info*)(pShape->data))->rotation = tempt*THETA*PI*(b/a);
 
-        CONTRAST = mean_contrast(pShape);
+        //CONTRAST = mean_contrast(pShape);
+        Flist pBoundary = NULL;
+        pBoundary = mw_change_flist(pBoundary, 4*pShape->area+1, 0, 2);
+        flst_boundary(_pTree, pShape, pBoundary);
+        CONTRAST = min_contrast(pBoundary,&length,_NormOfDu);
 
         ((Info*)(pShape->data))->xShift *= 1/pow(CONTRAST, 0.5);
         ((Info*)(pShape->data))->yShift *= 1/pow(CONTRAST, 0.5);
