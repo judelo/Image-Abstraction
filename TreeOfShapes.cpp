@@ -1730,6 +1730,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
 
     // Define synthesis image
     Ccimage imgsyn = mw_change_ccimage(imgsyn, _imgin->nrow, _imgin->ncol);
+    std::cout << "Image imsyn size" << imgsyn->nrow << " " << imgsyn->ncol << std::endl;
 
     //Step 1: Decomposition. 
     compute_tree(tosParameters, false);
@@ -1821,10 +1822,10 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
     std::cout << "Image Shaking" << std::endl;   
     if(tosParameters.smodel == 0)
         random_shift_shape(&tosParameters.shift, &tosParameters.theta);
-    else if(tosParameters.smodel == 1)
+    else // tosParameters.smodel == 1
         adaptive_shift_shape(&tosParameters.shift, &tosParameters.theta);
-    else
-        adaptive_shift_shape(&tosParameters.shift, &tosParameters.theta);
+
+    std::cout << "Image imsyn size" << imgsyn->nrow << " " << imgsyn->ncol << std::endl;
      
     // Iterate in shapes
     std::cout << "Iterate in shapes" << std::endl;
@@ -1886,6 +1887,8 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
         }
     }
 
+    std::cout << "Image imsyn size" << imgsyn->nrow << " " << imgsyn->ncol << std::endl;
+
     // Compute Resulting image
     QImage result_image( QSize(imgsyn->ncol, imgsyn->nrow), QImage::Format_RGB32 );
     for( int j= 0; j< imgsyn->nrow; j++)
@@ -1894,6 +1897,8 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
             QColor color (imgsyn->red[comp], imgsyn->green[comp], imgsyn->blue[comp]);
             result_image.setPixel(i, j , qRgb(color.red(), color.green(), color.blue()));
         }
+
+    std::cout << "Image imsyn size" << imgsyn->nrow << " " << imgsyn->ncol << std::endl;
     
     // Delete image and signals
     std::cout << "Delete auxiliar images and signals" << std::endl;
