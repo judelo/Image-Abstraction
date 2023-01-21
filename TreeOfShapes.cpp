@@ -1884,6 +1884,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
         }
     }
 
+    std::cout << "Compute Resuting image" << std::endl;
     // Compute Resulting image
     QImage result_image( QSize(imgsyn->ncol, imgsyn->nrow), QImage::Format_RGB32 );
     for( int j= 0; j< imgsyn->nrow; j++)
