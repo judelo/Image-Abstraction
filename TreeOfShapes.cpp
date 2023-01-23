@@ -703,13 +703,13 @@ void TreeOfShapes::synshape(int model, Shape pShape,Ccimage imgsyn, float *alpha
                     int aux = yi_e * _pTree->ncol + xi_e;
 
                     tR = ((float) imgsyn->red[aux])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->r;
-                    imgsyn->red[aux] = (int)rint((double) tR);  
+                    imgsyn->red[aux] = (int) tR; 
 
                     tG = ((float) imgsyn->green[aux])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->g;
-                    imgsyn->green[aux] = (int)rint((double) tG);  
+                    imgsyn->green[aux] = (int) tG; 
 
                     tB = ((float) imgsyn->blue[aux])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->b;
-                    imgsyn->blue[aux] = (int)rint((double) tB);
+                    imgsyn->blue[aux] = (int) tB;
                 }
                 // Fin parte agregada
             } else {
