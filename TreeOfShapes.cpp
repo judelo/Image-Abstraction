@@ -491,8 +491,8 @@ void TreeOfShapes::synshape(int model, Shape pShape,
                 if(xi_e<0 || xi_e>= imgShapeLabelSyn->ncol ||
                         yi_e<0 || yi_e>= imgShapeLabelSyn->nrow )
                     continue;
-
-                imgShapeLabelSyn->gray[yi_e*imgShapeLabelSyn->ncol + xi_e] = 1;
+                aux = yi_e*imgShapeLabelSyn->ncol + xi_e;
+                imgShapeLabelSyn->gray[aux] = 1;
 
                 left   = _MIN(xi_e, left);
                 top    = _MIN(yi_e, top);
