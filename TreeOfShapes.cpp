@@ -630,8 +630,8 @@ void TreeOfShapes::synshape(int model, Shape pShape,Ccimage imgsyn, float *alpha
             for( yi= ceil(top); yi<= bottom; yi++){
                 
                 if (model == 0){ //Original
-                   x = (float)((pShape->pixels+i)->x);
-                   y = (float)((pShape->pixels+i)->y);
+                   x = ((pShape->pixels+i)->x);
+                   y = ((pShape->pixels+i)->y);
 
                    xr = (x - x0temp)*cos(theta) + (y - y0temp)*sin(theta);
                    yr = (y - y0temp)*cos(theta) - (x - x0temp)*sin(theta);
@@ -691,12 +691,25 @@ void TreeOfShapes::synshape(int model, Shape pShape,Ccimage imgsyn, float *alpha
                 xr = (x - x0temp)*cos(theta) + (y - y0temp)*sin(theta);
                 yr = (y - y0temp)*cos(theta) - (x - x0temp)*sin(theta);
 
-                xi = floor(xShift + x0temp + xr);
-                yi = floor(yShift + y0temp + yr);
-                condition = true;
+                xi_e = floor(xShift + x0temp + xr);
+                yi_e = floor(yShift + y0temp + yr);
+                condition = false; //true
                 i++;
                 if (i == pShape->area)
                     break; 
+                
+                //Parte agregada
+                if(xi_e>= 0 && xi_e< _pTree->ncol && yi_e>= 0 && yi_e< _pTree->nrow){
+                    tR = ((float) imgsyn->red[yi_e*_pTree->ncol + x_ei])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->r;
+                    imgsyn->red[yi_e*_pTree->ncol + xi_e] = (int) tR;  
+
+                    tG = ((float) imgsyn->green[yi_e*_pTree->ncol + xi_e])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->g;
+                    imgsyn->green[yi_e*_pTree->ncol + xi_e] = (int) tG;  
+
+                    tB = ((float) imgsyn->blue[yi_e*_pTree->ncol + xi_e])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->b;
+                    imgsyn->blue[yi_e*_pTree->ncol + xi_e] = (int) tB;
+                }
+                // Fin parte agregada
             } else {
                 xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
                 yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
@@ -1819,7 +1832,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
     // Add a random shift to each shape
     
     std::cout << "Image Shaking" << std::endl;   
-    if(tosParameters.smodel == 1) //va cerooo
+    if(tosParameters.smodel == 0)
         random_shift_shape(&tosParameters.shift, &tosParameters.theta);
     else // tosParameters.smodel == 1
         adaptive_shift_shape(&tosParameters.shift, &tosParameters.theta);
@@ -1897,7 +1910,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
     
     // Delete image and signals
     std::cout << "Delete auxiliar images and signals" << std::endl;
-    /*
+    
     mw_delete_fsignal(t2b_index);
     if (imgsyn != NULL){
         std::cout << "Delete imgsyn" << std::endl;
@@ -1916,6 +1929,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
         mw_delete_cimage(imgShapeLabelSyn);
         mw_delete_fimage(imgShapeBlurSyn);
     }
-    */
+    
     return result_image;
 }
