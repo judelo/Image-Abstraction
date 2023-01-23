@@ -167,7 +167,7 @@ void TreeOfShapes::shape_orilam(Shape pShape, float *out_ori, float *out_e, floa
     *pY0 = y0;
 }
 
-
+/*
 // Sort two shapes according to their scales
 void TreeOfShapes::Order(Fsignal t2b_index, int *p, int *q){
     int temp;
@@ -181,6 +181,7 @@ void TreeOfShapes::Order(Fsignal t2b_index, int *p, int *q){
         t2b_index->values[*q] =  temp;
     }
 }
+*/
 
 
 // Index the mn-order parent of the pShape
@@ -236,8 +237,7 @@ void TreeOfShapes::top2bottom_index_tree(Fsignal t2b_index){
 }
 
 
-// Compute boundingbox of each shape on the tree                    
-// shape_boundingbox(pTree, pShape) and tree_boundingbox(pTree, pShape)                
+// Compute boundingbox of each shape on the tree                                   
 void TreeOfShapes::shape_boundingbox(Shape pShape){
 
     float xmin, xmax, ymin, ymax, theta, x0temp, y0temp, x, y, xr, yr;
@@ -467,9 +467,9 @@ void TreeOfShapes::synshape(int model, Shape pShape,
             xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
             yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
 
-            if (model == 1){ //Ellipse
+            if (model == 1) //Ellipse
                 condition = ( xi_e*xi_e/(a*a) + yi_e*yi_e/(b*b) <= 1 );
-            } else if (model == 2){ //Rectangle
+            else if (model == 2){ //Rectangle
                 condition = ( xi_e >= -a && xi_e <= +a && yi_e >= -b && yi_e <= +b );
             }else if (model == 3){ //Circle
                 condition = ( xi_e*xi_e/(b*b) + yi_e*yi_e/(b*b) <= 1 );
@@ -902,8 +902,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                     xKer = x + iKer;
                     yKer = y + jKer;
 
-                    if(xKer<0 || xKer>= imgShapeLabelSyn->ncol ||
-                            yKer<0 || yKer>= imgShapeLabelSyn->nrow )
+                    if(xKer<0 || xKer>= imgShapeLabelSyn->ncol || yKer<0 || yKer>= imgShapeLabelSyn->nrow )
                         continue;
 
                     imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] +=
@@ -1625,24 +1624,21 @@ void TreeOfShapes::compute_list_pixels_mask(QImage image_mask){
         };
 }
 
-void TreeOfShapes::adaptive_shift_shape(float *shift, float *theta){
+void TreeOfShapes::shift_shapes(float *shift, float *theta, int mode){
     int i,j;
     Shape pShape;
-    float SHIFT, THETA, tempx, tempy, tempt, tempShiftx, tempShifty;
-    float a,b,phi, CONTRAST, length;
+    float SHIFT, THETA, tempx, tempy, tempt, tempShiftx, tempShifty, a, b, phi, CONTRAST, length;
     SHIFT = *shift;
     THETA = *theta;
 
     srand( time(NULL) );
-    for(i = _pTree->nb_shapes-1; i>= 0; i--)
-    {
+    for(i = _pTree->nb_shapes-1; i>= 0; i--){
         pShape = _pTree->the_shapes + i;
 
         if(pShape == NULL )
             continue;
 
-        if(i==0)
-        {
+        if(i==0){
             ((Info*)(pShape->data))->xShift = 0;
             ((Info*)(pShape->data))->yShift = 0;
             ((Info*)(pShape->data))->rotation = 0;
@@ -1659,72 +1655,36 @@ void TreeOfShapes::adaptive_shift_shape(float *shift, float *theta){
         else
             tempy = ((float)rand())/RAND_MAX;
 
-        if( (rand()%10) >5 )
-            tempt = -((float)rand())/RAND_MAX;
-        else
-            tempt = ((float)rand())/RAND_MAX;
+        if (mode == 0){ // shaking type: uniform shaking: smode=0
+            ((Info*)(pShape->data))->xShift = tempx*SHIFT;
+            ((Info*)(pShape->data))->yShift = tempy*SHIFT;
+        } else{ // shaking type: dominant shaking: smode=1
+            if( (rand()%10) >5 )
+                tempt = -((float)rand())/RAND_MAX;
+            else
+                tempt = ((float)rand())/RAND_MAX;
 
-        a = 2.0 * sqrt(((Info*)(pShape->data))->lambda1);
-        b = 2.0 * sqrt(((Info*)(pShape->data))->lambda2);
-        phi = ((Info*)(pShape->data))->oren;
+            a = 2.0 * sqrt(((Info*)(pShape->data))->lambda1);
+            b = 2.0 * sqrt(((Info*)(pShape->data))->lambda2);
+            phi = ((Info*)(pShape->data))->oren;
 
-        tempShiftx = tempx*SHIFT;
-        tempShifty = tempy*SHIFT*pow((b/a),2);
+            tempShiftx = tempx*SHIFT;
+            tempShifty = tempy*SHIFT*pow((b/a),2);
 
-        ((Info*)(pShape->data))->xShift = tempShiftx*cos(phi) + tempShifty*sin(phi);
-        ((Info*)(pShape->data))->yShift = tempShifty*cos(phi) - tempShiftx*sin(phi);
+            ((Info*)(pShape->data))->xShift = tempShiftx*cos(phi) + tempShifty*sin(phi);
+            ((Info*)(pShape->data))->yShift = tempShifty*cos(phi) - tempShiftx*sin(phi);
 
-        ((Info*)(pShape->data))->rotation = tempt*THETA*PI*(b/a);
+            ((Info*)(pShape->data))->rotation = tempt*THETA*PI*(b/a);
 
-        //CONTRAST = mean_contrast(pShape);
-        Flist pBoundary = NULL;
-        pBoundary = mw_change_flist(pBoundary, 4*pShape->area+1, 0, 2);
-        flst_boundary(_pTree, pShape, pBoundary);
-        CONTRAST = min_contrast(pBoundary,&length,_NormOfDu);
+            Flist pBoundary = NULL;
+            pBoundary = mw_change_flist(pBoundary, 4*pShape->area+1, 0, 2);
+            flst_boundary(_pTree, pShape, pBoundary);
+            CONTRAST = min_contrast(pBoundary,&length,_NormOfDu);
 
-        ((Info*)(pShape->data))->xShift *= 1/pow(CONTRAST, 0.5);
-        ((Info*)(pShape->data))->yShift *= 1/pow(CONTRAST, 0.5);
-        ((Info*)(pShape->data))->rotation *= 1/pow(CONTRAST, 0.5);
-
-    }
-}
-
-
-void TreeOfShapes::random_shift_shape(float *shift, float * theta){
-
-    int i,j;
-    Shape pShape;
-    float SHIFT, THETA, tempx, tempy, temprotation;
-    SHIFT = *shift;
-    THETA = *theta;
-
-    srand( time(NULL) );
-    for(i = _pTree->nb_shapes-1; i>= 0; i--)
-    {
-        pShape = _pTree->the_shapes + i;
-
-        if(pShape == NULL )
-            continue;
-        if(i==0)
-        {
-            ((Info*)(pShape->data))->xShift = 0;
-            ((Info*)(pShape->data))->yShift = 0;
-            ((Info*)(pShape->data))->rotation = 0;
-            continue;
+            ((Info*)(pShape->data))->xShift *= 1/pow(CONTRAST, 0.5);
+            ((Info*)(pShape->data))->yShift *= 1/pow(CONTRAST, 0.5);
+            ((Info*)(pShape->data))->rotation *= 1/pow(CONTRAST, 0.5);
         }
-
-        if( (rand()%10) >5 )
-            tempx = -((float)rand())/RAND_MAX;
-        else
-            tempx = ((float)rand())/RAND_MAX;
-
-        if( (rand()%10) >5 )
-            tempy = -((float)rand())/RAND_MAX;
-        else
-            tempy = ((float)rand())/RAND_MAX;
-
-        ((Info*)(pShape->data))->xShift = tempx*SHIFT;
-        ((Info*)(pShape->data))->yShift = tempy*SHIFT;
     }
 }
         
@@ -1736,7 +1696,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
     //Declare variables
     int i,j, modelToUse, shape_id;
     Shape pShape, pShapeTemp, pShapeDict;  
-    Point_plane p;
     Cimage imgShapeLabel, imgShapeLabelSyn;
     Cfimage imgShapeColorSyn, imgDict;
     Fimage imgShapeBlur, imgShapeBlurSyn;
@@ -1831,13 +1790,9 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
         }
     }
 
-    // Add a random shift to each shape
-    
+    // Add a random shift to each shape 
     std::cout << "Image Shaking" << std::endl;   
-    if(tosParameters.smodel == 0)
-        random_shift_shape(&tosParameters.shift, &tosParameters.theta);
-    else // tosParameters.smodel == 1
-        adaptive_shift_shape(&tosParameters.shift, &tosParameters.theta);
+    shift_shapes(&tosParameters.shift, &tosParameters.theta, tosParameters.smodel);
      
     // Iterate in shapes
     std::cout << "Iterate in shapes" << std::endl;
@@ -1899,8 +1854,8 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
         }
     }
 
-    std::cout << "Compute Resuting image" << std::endl;
-    // Compute Resulting image
+    // Compute Resuting image
+    std::cout << "Compute Resuting image" << std::endl; 
     QImage result_image( QSize(imgsyn->ncol, imgsyn->nrow), QImage::Format_RGB32 );
     for( int j= 0; j< imgsyn->nrow; j++)
         for( int i= 0; i< imgsyn->ncol; i++){
@@ -1908,17 +1863,13 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
             QColor color (imgsyn->red[comp], imgsyn->green[comp], imgsyn->blue[comp]);
             result_image.setPixel(i, j , qRgb(color.red(), color.green(), color.blue()));
         }
-
-    
+ 
     // Delete image and signals
     std::cout << "Delete auxiliar images and signals" << std::endl;
     
     mw_delete_fsignal(t2b_index);
-    if (imgsyn != NULL){
-        std::cout << "Delete imgsyn" << std::endl;
+    if (imgsyn != NULL)
         mw_delete_ccimage(imgsyn);
-        std::cout << "Deleted imgsyn" << std::endl;
-    }
     if (tosParameters.blur == 1){
         std::cout << "Blur" << std::endl;
         mw_delete_cimage(imgShapeLabel);

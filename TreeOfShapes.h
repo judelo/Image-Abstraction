@@ -50,56 +50,39 @@ protected:
     int _maxArea;
     Point_plane  _ArrayPixelsMask;
     int _len_ArrayPixelsMask;
-
     Cfimage _imgin;
     Cfimage _texture_image;
     Shapes _pTree;
     Fimage _NormOfDu;
     Fsignal _large_to_small_index;
     std::map<int, Fsignal> _dictionary_selections;
-
     TOSParameters _tosParameters;
     DictionaryParameters _dictionaryParameters;
-
     float _average_r;
     float _average_g;
     float _average_b;
 
     void init(Cfimage inputImg, Shapes &pTree);
     void sortShapes(Fsignal t2b_index);
-    void fgrain_side(int MinArea, float *in, int nx, int ny, float *out, int sideflag);
     Shape m_order_parent(Shape pShape, int mn, bool dict = false);
-    void Order(Fsignal t2b_index, int *p, int *q);
+    //void Order(Fsignal t2b_index, int *p, int *q);
     void shape_orilam(Shape pShape, float *out_ori, float *out_e, float *out_k, float *pX0, float *pY0, int option);
     void compute_shape_attribute();
-    void synshapeOriginal(Shape pShape,
-                          Ccimage imgsyn,
-                          Cimage imgShapeLabelSyn,
-                          Fimage imgShapeBlurSyn,
-                          Fsignal gaussKernel,
-                          int *median,
-                          float *alpha,
-                          int *relief,
-                          float *reliefOrentation, float *reliefHeight);
     void top2bottom_index_tree(Fsignal t2b_index);
     Fsignal sgauss(float *std, Fsignal out, int *size);
     Fsignal Sgauss(float *std, Fsignal out, int *size);
     void compute_shape_attribute(int *ns);
-    void filter_image(int *ns,
-                      float *alpha,
-                      int *mpixel,
-                      int *maxpixel);
-    void filter_shapes( Cfimage out,
-                        char *local,
-                        float *eps);
-    void get_shapes_truearea(Shape s, Shape root,
-                             int *truearea);
+    void filter_image(int *ns,float *alpha, int *mpixel,int *maxpixel);
+    void filter_shapes( Cfimage out,char *local,float *eps);
+    void get_shapes_truearea(Shape s, Shape root,int *truearea);
     int random_number(int *M);
-    void random_shift_shape(float *shift, float * theta);
-    void adaptive_shift_shape(float *shift,float *theta);
+    void shift_shapes(float *shift, float *theta, int mode);
     void shape_boundingbox(Shape pShape);
     void tree_boundingbox();
     void compute_list_pixels_mask(QImage image_mask);
+    void MedianFilterAndGaussianBlur(float left, float right, float top, float bottom, 
+                                    Cimage imgShapeLabelSyn,Fimage imgShapeBlurSyn,
+                                    Fsignal gaussKernel, int *median);
     void synShapeDict(Shape pShapeDict, Shape pShape,
                       Ccimage imgsyn,
                       Cfimage imgDict, Cfimage imgShapeColorSyn,
@@ -110,9 +93,6 @@ protected:
                       float *alpha,
                       int *equal, int *mcolor, int *relief,
                       float *reliefOrentation, float *reliefHeight);
-    void MedianFilterAndGaussianBlur(float left, float right, float top, float bottom, 
-                                               Cimage imgShapeLabelSyn,Fimage imgShapeBlurSyn,
-                                               Fsignal gaussKernel, int *median);
     void synshape(int model, Shape pShape,
                                    Ccimage imgsyn,
                                    float *alpha,
@@ -127,6 +107,15 @@ protected:
                                   float *alpha,
                                   int *relief,
                                   float *reliefOrentation, float *reliefHeight);
+    void synshapeOriginal(Shape pShape,
+                          Ccimage imgsyn,
+                          Cimage imgShapeLabelSyn,
+                          Fimage imgShapeBlurSyn,
+                          Fsignal gaussKernel,
+                          int *median,
+                          float *alpha,
+                          int *relief,
+                          float *reliefOrentation, float *reliefHeight);
 };
 
 #endif // TREEOFSHAPES_H
