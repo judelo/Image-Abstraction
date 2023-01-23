@@ -1836,13 +1836,11 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
     if (imgsyn != NULL)
         mw_delete_ccimage(imgsyn);
     if (tosParameters.blur == 1){
-        std::cout << "Blur" << std::endl;
         mw_delete_cimage(imgShapeLabel);
         mw_delete_fimage(imgShapeBlur);
         mw_delete_fsignal(gaussKernel);
     }
     if (tosParameters.model == 4){
-        std::cout << "Dict" << std::endl;
         mw_delete_cfimage(imgShapeColorSyn);
         mw_delete_cimage(imgShapeLabelSyn);
         mw_delete_fimage(imgShapeBlurSyn);
