@@ -167,22 +167,6 @@ void TreeOfShapes::shape_orilam(Shape pShape, float *out_ori, float *out_e, floa
     *pY0 = y0;
 }
 
-/*
-// Sort two shapes according to their scales
-void TreeOfShapes::Order(Fsignal t2b_index, int *p, int *q){
-    int temp;
-    Shape pShape1, pShape2;
-    pShape1 = _pTree->the_shapes + (int) t2b_index->values[*p];
-    pShape2 = _pTree->the_shapes + (int) t2b_index->values[*q];
-
-    if( pShape1->area < pShape2->area){
-        temp = t2b_index->values[*p];
-        t2b_index->values[*p] =  t2b_index->values[*q];
-        t2b_index->values[*q] =  temp;
-    }
-}
-*/
-
 
 // Index the mn-order parent of the pShape
 Shape TreeOfShapes::m_order_parent(Shape pShape, int mn, bool dict){
