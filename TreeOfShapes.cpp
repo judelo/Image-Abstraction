@@ -418,7 +418,7 @@ void TreeOfShapes::synshape(int model, Shape pShape,
 
     int xi, yi, x, y, aux, i;
     float ALPHA, BETA, a, b, x0temp, y0temp, top, right, left, bottom, phi, xi_e, yi_e;
-    float xShift, yShift, theta, tR, tG, tB, TR, TG, TB, tr, tg, tb;
+    float xShift, yShift, theta, tR, tG, tB, TR, TG, TB, tr, tg, tb, xr, yr;
     bool condition;
 
     ALPHA = *alpha;
