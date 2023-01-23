@@ -699,18 +699,18 @@ void TreeOfShapes::synshape(int model, Shape pShape,Ccimage imgsyn, float *alpha
                     break; 
                 
                 //Parte agregada
-                if(xi_e>= 0 && xi_e< _pTree->ncol && yi_e>= 0 && yi_e< _pTree->nrow){
-                    int aux = yi_e * _pTree->ncol + xi_e;
+                //if(xi_e>= 0 && xi_e< _pTree->ncol && yi_e>= 0 && yi_e< _pTree->nrow){
+                int aux = yi_e * _pTree->ncol + xi_e;
 
-                    tR = ((float) imgsyn->red[aux])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->r;
-                    imgsyn->red[aux] = (int) tR; 
+                tR = ((float) imgsyn->red[aux])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->r;
+                imgsyn->red[aux] = (int) tR; 
 
-                    tG = ((float) imgsyn->green[aux])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->g;
-                    imgsyn->green[aux] = (int) tG; 
+                tG = ((float) imgsyn->green[aux])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->g;
+                imgsyn->green[aux] = (int) tG; 
 
-                    tB = ((float) imgsyn->blue[aux])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->b;
-                    imgsyn->blue[aux] = (int) tB;
-                }
+                tB = ((float) imgsyn->blue[aux])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->b;
+                imgsyn->blue[aux] = (int) tB;
+                //}
                 // Fin parte agregada
             } else {
                 xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
