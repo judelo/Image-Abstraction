@@ -176,7 +176,7 @@ TOSParameters getAbstractionTOSParameters (){
     tosParam.mpixel=20; // minimal area (in pixel) for FLST",
     tosParam.maxarea=INT_MAX; // large shape",
     tosParam.kappa=0.; // compactness parameter of the attribute filtering on the orignal image",
-    tosParam.relief=0; // "add relief effects, if relief =1",
+    tosParam.relief=1; // "add relief effects, if relief =1",
     tosParam.reliefOrientation=45; // "relief orentation, in degree",
     tosParam.reliefHeight=3; // "relief height",
     tosParam.blur=0;  // "add blur effects, if blur =1",
