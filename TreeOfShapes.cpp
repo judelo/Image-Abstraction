@@ -1772,6 +1772,11 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
             mw_clear_fsignal(_dictionary_selections[ tosDictionary->getTreeId() ],-1.0);
             tosDictionary->computeKdTree(_average_r, _average_g, _average_b);
         }
+
+        if (correspondance_computed)
+            std::cout << "CC - inicial" << std::endl; 
+        else
+            std::cout << "NOT CC - inicial" << std::endl; 
     }
 
     // Add a random shift to each shape 
@@ -1822,6 +1827,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
                 }
                 else{ // modelToUse ==4 -> Rendering Model: Dictionary
                     if( correspondance_computed ){
+                        std::cout << "CC" << std::endl; 
                         shape_id = (int)dictionary_correspondance->values[(int)t2b_index->values[i]];
                         if ( shape_id >= 0 )
                             pShapeDict = tosDictionary->getShape(shape_id);
@@ -1830,6 +1836,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
                             _dictionary_selections[ tosDictionary->getTreeId() ]->values[(int)t2b_index->values[i]] = shape_id;
                         }
                     } else {
+                        std::cout << "NOT CC" << std::endl; 
                         pShapeDict = tosDictionary->selectShapeDict(pShape, &dictionaryParameters.kappaDict, &dictionaryParameters.randS, shape_id, _average_r, _average_g, _average_b);
                         dictionary_correspondance->values[(int)t2b_index->values[i]] = shape_id;
                     }
