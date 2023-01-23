@@ -562,7 +562,7 @@ void TreeOfShapes::synshape(int model, Shape pShape,
 // Synthesis by Shape Shaking for Original, Ellipses, Rectangles or Circular shapes
 void TreeOfShapes::synshape(int model, Shape pShape,Ccimage imgsyn, float *alpha,int *relief,float *reliefOrentation, float *reliefHeight){
     
-    int xi, yi, i;
+    int xi, yi, i, aux;
     float a, b, x0temp, y0temp, top, right, left, bottom, ALPHA, shLambda, shTR, shTG, shTB;
     float phi, x, y, xr, yr, xi_e, yi_e, xShift, yShift, theta, tR, tG, tB;
     bool condition;
@@ -636,9 +636,10 @@ void TreeOfShapes::synshape(int model, Shape pShape,Ccimage imgsyn, float *alpha
                    xr = (x - x0temp)*cos(theta) + (y - y0temp)*sin(theta);
                    yr = (y - y0temp)*cos(theta) - (x - x0temp)*sin(theta);
 
-                   xi = floor(xShift + x0temp + xr);
-                   yi = floor(yShift + y0temp + yr);
-                   condition = true;
+                   xi_e = floor(xShift + x0temp + xr);
+                   yi_e = floor(yShift + y0temp + yr);
+
+                   condition = xi_e>= 0 && xi_e< _pTree->ncol && yi_e>= 0 && yi_e< _pTree->nrow; 
                    i++;
                    if (i == pShape->area)
                       break; 
@@ -655,11 +656,19 @@ void TreeOfShapes::synshape(int model, Shape pShape,Ccimage imgsyn, float *alpha
                 }
 
                 if( condition ){
-                    if (xi<0 || xi>= imgsyn->ncol || yi<0 || yi>= imgsyn->nrow )
+            
+                    if (model ==0){
+                       if (xi_e<0 || xi_e>= imgsyn->ncol || yi_e<0 || yi_e>= imgsyn->nrow )
                         continue;
+                       xsh = xi_e + shiftsh*cos( PI*(*reliefOrentation)/180.0 );
+                       ysh = yi_e - shiftsh*sin( PI*(*reliefOrentation)/180.0 );
+                    } else{
+                       if (xi<0 || xi>= imgsyn->ncol || yi<0 || yi>= imgsyn->nrow )
+                        continue;
+                       xsh = xi + shiftsh*cos( PI*(*reliefOrentation)/180.0 );
+                       ysh = yi - shiftsh*sin( PI*(*reliefOrentation)/180.0 );
+                    }
 
-                    xsh = xi + shiftsh*cos( PI*(*reliefOrentation)/180.0 );
-                    ysh = yi - shiftsh*sin( PI*(*reliefOrentation)/180.0 );
                     xsh = _MAX(0, xsh);
                     xsh = _MIN(imgsyn->ncol - 1, xsh);
                     ysh = _MAX(0, ysh);
@@ -693,27 +702,12 @@ void TreeOfShapes::synshape(int model, Shape pShape,Ccimage imgsyn, float *alpha
 
                 xi_e = floor(xShift + x0temp + xr);
                 yi_e = floor(yShift + y0temp + yr);
-                condition = xi_e>= 0 && xi_e< _pTree->ncol && yi_e>= 0 && yi_e< _pTree->nrow; //true
+
+                condition = xi_e>= 0 && xi_e< _pTree->ncol && yi_e>= 0 && yi_e< _pTree->nrow; 
                 i++;
                 if (i == pShape->area)
                     break; 
                 
-                //Parte agregada
-                /*
-                if(xi_e>= 0 && xi_e< _pTree->ncol && yi_e>= 0 && yi_e< _pTree->nrow){
-                    int aux = yi_e * _pTree->ncol + xi_e;
-
-                    tR = ((float) imgsyn->red[aux])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->r;
-                    imgsyn->red[aux] = (int) tR; 
-
-                    tG = ((float) imgsyn->green[aux])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->g;
-                    imgsyn->green[aux] = (int) tG; 
-
-                    tB = ((float) imgsyn->blue[aux])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->b;
-                    imgsyn->blue[aux] = (int) tB;
-                }
-                */
-                // Fin parte agregada
             } else {
                 xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
                 yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
@@ -727,7 +721,6 @@ void TreeOfShapes::synshape(int model, Shape pShape,Ccimage imgsyn, float *alpha
             }
 
             if(condition){
-                int aux;
                 if (model ==0)
                    aux = yi_e * _pTree->ncol + xi_e;
                 else
