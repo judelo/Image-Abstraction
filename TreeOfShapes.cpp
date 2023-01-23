@@ -483,10 +483,21 @@ void TreeOfShapes::synshape(int model, Shape pShape,
                 xi_e = floor(xShift + x0temp + xr);
                 yi_e = floor(yShift + y0temp + yr);
 
-                condition = true; 
+                condition = false; 
                 i++;
                 if (i == pShape->area)
                     break; 
+
+                if(xi_e<0 || xi_e>= imgShapeLabelSyn->ncol ||
+                        yi_e<0 || yi_e>= imgShapeLabelSyn->nrow )
+                    continue;
+
+                imgShapeLabelSyn->gray[yi_e*imgShapeLabelSyn->ncol + xi_e] = 1;
+
+                left   = _MIN(xi_e, left);
+                top    = _MIN(yi_e, top);
+                right  = _MAX(xi_e, right);
+                bottom = _MAX(yi_e, bottom);
             } else {
                 xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
                 yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
