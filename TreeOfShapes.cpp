@@ -693,24 +693,26 @@ void TreeOfShapes::synshape(int model, Shape pShape,Ccimage imgsyn, float *alpha
 
                 xi_e = floor(xShift + x0temp + xr);
                 yi_e = floor(yShift + y0temp + yr);
-                condition = false; //true
+                condition = xi_e>= 0 && xi_e< _pTree->ncol && yi_e>= 0 && yi_e< _pTree->nrow; //true
                 i++;
                 if (i == pShape->area)
                     break; 
                 
                 //Parte agregada
-                //if(xi_e>= 0 && xi_e< _pTree->ncol && yi_e>= 0 && yi_e< _pTree->nrow){
-                int aux = yi_e * _pTree->ncol + xi_e;
+                /*
+                if(xi_e>= 0 && xi_e< _pTree->ncol && yi_e>= 0 && yi_e< _pTree->nrow){
+                    int aux = yi_e * _pTree->ncol + xi_e;
 
-                tR = ((float) imgsyn->red[aux])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->r;
-                imgsyn->red[aux] = (int) tR; 
+                    tR = ((float) imgsyn->red[aux])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->r;
+                    imgsyn->red[aux] = (int) tR; 
 
-                tG = ((float) imgsyn->green[aux])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->g;
-                imgsyn->green[aux] = (int) tG; 
+                    tG = ((float) imgsyn->green[aux])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->g;
+                    imgsyn->green[aux] = (int) tG; 
 
-                tB = ((float) imgsyn->blue[aux])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->b;
-                imgsyn->blue[aux] = (int) tB;
-                //}
+                    tB = ((float) imgsyn->blue[aux])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->b;
+                    imgsyn->blue[aux] = (int) tB;
+                }
+                */
                 // Fin parte agregada
             } else {
                 xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
@@ -725,15 +727,20 @@ void TreeOfShapes::synshape(int model, Shape pShape,Ccimage imgsyn, float *alpha
             }
 
             if(condition){
+                int aux;
+                if (model ==0)
+                   aux = yi_e * _pTree->ncol + xi_e;
+                else
+                   aux = yi*_pTree->ncol + xi;
 
-                tR = ((float) imgsyn->red[yi*_pTree->ncol + xi])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->r;
-                imgsyn->red[yi*_pTree->ncol + xi] = (int) tR;  
+                tR = ((float) imgsyn->red[aux])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->r;
+                    imgsyn->red[aux] = (int) tR; 
 
-                tG = ((float) imgsyn->green[yi*_pTree->ncol + xi])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->g;
-                imgsyn->green[yi*_pTree->ncol + xi] = (int) tG;  
+                tG = ((float) imgsyn->green[aux])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->g;
+                imgsyn->green[aux] = (int) tG; 
 
-                tB = ((float) imgsyn->blue[yi*_pTree->ncol + xi])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->b;
-                imgsyn->blue[yi*_pTree->ncol + xi] = (int) tB;
+                tB = ((float) imgsyn->blue[aux])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->b;
+                imgsyn->blue[aux] = (int) tB;
             }
         }
         if ((i == pShape->area) && (model == 0))
