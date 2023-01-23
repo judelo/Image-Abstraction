@@ -1684,7 +1684,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
     Cfimage imgShapeColorSyn, imgDict;
     Fimage imgShapeBlur, imgShapeBlurSyn;
     Fsignal t2b_index, gaussKernel, dictionary_correspondance;
-    bool correspondance_computed = false;
 
     // Define synthesis image
     Ccimage imgsyn = mw_change_ccimage(imgsyn, _imgin->nrow, _imgin->ncol);
@@ -1757,26 +1756,13 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
         mw_clear_cimage(imgShapeLabelSyn,0);
         mw_clear_fimage(imgShapeBlurSyn,0.0);
 
-        // Check if correspondance computed for dictionary 
+        // Compute kd-tree to perform efficient search to compute matching shapes between shapes of images - shapes of dictionary.  
         if  ( ((dictionary_correspondance = mw_new_fsignal()) == NULL) ||(mw_alloc_fsignal(dictionary_correspondance,_pTree->nb_shapes) == NULL) )
             mwerror(FATAL,1,"Not enough memory.\n");
-
-        std::map<int, Fsignal>::iterator it = _dictionary_selections.find( tosDictionary->getTreeId() );
-
-        if( it != _dictionary_selections.end() ){
-            mw_copy_fsignal_values(it->second, dictionary_correspondance);
-            correspondance_computed = true;
-        } else {
-            if  ( ((_dictionary_selections[ tosDictionary->getTreeId() ] = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(_dictionary_selections[ tosDictionary->getTreeId() ],_pTree->nb_shapes) == NULL) )
-                mwerror(FATAL,1,"Not enough memory.\n");
-            mw_clear_fsignal(_dictionary_selections[ tosDictionary->getTreeId() ],-1.0);
-            tosDictionary->computeKdTree(_average_r, _average_g, _average_b);
-        }
-
-        if (correspondance_computed)
-            std::cout << "CC - inicial" << std::endl; 
-        else
-            std::cout << "NOT CC - inicial" << std::endl; 
+        if  ( ((_dictionary_selections[ tosDictionary->getTreeId() ] = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(_dictionary_selections[ tosDictionary->getTreeId() ],_pTree->nb_shapes) == NULL) )
+             mwerror(FATAL,1,"Not enough memory.\n");
+        mw_clear_fsignal(_dictionary_selections[ tosDictionary->getTreeId() ],-1.0);
+        tosDictionary->computeKdTree(_average_r, _average_g, _average_b);
     }
 
     // Add a random shift to each shape 
@@ -1826,20 +1812,8 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
                         synshape(modelToUse, pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
                 }
                 else{ // modelToUse ==4 -> Rendering Model: Dictionary
-                    if( correspondance_computed ){
-                        std::cout << "CC" << std::endl; 
-                        shape_id = (int)dictionary_correspondance->values[(int)t2b_index->values[i]];
-                        if ( shape_id >= 0 )
-                            pShapeDict = tosDictionary->getShape(shape_id);
-                        if ( pShapeDict == NULL || shape_id < 0 ){
-                            pShapeDict = tosDictionary->selectShapeDict(pShape, &dictionaryParameters.kappaDict, &dictionaryParameters.randS, shape_id, _average_r, _average_g, _average_b);
-                            _dictionary_selections[ tosDictionary->getTreeId() ]->values[(int)t2b_index->values[i]] = shape_id;
-                        }
-                    } else {
-                        std::cout << "NOT CC" << std::endl; 
-                        pShapeDict = tosDictionary->selectShapeDict(pShape, &dictionaryParameters.kappaDict, &dictionaryParameters.randS, shape_id, _average_r, _average_g, _average_b);
-                        dictionary_correspondance->values[(int)t2b_index->values[i]] = shape_id;
-                    }
+                    pShapeDict = tosDictionary->selectShapeDict(pShape, &dictionaryParameters.kappaDict, &dictionaryParameters.randS, shape_id, _average_r, _average_g, _average_b);
+                    dictionary_correspondance->values[(int)t2b_index->values[i]] = shape_id;
                     synShapeDict( pShapeDict, pShape, imgsyn, imgDict, imgShapeColorSyn, imgShapeLabel, imgShapeLabelSyn, imgShapeBlurSyn, gaussKernel, &tosParameters.median, &tosParameters.alpha, &dictionaryParameters.equal, &dictionaryParameters.mcolor,&tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
                 }
         }
