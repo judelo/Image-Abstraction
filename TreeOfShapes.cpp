@@ -416,7 +416,7 @@ void TreeOfShapes::synshape(int model, Shape pShape,
                                   int *relief,
                                   float *reliefOrentation, float *reliefHeight){
 
-    int xi, yi, x, y;
+    int xi, yi, x, y, aux, i;
     float ALPHA, BETA, a, b, x0temp, y0temp, top, right, left, bottom, phi, xi_e, yi_e;
     float xShift, yShift, theta, tR, tG, tB, TR, TG, TB, tr, tg, tb;
     bool condition;
@@ -434,7 +434,14 @@ void TreeOfShapes::synshape(int model, Shape pShape,
     phi = ((Info*)(pShape->data))->oren;
 
     // Compute limits of shape before shaking
-    if (model == 1){ //Ellipse
+    if (model == 0){ //Original
+        left   = (float)(imgShapeLabelSyn->ncol-1);
+        right  = 0.0;
+        top    = (float)(imgShapeLabelSyn->nrow-1);;
+        bottom = 0.0;
+        x0temp = (((Info*)(pShape->data))->x0);
+        y0temp = (((Info*)(pShape->data))->y0);
+    } else if (model == 1){ //Ellipse
         a = 2.0 * sqrt(((Info*)(pShape->data))->lambda1);
         b = 2.0 * sqrt(((Info*)(pShape->data))->lambda2);
         left   = _MAX(0, x0temp - a);
@@ -462,29 +469,49 @@ void TreeOfShapes::synshape(int model, Shape pShape,
     TG  = ((Info*)(pShape->data))->g;
     TB  = ((Info*)(pShape->data))->b;
 
+    i =0;
     for( xi= ceil(left); xi<= right; xi++)
         for( yi= ceil(top); yi<= bottom; yi++){
-            xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
-            yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
+            
+            if (model == 0){ //Original
+                x = ((pShape->pixels+i)->x);
+                y = ((pShape->pixels+i)->y);
 
-            if (model == 1){ //Ellipse
-                condition = ( xi_e*xi_e/(a*a) + yi_e*yi_e/(b*b) <= 1 );
-            } else if (model == 2){ //Rectangle
-                condition = ( xi_e >= -a && xi_e <= +a && yi_e >= -b && yi_e <= +b );
-            }else if (model == 3){ //Circle
-                condition = ( xi_e*xi_e/(b*b) + yi_e*yi_e/(b*b) <= 1 );
-            };
+                xr = (x - x0temp)*cos(theta) + (y - y0temp)*sin(theta);
+                yr = (y - y0temp)*cos(theta) - (x - x0temp)*sin(theta);
+
+                xi_e = floor(xShift + x0temp + xr);
+                yi_e = floor(yShift + y0temp + yr);
+
+                condition = true; 
+                i++;
+                if (i == pShape->area)
+                    break; 
+            } else {
+                xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
+                yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
+            
+                if (model == 1){ //Ellipse
+                    condition = ( xi_e*xi_e/(a*a) + yi_e*yi_e/(b*b) <= 1 );
+                } else if (model == 2){ //Rectangle
+                    condition = ( xi_e >= -a && xi_e <= +a && yi_e >= -b && yi_e <= +b );
+                }else if (model == 3){ //Circle
+                    condition = ( xi_e*xi_e/(b*b) + yi_e*yi_e/(b*b) <= 1 );
+                };
+                xi_e = xi;
+                yi_e = yi;
+            }
 
             if( condition ){
-                if ((xi<0 || xi>= imgsyn->ncol || yi<0 || yi>= imgsyn->nrow ))
+                if ((xi_e<0 || xi_e>= imgsyn->ncol || yi_e<0 || yi_e>= imgsyn->nrow ))
                     continue;
+                aux = yi_e * imgShapeLabelSyn->ncol + xi_e;
+                imgShapeLabelSyn->gray[aux] = 1;
 
-                imgShapeLabelSyn->gray[yi*imgShapeLabelSyn->ncol + xi] = 1;
-
-                left   = _MIN(xi, left);
-                top    = _MIN(yi, top);
-                right  = _MAX(xi, right);
-                bottom = _MAX(yi, bottom);
+                left   = _MIN(xi_e, left);
+                top    = _MIN(yi_e, top);
+                right  = _MAX(xi_e, right);
+                bottom = _MAX(yi_e, bottom);
             }
         }
 
@@ -1876,8 +1903,8 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
 
                     if(tosParameters.blur == 0)
                        synshape(modelToUse, pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
-                    else if (modelToUse == 0)
-                        synshapeOriginal(pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
+                    else if (modelToUse == 0) //Original
+                        synshape(modelToUse, pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
                     else 
                         synshape(modelToUse, pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
                 }
