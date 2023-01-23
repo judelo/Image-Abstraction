@@ -700,8 +700,9 @@ void TreeOfShapes::synshape(int model, Shape pShape,Ccimage imgsyn, float *alpha
                 
                 //Parte agregada
                 if(xi_e>= 0 && xi_e< _pTree->ncol && yi_e>= 0 && yi_e< _pTree->nrow){
-                    tR = ((float) imgsyn->red[yi_e*_pTree->ncol + xi_e])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->r;
                     int aux = yi_e * _pTree->ncol + xi_e;
+                    tR = ((float) imgsyn->red[aux])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->r;
+                    
                     imgsyn->red[aux] = (int)rint((double) tR);  
 
                     //tG = ((float) imgsyn->green[yi_e * _pTree->ncol + xi_e])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->g;
