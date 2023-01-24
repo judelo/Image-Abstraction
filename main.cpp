@@ -106,9 +106,9 @@ int main(int argc, char *argv[])
     int renderOrder_shapeabstraction=atoi(argv[12]);
     float alpha_shapeabstraction=atof(argv[13]);
 
-    std::stringstream ss(argv[14]);
+    std::stringstream ss1(argv[14]);
     bool options_watercolor;
-    ss >> std::boolalpha >> options_watercolor;
+    ss1 >> std::boolalpha >> options_watercolor;
     int color_sketch_watercolor=atoi(argv[15]);
     int mpixel_watercolor=atoi(argv[16]);
     int maxarea_watercolor=atoi(argv[17]);
@@ -118,9 +118,9 @@ int main(int argc, char *argv[])
     int renderOrder_watercolor=atoi(argv[21]);
     float alpha_watercolor=atof(argv[22]);
 
-    std::stringstream ss(argv[23]);
+    std::stringstream ss2(argv[23]);
     bool options_shaking;
-    ss >> std::boolalpha >> options_shaking;
+    ss2 >> std::boolalpha >> options_shaking;
     int color_sketch_shaking=atoi(argv[24]);
     int mpixel_shaking=atoi(argv[25]);
     int maxarea_shaking=atoi(argv[26]);
@@ -130,9 +130,9 @@ int main(int argc, char *argv[])
     int renderOrder_shaking=atoi(argv[30]);
     float alpha_shaking=atof(argv[31]);
 
-    std::stringstream ss(argv[32]);
+    std::stringstream ss3(argv[32]);
     bool options_shapefiltering;
-    ss >> std::boolalpha >> options_shapefiltering;
+    ss3 >> std::boolalpha >> options_shapefiltering;
     int color_sketch_shapefiltering=atoi(argv[33]);
     int mpixel_shapefiltering=atoi(argv[34]);
     int maxarea_shapefiltering=atoi(argv[35]);
@@ -142,9 +142,9 @@ int main(int argc, char *argv[])
     int renderOrder_shapefiltering=atoi(argv[39]);
     float alpha_shapefiltering=atof(argv[40]);
 
-    std::stringstream ss(argv[41]);
+    std::stringstream ss4(argv[41]);
     bool options_styletransfer;
-    ss >> std::boolalpha >> options_styletransfer;
+    ss4 >> std::boolalpha >> options_styletransfer;
     int color_sketch_styletransfer=atoi(argv[42]);
     int mpixel_styletransfer=atoi(argv[43]);
     int maxarea_styletransfer=atoi(argv[44]);
