@@ -1320,13 +1320,17 @@ void TreeOfShapes::filter_shapes( Cfimage out, char *local, float *eps){
 
 
 // Filter the image  
-void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpixel){
+void TreeOfShapes::filter_image(int *ns,float *threshold,float *minarea,float *maxarea, int totalSize){
     // Declare variables here
     int i, nn;
-    float elong, elong_pre, kappa, kappa_pre, oren, oren_pre, sca, sca_pre, Dist, thre, CONTR;
+    float elong, elong_pre, kappa, kappa_pre, oren, oren_pre, sca, sca_pre, Dist, thre, CONTR, mpixel, maxpixel;
     Shape pShape;
     thre = *threshold;
     nn = *ns;
+
+    // Define size in pixels for filtering shapes
+    mpixel = totalSize * (*minarea) / 100;
+    maxpixel = totalSize * (*maxarea) / 100;
 
     compute_shape_attribute(&nn);
 
@@ -1356,7 +1360,7 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,int *mpixel,int *maxpix
                     (oren - oren_pre)*(oren - oren_pre)/(PI*PI) +
                     (1 - _MIN(sca_pre/sca, sca/sca_pre))*(1 - _MIN(sca_pre/sca, sca/sca_pre)))/4;
 
-        if(pShape->area <= *mpixel || *maxpixel < pShape->area || (((Info*)(pShape->data))->attribute[0])*CONTR<= thre || Dist*CONTR < 0.)
+        if(pShape->area <= mpixel || maxpixel < pShape->area || (((Info*)(pShape->data))->attribute[0])*CONTR<= thre || Dist*CONTR < 0.)
             pShape->removed = 1;
         else
             pShape->removed = 0;
@@ -1678,7 +1682,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
     std::cout <<"TreeOfShapes::Abstraction started"<< std::endl;
 
     //Declare variables
-    int i,j, modelToUse, shape_id;
+    int i,j, modelToUse, shape_id, totalSize;
     Shape pShape, pShapeTemp, pShapeDict;  
     Cimage imgShapeLabel, imgShapeLabelSyn;
     Cfimage imgShapeColorSyn, imgDict;
@@ -1696,7 +1700,8 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
 
     // Image filtering    
     std::cout << "Image filtering" << std::endl;
-    filter_image(&tosParameters.ns,&tosParameters.threshold, &tosParameters.mpixel, &tosParameters.maxarea);
+    totalSize = _imgin->nrow * _imgin->ncol;
+    filter_image(&tosParameters.ns,&tosParameters.threshold, &tosParameters.minarea, &tosParameters.maxarea, totalSize);
 
     // Select the rendering order 
     std::cout << "Rendering order " << tosParameters.order <<std::endl;
