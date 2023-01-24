@@ -1798,17 +1798,16 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
                 if(((float) pShape->area)/((float) pShapeTemp->area) < tosParameters.kappa)
                     continue;
 
+                // Verify if some point of the mask touch the shape. 
+                modelToUse = tosParameters.model;
+                for (j=0; j<_len_ArrayPixelsMask; j++)
+                    if (point_in_shape((&_ArrayPixelsMask[j])->x, (&_ArrayPixelsMask[j])->y, pShape, _pTree)){
+                        modelToUse = alternative_model;
+                        break;
+                    };
+
                 // Modification of shape according to model
                 if (tosParameters.model < 4){ // Rendering Model: Original, Rectangle, Ellipse or Circular
-
-                    // Verify if some point of the mask touch the shape. 
-                    modelToUse = tosParameters.model;
-                    for (j=0; j<_len_ArrayPixelsMask; j++)
-                        if (point_in_shape((&_ArrayPixelsMask[j])->x, (&_ArrayPixelsMask[j])->y, pShape, _pTree)){
-                            modelToUse = alternative_model;
-                            break;
-                        }; 
-
                     if(tosParameters.blur == 0)
                        synshape(modelToUse, pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
                     else if (modelToUse == 0)
