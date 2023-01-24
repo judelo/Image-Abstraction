@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
     char * mcolor_char = argv[9];             // Select de source of color
     char * equal_char = argv[10];              // Scaling shape with equal aspect ratio or not
     char * kappaDict_char = argv[11];          // Compactness parameter of the attribute filtering on the transferred image
-    char * mpixel_char = argv[12];             // minimal area (in pixel) for FLST
+    char * minarea_char = argv[12];             // minimal area (in pixel) for FLST
     char * maxarea_char = argv[13];             // maximal area (in pixel) for FLST
     char * ScaleRatio_char = argv[14];          // "scale ratio order for color filtering",
     char * Threshold_char = argv[15];           // "threshold for color filtering",
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
     int mcolor = atoi(mcolor_char);
     int equal = atoi(equal_char);
     float kappaDict = atof(kappaDict_char);
-    int mpixel = atoi(mpixel_char);
+    int minarea = atoi(minarea_char);
     int maxarea = atoi(maxarea_char);
     int ScaleRatio = atoi(ScaleRatio_char);
     int Threshold = atoi(Threshold_char);
@@ -98,8 +98,8 @@ int main(int argc, char *argv[])
     bool options_shapeabstraction;
     ss >> std::boolalpha >> options_shapeabstraction;
     int color_sketch_shapeabstraction=atoi(argv[6]);
-    int mpixel_shapeabstraction=atoi(argv[7]);
-    int maxarea_shapeabstraction=atoi(argv[8]);
+    int minarea_shapeabstraction=atof(argv[7]);
+    int maxarea_shapeabstraction=atof(argv[8]);
     int scaleratio_shapeabstraction=atoi(argv[9]);
     float threshold_shapeabstraction=atof(argv[10]);
     float eps_shapeabstraction=atof(argv[11]);
@@ -110,8 +110,8 @@ int main(int argc, char *argv[])
     bool options_watercolor;
     ss1 >> std::boolalpha >> options_watercolor;
     int color_sketch_watercolor=atoi(argv[15]);
-    int mpixel_watercolor=atoi(argv[16]);
-    int maxarea_watercolor=atoi(argv[17]);
+    int minarea_watercolor=atof(argv[16]);
+    int maxarea_watercolor=atof(argv[17]);
     int scaleratio_watercolor=atoi(argv[18]);
     float threshold_watercolor=atof(argv[19]);
     float eps_watercolor=atof(argv[20]);
@@ -122,8 +122,8 @@ int main(int argc, char *argv[])
     bool options_shaking;
     ss2 >> std::boolalpha >> options_shaking;
     int color_sketch_shaking=atoi(argv[24]);
-    int mpixel_shaking=atoi(argv[25]);
-    int maxarea_shaking=atoi(argv[26]);
+    int minarea_shaking=atof(argv[25]);
+    int maxarea_shaking=atof(argv[26]);
     int scaleratio_shaking=atoi(argv[27]);
     float threshold_shaking=atof(argv[28]);
     float eps_shaking=atof(argv[29]);
@@ -134,8 +134,8 @@ int main(int argc, char *argv[])
     bool options_shapefiltering;
     ss3 >> std::boolalpha >> options_shapefiltering;
     int color_sketch_shapefiltering=atoi(argv[33]);
-    int mpixel_shapefiltering=atoi(argv[34]);
-    int maxarea_shapefiltering=atoi(argv[35]);
+    int minarea_shapefiltering=atof(argv[34]);
+    int maxarea_shapefiltering=atof(argv[35]);
     int scaleratio_shapefiltering=atoi(argv[36]);
     float threshold_shapefiltering=atof(argv[37]);
     float eps_shapefiltering=atof(argv[38]);
@@ -146,8 +146,8 @@ int main(int argc, char *argv[])
     bool options_styletransfer;
     ss4 >> std::boolalpha >> options_styletransfer;
     int color_sketch_styletransfer=atoi(argv[42]);
-    int mpixel_styletransfer=atoi(argv[43]);
-    int maxarea_styletransfer=atoi(argv[44]);
+    int minarea_styletransfer=atof(argv[43]);
+    int maxarea_styletransfer=atof(argv[44]);
     int scaleratio_styletransfer=atoi(argv[45]);
     float threshold_styletransfer=atof(argv[46]);
     float eps_styletransfer=atof(argv[47]);
@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
             TOSParameters.order = renderOrder_shapeabstraction;
             TOSParameters.alpha = alpha_shapeabstraction;
             TOSParameters.color_sketch = color_sketch_shapeabstraction; 
-            TOSParameters.mpixel = mpixel_shapeabstraction;
+            TOSParameters.minarea = minarea_shapeabstraction;
             TOSParameters.maxarea = maxarea_shapeabstraction;
             TOSParameters.eps = eps_shapeabstraction;
             TOSParameters.threshold = threshold_shapeabstraction;
@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
             TOSParameters.order = renderOrder_watercolor;
             TOSParameters.alpha = alpha_watercolor;
             TOSParameters.color_sketch = color_sketch_watercolor; 
-            TOSParameters.mpixel = mpixel_watercolor;
+            TOSParameters.minarea = minarea_watercolor;
             TOSParameters.maxarea = maxarea_watercolor;
             TOSParameters.eps = eps_watercolor;
             TOSParameters.threshold = threshold_watercolor;
@@ -207,7 +207,7 @@ int main(int argc, char *argv[])
             TOSParameters.order = renderOrder_shaking;
             TOSParameters.alpha = alpha_shaking;
             TOSParameters.color_sketch = color_sketch_shaking; 
-            TOSParameters.mpixel = mpixel_shaking;
+            TOSParameters.minarea = minarea_shaking;
             TOSParameters.maxarea = maxarea_shaking;
             TOSParameters.eps = eps_shaking;
             TOSParameters.threshold = threshold_shaking;
@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
             TOSParameters.order = renderOrder_shapefiltering;
             TOSParameters.alpha = alpha_shapefiltering;
             TOSParameters.color_sketch = color_sketch_shapefiltering; 
-            TOSParameters.mpixel = mpixel_shapefiltering;
+            TOSParameters.minarea = minarea_shapefiltering;
             TOSParameters.maxarea = maxarea_shapefiltering;
             TOSParameters.eps = eps_shapefiltering;
             TOSParameters.threshold = threshold_shapefiltering;
@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
             TOSParameters.order = renderOrder_styletransfer;
             TOSParameters.alpha = alpha_styletransfer;
             TOSParameters.color_sketch = color_sketch_styletransfer; 
-            TOSParameters.mpixel = mpixel_styletransfer;
+            TOSParameters.minarea = minarea_styletransfer;
             TOSParameters.maxarea = maxarea_styletransfer;
             TOSParameters.eps = eps_styletransfer;
             TOSParameters.threshold = threshold_styletransfer;
