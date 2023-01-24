@@ -1807,7 +1807,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
                     };
 
                 // Modification of shape according to model
-                if (tosParameters.model < 4){ // Rendering Model: Original, Rectangle, Ellipse or Circular
+                if (modelToUse < 4){ // Rendering Model: Original, Rectangle, Ellipse or Circular
                     if(tosParameters.blur == 0)
                        synshape(modelToUse, pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
                     else if (modelToUse == 0)
