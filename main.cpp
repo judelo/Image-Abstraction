@@ -50,6 +50,7 @@ int main(int argc, char *argv[])
 {
     
     // Read input parameters
+    /*
     char * file_name = argv[1];               // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/bordeauxResize.jpg"
     char * mode_char = argv[2];               // Task Abstraction: 0; Watercolor:1; Shaking: 2; Shape smoothing:3; Style transfer:4;
     char * model_char = argv[3];              // Synthesis model: orignal shape: m=0; ellipse: m=1; rectangle: m=2; circle m=3,  dictionary m=4, random: m=5 (not use);
@@ -86,7 +87,79 @@ int main(int argc, char *argv[])
     int eps = atoi(eps_char);
     int alternative_model = atoi(alternative_model_char);
     bool advanceOptions;
-    ss >> std::boolalpha >> advanceOptions;
+    ss >> std::boolalpha >> advanceOptions;*/
+
+    char * file_name = argv[1];
+    int mode = atoi(argv[2]);
+    int model = atoi(argv[3]);
+    int alternative_model = atoi(argv[4]);
+
+    std::stringstream ss(argv[5]);
+    bool options_shapeabstraction;
+    ss >> std::boolalpha >> options_shapeabstraction;
+    int color_sketch_shapeabstraction=atoi(argv[6]);
+    int mpixel_shapeabstraction=atoi(argv[7]);
+    int maxarea_shapeabstraction=atoi(argv[8]);
+    int scaleratio_shapeabstraction=atoi(argv[9]);
+    float threshold_shapeabstraction=atof(argv[10]);
+    float eps_shapeabstraction=atof(argv[11]);
+    int renderOrder_shapeabstraction=atoi(argv[12]);
+    float alpha_shapeabstraction=atof(argv[13]);
+
+    std::stringstream ss(argv[14]);
+    bool options_watercolor;
+    ss >> std::boolalpha >> options_watercolor;
+    int color_sketch_watercolor=atoi(argv[15]);
+    int mpixel_watercolor=atoi(argv[16]);
+    int maxarea_watercolor=atoi(argv[17]);
+    int scaleratio_watercolor=atoi(argv[18]);
+    float threshold_watercolor=atof(argv[19]);
+    float eps_watercolor=atof(argv[20]);
+    int renderOrder_watercolor=atoi(argv[21]);
+    float alpha_watercolor=atof(argv[22]);
+
+    std::stringstream ss(argv[23]);
+    bool options_shaking;
+    ss >> std::boolalpha >> options_shaking;
+    int color_sketch_shaking=atoi(argv[24]);
+    int mpixel_shaking=atoi(argv[25]);
+    int maxarea_shaking=atoi(argv[26]);
+    int scaleratio_shaking=atoi(argv[27]);
+    float threshold_shaking=atof(argv[28]);
+    float eps_shaking=atof(argv[29]);
+    int renderOrder_shaking=atoi(argv[30]);
+    float alpha_shaking=atof(argv[31]);
+
+    std::stringstream ss(argv[32]);
+    bool options_shapefiltering;
+    ss >> std::boolalpha >> options_shapefiltering;
+    int color_sketch_shapefiltering=atoi(argv[33]);
+    int mpixel_shapefiltering=atoi(argv[34]);
+    int maxarea_shapefiltering=atoi(argv[35]);
+    int scaleratio_shapefiltering=atoi(argv[36]);
+    float threshold_shapefiltering=atof(argv[37]);
+    float eps_shapefiltering=atof(argv[38]);
+    int renderOrder_shapefiltering=atoi(argv[39]);
+    float alpha_shapefiltering=atof(argv[40]);
+
+    std::stringstream ss(argv[41]);
+    bool options_styletransfer;
+    ss >> std::boolalpha >> options_styletransfer;
+    int color_sketch_styletransfer=atoi(argv[42]);
+    int mpixel_styletransfer=atoi(argv[43]);
+    int maxarea_styletransfer=atoi(argv[44]);
+    int scaleratio_styletransfer=atoi(argv[45]);
+    float threshold_styletransfer=atof(argv[46]);
+    float eps_styletransfer=atof(argv[47]);
+    int renderOrder_styletransfer=atoi(argv[48]);
+    float alpha_styletransfer=atof(argv[49]);
+    int modelDictionary = atoi(argv[50]); 
+    int mcolor = atoi(argv[51]);
+    int equal = atoi(argv[52]);
+    float kappaDict = atof(argv[53]);
+
+    char * dictionary_file_name = argv[54];    // Something like: "/mnt/data/lbouza/Image-Abstraction-Modif/VanGogh.jpg"
+    char * mask_file_name = argv[55];  
     
     // Load Image
     QImage image(file_name);
@@ -103,40 +176,79 @@ int main(int argc, char *argv[])
     
     if( mode==0 ){
         TOSParameters = getAbstractionTOSParameters();
-        std::cout << "Abstraction " << std::endl;
+        std::cout << "Shape abstraction " << std::endl;
+        if (options_shapeabstraction){
+            TOSParameters.order = renderOrder_shapeabstraction;
+            TOSParameters.alpha = alpha_shapeabstraction;
+            TOSParameters.color_sketch = color_sketch_shapeabstraction; 
+            TOSParameters.mpixel = mpixel_shapeabstraction;
+            TOSParameters.maxarea = maxarea_shapeabstraction;
+            TOSParameters.eps = eps_shapeabstraction;
+            TOSParameters.threshold = threshold_shapeabstraction;
+            TOSParameters.ns = scaleratio_shapeabstraction;
+        }
     } else if( mode==1 ){
         std::cout << "Watercolor " << std::endl;
         TOSParameters =  getWaterColorTOSParameters();
+        if (options_watercolor){
+            TOSParameters.order = renderOrder_watercolor;
+            TOSParameters.alpha = alpha_watercolor;
+            TOSParameters.color_sketch = color_sketch_watercolor; 
+            TOSParameters.mpixel = mpixel_watercolor;
+            TOSParameters.maxarea = maxarea_watercolor;
+            TOSParameters.eps = eps_watercolor;
+            TOSParameters.threshold = threshold_watercolor;
+            TOSParameters.ns = scaleratio_watercolor;
+        }
     } else if( mode==2 ){
         std::cout << "Shaking " << std::endl;
         TOSParameters =  getShapeShakingTOSParameters();
+        if (options_shaking){
+            TOSParameters.order = renderOrder_shaking;
+            TOSParameters.alpha = alpha_shaking;
+            TOSParameters.color_sketch = color_sketch_shaking; 
+            TOSParameters.mpixel = mpixel_shaking;
+            TOSParameters.maxarea = maxarea_shaking;
+            TOSParameters.eps = eps_shaking;
+            TOSParameters.threshold = threshold_shaking;
+            TOSParameters.ns = scaleratio_shaking;
+        }
     } else if( mode==3 ){
-        std::cout << "Shape smoothing " << std::endl;
+        std::cout << "Shape filtering " << std::endl;
         TOSParameters =  getShapeSmoothingTOSParameters();
+        if (options_shapefiltering){
+            TOSParameters.order = renderOrder_shapefiltering;
+            TOSParameters.alpha = alpha_shapefiltering;
+            TOSParameters.color_sketch = color_sketch_shapefiltering; 
+            TOSParameters.mpixel = mpixel_shapefiltering;
+            TOSParameters.maxarea = maxarea_shapefiltering;
+            TOSParameters.eps = eps_shapefiltering;
+            TOSParameters.threshold = threshold_shapefiltering;
+            TOSParameters.ns = scaleratio_shapefiltering;
+        }
     } else if( mode==4 ){
         std::cout << "Style transfer " << std::endl;
         TOSParameters =  getStyleTransferTOSParameters();
         model= 4;
+        if (options_styletransfer){
+            TOSParameters.order = renderOrder_styletransfer;
+            TOSParameters.alpha = alpha_styletransfer;
+            TOSParameters.color_sketch = color_sketch_styletransfer; 
+            TOSParameters.mpixel = mpixel_styletransfer;
+            TOSParameters.maxarea = maxarea_styletransfer;
+            TOSParameters.eps = eps_styletransfer;
+            TOSParameters.threshold = threshold_styletransfer;
+            TOSParameters.ns = scaleratio_styletransfer;
+        }
     };
 
     TOSParameters.model = model; 
-
-    if (advanceOptions){
-       TOSParameters.order = renderOrder;
-       TOSParameters.alpha = alpha;
-       TOSParameters.color_sketch = color_sketch; 
-       TOSParameters.mpixel = mpixel;
-       TOSParameters.maxarea = maxarea;
-       TOSParameters.eps = eps;
-       TOSParameters.threshold = Threshold;
-       TOSParameters.ns = ScaleRatio;
-    };
     
     if (model == 4) { 
         // Load dictionary parameters
         DictionaryParameters dictionaryParameters = getDefaultDictionaryParameters();
 
-        if (advanceOptions){
+        if (options_styletransfer){
             dictionaryParameters.randS = modelDictionary;
             dictionaryParameters.mcolor = mcolor;
             dictionaryParameters.equal = equal; 
