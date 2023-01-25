@@ -138,10 +138,10 @@ int main(int argc, char *argv[])
     if( mode==0 ){
         TOSParameters = getAbstractionTOSParameters();
         std::cout << "Shape abstraction " << std::endl;
+        TOSParameters.color_sketch = color_sketch_shapeabstraction;
         if (options_shapeabstraction){
             TOSParameters.order = renderOrder_shapeabstraction;
-            TOSParameters.alpha = alpha_shapeabstraction;
-            TOSParameters.color_sketch = color_sketch_shapeabstraction; 
+            TOSParameters.alpha = alpha_shapeabstraction; 
             TOSParameters.minarea = minarea_shapeabstraction;
             TOSParameters.maxarea = maxarea_shapeabstraction;
             TOSParameters.eps = eps_shapeabstraction;
@@ -151,10 +151,10 @@ int main(int argc, char *argv[])
     } else if( mode==1 ){
         std::cout << "Watercolor " << std::endl;
         TOSParameters =  getWaterColorTOSParameters();
+        TOSParameters.color_sketch = color_sketch_watercolor; 
         if (options_watercolor){
             TOSParameters.order = renderOrder_watercolor;
             TOSParameters.alpha = alpha_watercolor;
-            TOSParameters.color_sketch = color_sketch_watercolor; 
             TOSParameters.minarea = minarea_watercolor;
             TOSParameters.maxarea = maxarea_watercolor;
             TOSParameters.eps = eps_watercolor;
@@ -164,10 +164,10 @@ int main(int argc, char *argv[])
     } else if( mode==2 ){
         std::cout << "Shaking " << std::endl;
         TOSParameters =  getShapeShakingTOSParameters();
+        TOSParameters.color_sketch = color_sketch_shaking; 
         if (options_shaking){
             TOSParameters.order = renderOrder_shaking;
             TOSParameters.alpha = alpha_shaking;
-            TOSParameters.color_sketch = color_sketch_shaking; 
             TOSParameters.minarea = minarea_shaking;
             TOSParameters.maxarea = maxarea_shaking;
             TOSParameters.eps = eps_shaking;
@@ -177,10 +177,10 @@ int main(int argc, char *argv[])
     } else if( mode==3 ){
         std::cout << "Shape filtering " << std::endl;
         TOSParameters =  getShapeSmoothingTOSParameters();
+        TOSParameters.color_sketch = color_sketch_shapefiltering; 
         if (options_shapefiltering){
             TOSParameters.order = renderOrder_shapefiltering;
             TOSParameters.alpha = alpha_shapefiltering;
-            TOSParameters.color_sketch = color_sketch_shapefiltering; 
             TOSParameters.minarea = minarea_shapefiltering;
             TOSParameters.maxarea = maxarea_shapefiltering;
             TOSParameters.eps = eps_shapefiltering;
@@ -191,10 +191,10 @@ int main(int argc, char *argv[])
         std::cout << "Style transfer " << std::endl;
         TOSParameters =  getStyleTransferTOSParameters();
         model= 4;
+        TOSParameters.color_sketch = color_sketch_styletransfer; 
         if (options_styletransfer){
             TOSParameters.order = renderOrder_styletransfer;
             TOSParameters.alpha = alpha_styletransfer;
-            TOSParameters.color_sketch = color_sketch_styletransfer; 
             TOSParameters.minarea = minarea_styletransfer;
             TOSParameters.maxarea = maxarea_styletransfer;
             TOSParameters.eps = eps_styletransfer;
