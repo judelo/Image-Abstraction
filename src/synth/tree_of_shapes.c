@@ -167,7 +167,7 @@ TOSParameters getAbstractionTOSParameters (){
     tosParam.minarea=0.01; // minimal area (in percentage of full image) for FLST,
     tosParam.maxarea=100.0; // maximal area (in percentage of full image) for FLST,
     tosParam.kappa=0.; // compactness parameter of the attribute filtering on the orignal image",
-    tosParam.blur=0;  // "add blur effects, if blur =1",
+    tosParam.blur=1;  // "add blur effects, if blur =1",
     tosParam.median=3; // kernel size for median filter",
     tosParam.kerSize=3; // kernel size for Gaussian blur",
     tosParam.kerStd=0.5; // std for the gaussian kernel",
