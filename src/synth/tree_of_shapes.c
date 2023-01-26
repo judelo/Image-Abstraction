@@ -233,6 +233,6 @@ DictionaryParameters getDefaultDictionaryParameters (){
     dictionaryParam.paC2S=0.00; // "parameter for transfer: areaOFconnectcomponent / areaOFshape, if parameter < paC2S, shape is removed",
     dictionaryParam.paS2P=1.00; // "parameter for transfer: areaOFshape / areaOFshapeparent, if parameter > paS2P, shape is removed",
     dictionaryParam.kappaDict=0; // "compactness parameter of the attribute filtering on the transferred image",
-    dictionaryParameters.color_background=0; // color_background=0 use the color for background of tranferred image, otherwise use the color for background of the orignal image",
+    dictionaryParam.color_background=0; // color_background=0 use the color for background of tranferred image, otherwise use the color for background of the orignal image",
     return dictionaryParam;
 }
