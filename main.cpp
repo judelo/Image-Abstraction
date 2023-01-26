@@ -116,11 +116,12 @@ int main(int argc, char *argv[])
     float alpha_styletransfer=atof(argv[49]);
     int modelDictionary = atoi(argv[50]); 
     int mcolor = atoi(argv[51]);
-    int equal = atoi(argv[52]);
-    float kappaDict = atof(argv[53]);
+    int color_background = atoi(argv[52]);
+    int equal = atoi(argv[53]);
+    float kappaDict = atof(argv[54]);
 
-    char * dictionary_file_name = argv[54];
-    char * mask_file_name = argv[55];  
+    char * dictionary_file_name = argv[55];
+    char * mask_file_name = argv[56];  
     
     // Load Image
     QImage image(file_name);
@@ -214,6 +215,7 @@ int main(int argc, char *argv[])
             dictionaryParameters.mcolor = mcolor;
             dictionaryParameters.equal = equal; 
             dictionaryParameters.kappaDict = kappaDict; 
+            dictionaryParameters.color_background = color_background;
         };
 
         // Load dictionary of dictionary image
