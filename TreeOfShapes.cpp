@@ -1471,9 +1471,9 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
     //Declare variables
     int i,j, modelToUse, shape_id, totalSize;
     Shape pShape, pShapeTemp, pShapeDict;  
-    Cimage imgShapeLabel, imgShapeLabelSyn;
+    Cimage imgShapeLabel, imgShapeLabelDict;
     Cfimage imgShapeColorSyn, imgDict;
-    Fimage imgShapeBlur, imgShapeBlurSyn;
+    Fimage imgShapeBlur;
     Fsignal t2b_index, gaussKernel, dictionary_correspondance;
 
     // Define synthesis image
