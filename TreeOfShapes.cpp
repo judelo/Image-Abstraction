@@ -490,7 +490,7 @@ void TreeOfShapes::synshape(int model, Shape pShape,
             imgsyn->green[y*imgsyn->ncol + x] = (int) tG; 
             tB = ((float) imgsyn->blue[y*imgsyn->ncol + x])*ALPHA + (1-ALPHA)*tb;
             imgsyn->blue[y*imgsyn->ncol + x]  = (int) tB;
-            
+
             imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x]  = 0.0;
             imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] = 0;
         }
@@ -1524,37 +1524,28 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
         if  ( ((gaussKernel = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(gaussKernel, tosParameters.kerSize*tosParameters.kerSize) == NULL) )
             mwerror(FATAL,1,"Not enough memory.\n");
         gaussKernel = Sgauss(&tosParameters.kerStd, gaussKernel, &tosParameters.kerSize);
-    }
-    
-    // Sepcial resources needed if dictionary is selected
-    if( tosParameters.model == 4 ){
-        // Define auxiliar images for abstraction
-        imgDict = tosDictionary->getCfImage();
-        if  ( ((imgShapeColorSyn = mw_new_cfimage()) == NULL) || (mw_alloc_cfimage(imgShapeColorSyn, _imgin->nrow, _imgin->ncol) == NULL) )
-            mwerror(FATAL,1,"Not enough memory.\n");
-        if  ( ((imgShapeLabel = mw_new_cimage()) == NULL) || (mw_alloc_cimage(imgShapeLabel, imgDict->nrow, imgDict->ncol) == NULL) )
-            mwerror(FATAL,1,"Not enough memory.\n");
-        if  ( ((imgShapeLabelSyn = mw_new_cimage()) == NULL) || (mw_alloc_cimage(imgShapeLabelSyn, _imgin->nrow, _imgin->ncol) == NULL) )
-            mwerror(FATAL,1,"Not enough memory.\n");
-        if  ( ((imgShapeBlurSyn = mw_new_fimage()) == NULL) || (mw_alloc_fimage(imgShapeBlurSyn, _imgin->nrow, _imgin->ncol) == NULL) )
-            mwerror(FATAL,1,"Not enough memory.\n");
 
-        imgShapeColorSyn = mw_change_cfimage(imgShapeColorSyn, _imgin->nrow, _imgin->ncol);
-        imgShapeLabel = mw_change_cimage(imgShapeLabel, imgDict->nrow, imgDict->ncol);
-        imgShapeLabelSyn = mw_change_cimage(imgShapeLabelSyn, _imgin->nrow, _imgin->ncol);
-        imgShapeBlurSyn  = mw_change_fimage(imgShapeBlurSyn, _imgin->nrow, _imgin->ncol);
+        // Sepcial resources needed if dictionary is selected
+        if( tosParameters.model == 4 ){
+            // Define auxiliar images for abstraction
+            imgDict = tosDictionary->getCfImage();
+            if  ( ((imgShapeColorSyn = mw_new_cfimage()) == NULL) || (mw_alloc_cfimage(imgShapeColorSyn, _imgin->nrow, _imgin->ncol) == NULL) )
+                mwerror(FATAL,1,"Not enough memory.\n");
+            if  ( ((imgShapeLabelDict = mw_new_cimage()) == NULL) || (mw_alloc_cimage(imgShapeLabelDict, imgDict->nrow, imgDict->ncol) == NULL) )
+                mwerror(FATAL,1,"Not enough memory.\n");
 
-        mw_clear_cimage(imgShapeLabel,0);
-        mw_clear_cimage(imgShapeLabelSyn,0);
-        mw_clear_fimage(imgShapeBlurSyn,0.0);
+            imgShapeColorSyn = mw_change_cfimage(imgShapeColorSyn, _imgin->nrow, _imgin->ncol);
+            imgShapeLabelDict = mw_change_cimage(imgShapeLabelDict, imgDict->nrow, imgDict->ncol);
+            mw_clear_cimage(imgShapeLabelDict,0);
 
-        // Compute kd-tree to perform efficient search to compute matching shapes between shapes of images - shapes of dictionary.  
-        if  ( ((dictionary_correspondance = mw_new_fsignal()) == NULL) ||(mw_alloc_fsignal(dictionary_correspondance,_pTree->nb_shapes) == NULL) )
-            mwerror(FATAL,1,"Not enough memory.\n");
-        if  ( ((_dictionary_selections[ tosDictionary->getTreeId() ] = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(_dictionary_selections[ tosDictionary->getTreeId() ],_pTree->nb_shapes) == NULL) )
-             mwerror(FATAL,1,"Not enough memory.\n");
-        mw_clear_fsignal(_dictionary_selections[ tosDictionary->getTreeId() ],-1.0);
-        tosDictionary->computeKdTree(_average_r, _average_g, _average_b);
+            // Compute kd-tree to perform efficient search to compute matching shapes between shapes of images - shapes of dictionary.  
+            if  ( ((dictionary_correspondance = mw_new_fsignal()) == NULL) ||(mw_alloc_fsignal(dictionary_correspondance,_pTree->nb_shapes) == NULL) )
+                mwerror(FATAL,1,"Not enough memory.\n");
+            if  ( ((_dictionary_selections[ tosDictionary->getTreeId() ] = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(_dictionary_selections[ tosDictionary->getTreeId() ],_pTree->nb_shapes) == NULL) )
+                mwerror(FATAL,1,"Not enough memory.\n");
+            mw_clear_fsignal(_dictionary_selections[ tosDictionary->getTreeId() ],-1.0);
+            tosDictionary->computeKdTree(_average_r, _average_g, _average_b);
+        }
     }
 
     // Add a random shift to each shape 
@@ -1605,7 +1596,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
                 else{ // modelToUse ==4 -> Rendering Model: Dictionary
                     pShapeDict = tosDictionary->selectShapeDict(pShape, &dictionaryParameters.kappaDict, &dictionaryParameters.randS, shape_id, _average_r, _average_g, _average_b);
                     dictionary_correspondance->values[(int)t2b_index->values[i]] = shape_id;
-                    synShapeDict( pShapeDict, pShape, imgsyn, imgDict, imgShapeColorSyn, imgShapeLabel, imgShapeLabelSyn, imgShapeBlurSyn, gaussKernel, &tosParameters.median, &tosParameters.alpha, &dictionaryParameters.equal, &dictionaryParameters.mcolor);
+                    synShapeDict( pShapeDict, pShape, imgsyn, imgDict, imgShapeColorSyn, imgShapeLabelDict, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &dictionaryParameters.equal, &dictionaryParameters.mcolor);
                 }
         }
     }
