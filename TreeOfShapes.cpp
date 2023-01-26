@@ -1558,7 +1558,8 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
     for(i=0; i < _pTree->nb_shapes; i++) {
         pShape = _pTree->the_shapes + (int)t2b_index->values[i];
          
-        if((int)t2b_index->values[i] == 0 ) { // Background shape: Rectangle and average color. 
+        if((int)t2b_index->values[i] == 0 ) { // Background shape: Rectangle and average color.
+           /* 
             if (tosParameters.model == 4 && (dictionaryParameters.mcolor == 1 || dictionaryParameters.mcolor ==2)){
                 // Take color from dictionary for background
                 pShapeDict = tosDictionary->getShape(0);
@@ -1566,6 +1567,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
                 ((Info*)(pShape->data))->g = ((Info*)(pShapeDict->data))->g;
                 ((Info*)(pShape->data))->b = ((Info*)(pShapeDict->data))->b;
             }
+          */
             float ALPHA = 0.0;
             synshape(2, pShape, imgsyn, &ALPHA);              
         } 
