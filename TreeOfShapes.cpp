@@ -1621,12 +1621,11 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
         mw_delete_cimage(imgShapeLabel);
         mw_delete_fimage(imgShapeBlur);
         mw_delete_fsignal(gaussKernel);
+        if (tosParameters.model == 4){
+            mw_delete_cfimage(imgShapeColorSyn);
+            mw_delete_cimage(imgShapeLabelDict);
+        }
     }
-    if (tosParameters.model == 4){
-        mw_delete_cfimage(imgShapeColorSyn);
-        mw_delete_cimage(imgShapeLabelSyn);
-        mw_delete_fimage(imgShapeBlurSyn);
-    }
-    
+ 
     return result_image;
 }
