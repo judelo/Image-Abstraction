@@ -1245,8 +1245,9 @@ Shape TreeOfShapes::selectShapeDict(Shape pShape,
     minDist = 10000.0;
     
     if(*randS == 0){ // randS=0, randomly select shapes; 
-        temp = _pTree->nb_shapes -1;
-        index = random_number(&temp) + 1;
+        //temp = _pTree->nb_shapes -1;
+        //index = random_number(&temp) + 1;
+        index = ((((float)rand())/RAND_MAX) % (_pTree->nb_shapes -1)) +1;
     } else{
         // randS=1, select shapes according to elongation, compactness and scale;  
         // randS=2, select shapes according to elongation, compactness, scale and color
