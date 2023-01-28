@@ -1145,9 +1145,9 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,float *minarea,float *m
 
         // Conditions to remove shape
         // Area smaller than mpixel or larger than maxpixel or
-        // (area/area_grand_parent)*(Contrast between shape and parent) is less than threshold or
-        // distance multiply by contrast between shape and parent is negative. How can be negative??
-        //removed: || Dist*CONTR < 0.
+        // (area/area_grand_parent)*(Contrast between shape and parent) is less than threshold or. Why??
+        // (area/area_grand_parent) < compactness parameter 
+        // distance multiply by contrast between shape and parent is negative. How can be negative?? removed: || Dist*CONTR < 0.
         if(pShape->area <= mpixel || maxpixel < pShape->area || (((Info*)(pShape->data))->attribute[0])*CONTR<= thre || ((((Info*)(pShape->data))->attribute[0])< (*k)))
             pShape->removed = 1;
         else
@@ -1573,13 +1573,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
             synshape(2, pShape, imgsyn, &ALPHA);              
         } 
         else if(pShape->removed != 1){
-
-                // Attribute filtering. Index the 3th parent of the shape to compute compactness. 
-                /* 
-                pShapeTemp =  m_order_parent(pShape, 3);
-                if(((float) pShape->area)/((float) pShapeTemp->area) < tosParameters.kappa)
-                    continue;
-                */
 
                 // Verify if some point of the mask touch the shape. 
                 modelToUse = tosParameters.model;
