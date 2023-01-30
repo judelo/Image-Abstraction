@@ -320,16 +320,10 @@ void TreeOfShapes::compute_shape_attribute(int *ns){
         pShapeTemp = m_order_parent(pShape, *ns);
         ((Info*)(pShape->data))->attribute[0] = ((float) pShape->area)/((float) pShapeTemp->area);
 
-        // To delete
-        /*
-        if( ((Info*)(pShape->data))->attribute[0] <= ((float) pShape->area)/((float) pShapeTemp->area))
-            ((Info*)(pShape->data))->attribute[0] = ((float) pShape->area)/((float) pShapeTemp->area);
-        */
         // Update attribute 0 of parent shape. 
         if( ((Info*)(pShapeTemp->data))->attribute[0] <= ((float) pShape->area)/((float) pShapeTemp->area))
             ((Info*)(pShapeTemp->data))->attribute[0] = ((float) pShape->area)/((float) pShapeTemp->area);
-        
-        
+            
         ((Info*)(pShape->data))->attribute[1] = kap;
         ((Info*)(pShape->data))->attribute[2] = elg;
         ((Info*)(pShape->data))->attribute[3] = oren;
@@ -1103,30 +1097,38 @@ void TreeOfShapes::filter_shapes( Cfimage out, char *local, float *eps){
 // Filter the image  
 void TreeOfShapes::filter_image(int *ns,float *threshold,float *minarea,float *maxarea, int totalSize, float *k){
     // Declare variables here
-    int i, nn;
-    float elong, elong_pre, kappa, kappa_pre, oren, oren_pre, sca, sca_pre, Dist, thre, CONTR, mpixel, maxpixel;
+    // int i, nn;
+    //float elong, elong_pre, kappa, kappa_pre, oren, oren_pre, sca, sca_pre, Dist; 
+    float thre, CONTR, mpixel, maxpixel;
     Shape pShape;
     thre = *threshold;
-    nn = *ns;
+    //nn = *ns;
 
     // Define size in pixels for filtering shapes
     mpixel = totalSize * (*minarea) / 100;
     maxpixel = totalSize * (*maxarea) / 100;
 
-    compute_shape_attribute(&nn);
+    //compute_shape_attribute(ns);
 
     // Filtering the image
-    for(i = 0; i<=_pTree->nb_shapes-1; i++){
+    for(int i = 0; i<=_pTree->nb_shapes-1; i++){
         pShape = _pTree->the_shapes + i;
 
         if(pShape->parent == NULL)
             continue;
+
+        pShapeTemp = m_order_parent(pShape, *ns);
+        ((Info*)(pShape->data))->attribute[0] = ((float) pShape->area)/((float) pShapeTemp->area);
+
+        // Update attribute 0 of parent shape. 
+        if( ((Info*)(pShapeTemp->data))->attribute[0] <= ((float) pShape->area)/((float) pShapeTemp->area))
+            ((Info*)(pShapeTemp->data))->attribute[0] = ((float) pShape->area)/((float) pShapeTemp->area);
         
         // compute distance of color between shape and parent shape (Contrast)
         CONTR = sqrt(pow((((Info*)(pShape->data))->r - ((Info*)(pShape->parent->data))->r), 2.0) +
                      pow((((Info*)(pShape->data))->g - ((Info*)(pShape->parent->data))->g), 2.0) +
                      pow((((Info*)(pShape->data))->b - ((Info*)(pShape->parent->data))->b), 2.0));
-
+        /*
         elong = ((Info*)(pShape->data))->attribute[2];
         kappa = ((Info*)(pShape->data))->attribute[1];
         oren  = ((Info*)(pShape->data))->attribute[3];
@@ -1142,6 +1144,7 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,float *minarea,float *m
                     (kappa - kappa_pre)*(kappa - kappa_pre) +
                     (oren - oren_pre)*(oren - oren_pre)/(PI*PI) +
                     (1 - _MIN(sca_pre/sca, sca/sca_pre))*(1 - _MIN(sca_pre/sca, sca/sca_pre)))/4;
+        */
 
         // Conditions to remove shape
         // Area smaller than mpixel or larger than maxpixel or
