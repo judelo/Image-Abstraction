@@ -65,12 +65,11 @@ protected:
     void init(Cfimage inputImg, Shapes &pTree);
     void sortShapes(Fsignal t2b_index);
     Shape m_order_parent(Shape pShape, int mn, bool dict = false);
-    void shape_orilam(Shape pShape, float *out_ori, float *out_e, float *out_k, float *pX0, float *pY0, int option);
+    void shape_orilam(Shape pShape, float *out_ori, float *out_e, float *out_k, float *pX0, float *pY0);
     void compute_shape_attribute();
     void top2bottom_index_tree(Fsignal t2b_index);
     Fsignal sgauss(float *std, Fsignal out, int *size);
     Fsignal Sgauss(float *std, Fsignal out, int *size);
-    void compute_shape_attribute(int *ns);
     void filter_image(int *ns,float *threshold,float *minarea,float *maxarea, int totalSize, float *k);
     void filter_shapes( Cfimage out,char *local,float *eps);
     void get_shapes_truearea(Shape s, Shape root,int *truearea);
@@ -91,9 +90,7 @@ protected:
                       int *median,
                       float *alpha,
                       int *equal, int *mcolor);
-    void synshape(int model, Shape pShape,
-                                   Ccimage imgsyn,
-                                   float *alpha);
+    void synshape(int model, Shape pShape,Ccimage imgsyn, float *alpha);
     void synshape(int model, Shape pShape,
                                   Ccimage imgsyn,
                                   Cimage imgShapeLabelSyn,
