@@ -1088,7 +1088,7 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,float *minarea,float *m
         pShapeTemp = m_order_parent(pShape, *ns);
         ((Info*)(pShape->data))->attribute[0] = ((float) pShape->area)/((float) pShapeTemp->area);
 
-        // Update attribute 0 of parent shape. 
+        // Update attribute 0 of m-order-parent shape. 
         if( ((Info*)(pShapeTemp->data))->attribute[0] <= ((float) pShape->area)/((float) pShapeTemp->area))
             ((Info*)(pShapeTemp->data))->attribute[0] = ((float) pShape->area)/((float) pShapeTemp->area);
         
@@ -1099,7 +1099,7 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,float *minarea,float *m
 
         // Conditions to remove shape:
         // Area smaller than mpixel or larger than maxpixel or
-        // (area/area_grand_parent)*(Contrast between shape and parent) is less than threshold or. Why??
+        // (area/area_m-order_parent)*(Contrast between shape and parent) is less than threshold or. Why??
         // (area/area_grand_parent) < compactness parameter 
         if(pShape->area <= mpixel || maxpixel < pShape->area || (((Info*)(pShape->data))->attribute[0])*CONTR<= thre || ((((Info*)(pShape->data))->attribute[0])< (*k)))
             pShape->removed = 1;
