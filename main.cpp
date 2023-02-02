@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
 
     // Load Mask and compute its pixels
     QImage image_mask(mask_file_name);
-    TOS->compute_list_pixels_mask(image_mask);
+    //TOS->compute_list_pixels_mask(image_mask);
 
     // Update image if segmentation is selected. 
     if (segmentWithMask){ //parameter for segmentation
@@ -251,10 +251,10 @@ int main(int argc, char *argv[])
         dictionary->compute_tree( getDefaultTOSParameters(), true);
 
         // Run abstraction
-        resulting_image = TOS->render(TOSParameters, segmentWithMask, alternative_model, dictionary, dictionaryParameters);
+        resulting_image = TOS->render(TOSParameters, image_mask, segmentWithMask, alternative_model, dictionary, dictionaryParameters);
     } else {
         // Run abstraction
-        resulting_image = TOS->render(TOSParameters, segmentWithMask, alternative_model);
+        resulting_image = TOS->render(TOSParameters, image_mask, egmentWithMask, alternative_model);
     };
 
     resulting_image.save("result.png");   
