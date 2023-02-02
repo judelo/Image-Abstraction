@@ -120,7 +120,7 @@ TreeOfShapes::~TreeOfShapes(){
 
 
 // Compute the orientation elongation and engienvalues of shapes
-void TreeOfShapes::shape_orilam(Shape pShape, float *out_ori, float *out_e, float *out_k, float *pX0, float *pY0){
+void TreeOfShapes::shape_orilam(Shape pShape, float *out_ori, float *out_e, float *out_k, float *pX0, float *pY0, int option){
 
     float size, a11, a20, a02, x0, y0, sumx, sumy, lambda1, lambda2;
     int i;
@@ -151,10 +151,15 @@ void TreeOfShapes::shape_orilam(Shape pShape, float *out_ori, float *out_e, floa
     lambda1 =0.5*( a02 + a20 + sqrt((a20-a02)*(a20-a02) + 4*a11*a11));
     lambda2 =0.5*( a02 + a20 - sqrt((a20-a02)*(a20-a02) + 4*a11*a11));
     
-    // Compute the orientation and engienvalues of shapes
-    *out_ori = (0.5*atan2(2*a11,(a20-a02)));
-    *out_e = lambda1;
-    *out_k = lambda2;
+    if (option == 0){ // Compute the orientation and engienvalues of shapes
+        *out_ori = (0.5*atan2(2*a11,(a20-a02)));
+        *out_e = lambda1;
+        *out_k = lambda2;
+    } else{ //Computes the orientation and Elongation of shapes
+        *out_ori = (0.5*atan2(2*a11,(a20-a02)) + PI/2)/PI;
+        *out_e = lambda2/lambda1;
+        *out_k = ((float) pShape->area)/(sqrt(lambda2*lambda1)*4*PI);
+    }
 
     *pX0 = x0;
     *pY0 = y0;
@@ -274,7 +279,7 @@ void TreeOfShapes::compute_shape_attribute(){
     for(int i = _pTree->nb_shapes-1; i>=0; i--){
         pShape = _pTree->the_shapes + i;
 
-        shape_orilam(pShape, &oren, &lamb1, &lamb2, &x0, &y0);
+        shape_orilam(pShape, &oren, &lamb1, &lamb2, &x0, &y0, 0);
 
         ((Info*)(pShape->data))->lambda1 = lamb1;
         ((Info*)(pShape->data))->lambda2 = lamb2;
@@ -302,6 +307,28 @@ void TreeOfShapes::compute_shape_attribute(){
     _average_b /=  _pTree->nb_shapes;
 }
 
+
+// Compute shape attributes: elongation, orientation, compactness.  
+void TreeOfShapes::compute_shape_attribute(int *ns){
+    float oren, elg, kap, x0, y0;
+    Shape pShape, pShapeTemp;
+
+    for(int i = _pTree->nb_shapes-1; i>=0; i--){
+        pShape = _pTree->the_shapes + i;
+
+        shape_orilam(pShape, &oren, &elg, &kap, &x0, &y0, 1);
+        pShapeTemp = m_order_parent(pShape, *ns);
+        ((Info*)(pShape->data))->attribute[0] = ((float) pShape->area)/((float) pShapeTemp->area);
+
+        // Update attribute 0 of parent shape. 
+        if( ((Info*)(pShapeTemp->data))->attribute[0] <= ((float) pShape->area)/((float) pShapeTemp->area))
+            ((Info*)(pShapeTemp->data))->attribute[0] = ((float) pShape->area)/((float) pShapeTemp->area);
+            
+        ((Info*)(pShape->data))->attribute[1] = kap;
+        ((Info*)(pShape->data))->attribute[2] = elg;
+        ((Info*)(pShape->data))->attribute[3] = oren;
+    }
+}
 
 // Compute Median filter and Gaussian Blur
 void TreeOfShapes::MedianFilterAndGaussianBlur(float left, float right, float top, float bottom, 
@@ -1067,16 +1094,21 @@ void TreeOfShapes::filter_shapes( Cfimage out, char *local, float *eps){
 }
 
 
-// Select shapes to remove of the image 
+// Filter the image  
 void TreeOfShapes::filter_image(int *ns,float *threshold,float *minarea,float *maxarea, int totalSize, float *k){
     // Declare variables here
+    // int i, nn;
+    //float elong, elong_pre, kappa, kappa_pre, oren, oren_pre, sca, sca_pre, Dist; 
     float thre, CONTR, mpixel, maxpixel;
     Shape pShape, pShapeTemp;
     thre = *threshold;
+    //nn = *ns;
 
     // Define size in pixels for filtering shapes
     mpixel = totalSize * (*minarea) / 100;
     maxpixel = totalSize * (*maxarea) / 100;
+
+    //compute_shape_attribute(ns);
 
     // Filtering the image
     for(int i = 0; i<=_pTree->nb_shapes-1; i++){
@@ -1088,7 +1120,7 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,float *minarea,float *m
         pShapeTemp = m_order_parent(pShape, *ns);
         ((Info*)(pShape->data))->attribute[0] = ((float) pShape->area)/((float) pShapeTemp->area);
 
-        // Update attribute 0 of m-order-parent shape. 
+        // Update attribute 0 of parent shape. 
         if( ((Info*)(pShapeTemp->data))->attribute[0] <= ((float) pShape->area)/((float) pShapeTemp->area))
             ((Info*)(pShapeTemp->data))->attribute[0] = ((float) pShape->area)/((float) pShapeTemp->area);
         
@@ -1096,11 +1128,29 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,float *minarea,float *m
         CONTR = sqrt(pow((((Info*)(pShape->data))->r - ((Info*)(pShape->parent->data))->r), 2.0) +
                      pow((((Info*)(pShape->data))->g - ((Info*)(pShape->parent->data))->g), 2.0) +
                      pow((((Info*)(pShape->data))->b - ((Info*)(pShape->parent->data))->b), 2.0));
+        /*
+        elong = ((Info*)(pShape->data))->attribute[2];
+        kappa = ((Info*)(pShape->data))->attribute[1];
+        oren  = ((Info*)(pShape->data))->attribute[3];
+        sca   = (float) pShape->area;
 
-        // Conditions to remove shape:
+        elong_pre = ((Info*)(pShape->parent->data))->attribute[2];
+        kappa_pre = ((Info*)(pShape->parent->data))->attribute[1];
+        oren_pre  = ((Info*)(pShape->parent->data))->attribute[3];
+        sca_pre   = (float) pShape->parent->area;
+        
+        // compute distance according to elongation, compactness, scale and area
+        Dist = sqrt((elong - elong_pre)*(elong - elong_pre) +
+                    (kappa - kappa_pre)*(kappa - kappa_pre) +
+                    (oren - oren_pre)*(oren - oren_pre)/(PI*PI) +
+                    (1 - _MIN(sca_pre/sca, sca/sca_pre))*(1 - _MIN(sca_pre/sca, sca/sca_pre)))/4;
+        */
+
+        // Conditions to remove shape
         // Area smaller than mpixel or larger than maxpixel or
-        // (area/area_m-order_parent)*(Contrast between shape and parent) is less than threshold or. Why??
+        // (area/area_grand_parent)*(Contrast between shape and parent) is less than threshold or. Why??
         // (area/area_grand_parent) < compactness parameter 
+        // distance multiply by contrast between shape and parent is negative. How can be negative?? removed: || Dist*CONTR < 0.
         if(pShape->area <= mpixel || maxpixel < pShape->area || (((Info*)(pShape->data))->attribute[0])*CONTR<= thre || ((((Info*)(pShape->data))->attribute[0])< (*k)))
             pShape->removed = 1;
         else
@@ -1416,9 +1466,9 @@ void TreeOfShapes::shift_shapes(float *shift, float *theta, int mode){
         }
     }
 }
+        
 
-
-QImage TreeOfShapes::render(TOSParameters tosParameters, bool segmentWithMask, int alternative_model, TreeOfShapes *tosDictionary, DictionaryParameters dictionaryParameters ){
+QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int alternative_model, TreeOfShapes *tosDictionary, DictionaryParameters dictionaryParameters ){
     
     std::cout <<"TreeOfShapes::Abstraction started"<< std::endl;
 
@@ -1435,6 +1485,9 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool segmentWithMask, i
 
     //Step 1: Decomposition. 
     compute_tree(tosParameters, false);
+
+    // Compute list of pixels of mask 
+    compute_list_pixels_mask(image_mask);
 
     // Image filtering    
     std::cout << "Image filtering" << std::endl;
@@ -1526,12 +1579,11 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool segmentWithMask, i
 
                 // Verify if some point of the mask touch the shape. 
                 modelToUse = tosParameters.model;
-                if (!segmentWithMask)
-                    for (j=0; j<_len_ArrayPixelsMask; j++)
-                        if (point_in_shape((&_ArrayPixelsMask[j])->x, (&_ArrayPixelsMask[j])->y, pShape, _pTree)){
-                            modelToUse = alternative_model;
-                            break;
-                        };
+                for (j=0; j<_len_ArrayPixelsMask; j++)
+                    if (point_in_shape((&_ArrayPixelsMask[j])->x, (&_ArrayPixelsMask[j])->y, pShape, _pTree)){
+                        modelToUse = alternative_model;
+                        break;
+                    };
 
                 // Modification of shape according to model
                 if (modelToUse < 4){ // Rendering Model: Original, Rectangle, Ellipse or Circular

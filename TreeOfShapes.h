@@ -31,18 +31,14 @@ public:
     static int _tree_count;
     TreeOfShapes( Cfimage imageIn );
     ~TreeOfShapes();
-    QImage render(TOSParameters tosParameters, bool segmentWithMask, int alternative_model, TreeOfShapes *tosDictionary=NULL, DictionaryParameters dictionaryParameters=getDefaultDictionaryParameters() );
+    QImage render(TOSParameters tosParameters, QImage image_mask, int alternative_model, TreeOfShapes *tosDictionary=NULL, DictionaryParameters dictionaryParameters=getDefaultDictionaryParameters() );
     void compute_tree( TOSParameters tosParameters, bool dictionary=false );
     void computeKdTree(float average_r, float average_g, float average_b );
     Cfimage getCfImage(){ if( _texture_image_loaded ) return _texture_image; else return _imgin; }
-    void setCfImage(Cfimage imageIn ){  _imgin= imageIn; }
     Shape selectShapeDict(Shape pShape, float *paDict, int *randS, int &index, float average_r, float average_g, float average_b);
     Shape getShape(int index);
-    void compute_list_pixels_mask(QImage image_mask);
     int getTreeId(){ return _tree_id; }
     int getMaxArea(){ return _maxArea; }
-    Point_plane getArrayPixelsMask(){ return _ArrayPixelsMask; }
-    int getLen_ArrayPixelsMask(){ return _len_ArrayPixelsMask; }
 protected:
     bool _tree_computed;
     bool _texture_image_loaded;
@@ -69,11 +65,12 @@ protected:
     void init(Cfimage inputImg, Shapes &pTree);
     void sortShapes(Fsignal t2b_index);
     Shape m_order_parent(Shape pShape, int mn, bool dict = false);
-    void shape_orilam(Shape pShape, float *out_ori, float *out_e, float *out_k, float *pX0, float *pY0);
+    void shape_orilam(Shape pShape, float *out_ori, float *out_e, float *out_k, float *pX0, float *pY0, int option);
     void compute_shape_attribute();
     void top2bottom_index_tree(Fsignal t2b_index);
     Fsignal sgauss(float *std, Fsignal out, int *size);
     Fsignal Sgauss(float *std, Fsignal out, int *size);
+    void compute_shape_attribute(int *ns);
     void filter_image(int *ns,float *threshold,float *minarea,float *maxarea, int totalSize, float *k);
     void filter_shapes( Cfimage out,char *local,float *eps);
     void get_shapes_truearea(Shape s, Shape root,int *truearea);
@@ -81,6 +78,7 @@ protected:
     void shift_shapes(float *shift, float *theta, int mode);
     void shape_boundingbox(Shape pShape);
     void tree_boundingbox();
+    void compute_list_pixels_mask(QImage image_mask);
     void MedianFilterAndGaussianBlur(float left, float right, float top, float bottom, 
                                     Cimage imgShapeLabelSyn,Fimage imgShapeBlurSyn,
                                     Fsignal gaussKernel, int *median);
@@ -93,7 +91,9 @@ protected:
                       int *median,
                       float *alpha,
                       int *equal, int *mcolor);
-    void synshape(int model, Shape pShape,Ccimage imgsyn, float *alpha);
+    void synshape(int model, Shape pShape,
+                                   Ccimage imgsyn,
+                                   float *alpha);
     void synshape(int model, Shape pShape,
                                   Ccimage imgsyn,
                                   Cimage imgShapeLabelSyn,
