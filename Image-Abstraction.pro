@@ -24,6 +24,7 @@ HEADERS       =  src/flst/*.h \
     src/kdtree/*.h \
     src/kdtree/ann/include/ANN/*.h \
     src/segment/*.h \
+    Segmentation.h \
     TreeOfShapes.h
 SOURCES       = main.cpp \
     src/flst/*.c \
