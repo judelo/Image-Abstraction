@@ -54,7 +54,9 @@ int main(int argc, char *argv[])
     char * file_name = argv[1];
     int mode = atoi(argv[2]);
     int model = atoi(argv[3]);
-    int segmentWithMask = atoi(argv[4]);
+    std::stringstream ss0(argv[4]);
+    bool segmentWithMask;
+    ss0 >> std::boolalpha >> segmentWithMask;
     int alternative_model = atoi(argv[5]);
 
     std::stringstream ss(argv[6]);
@@ -135,7 +137,8 @@ int main(int argc, char *argv[])
     TOS->compute_list_pixels_mask(image_mask);
 
     // Update image if segmentation is selected. 
-    if (segmentWithMask == 1){ //parameter for segmentation
+    if (segmentWithMask){ //parameter for segmentation
+       std::cout << "Segmentation of image " << std::endl;
        QImage imageSeg;
        Segmentation * segmentation = new Segmentation (image);
        imageSeg = segmentation->segment( 0.5, 500, 50); // segParameters.c = 500;  segParameters.min_size = 50; segParameters.sigma = 0.5;
