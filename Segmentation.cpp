@@ -153,8 +153,8 @@ QImage Segmentation::removeRegionUnder(Point_plane  ArrayPixelsMask, int len_Arr
     int x, y, a, b, region_id;
  
     for (int j=0; j< len_ArrayPixelsMask; j++){
-        x = (&_ArrayPixelsMask[j])->x;
-        y = (&_ArrayPixelsMask[j])->y;
+        x = (&ArrayPixelsMask[j])->x;
+        y = (&ArrayPixelsMask[j])->y;
 
         if( x< width && y<height ){
             region_id = u->find(y * width + x);
