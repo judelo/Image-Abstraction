@@ -32,6 +32,7 @@ SOURCES       = main.cpp \
     src/synth/*.c \
     src/kdtree/ann/src/*.cpp \
     src/segment/*.cpp \
+    Segmentation.cpp \
     TreeOfShapes.cpp
 LIBS = -L/usr/lib/x86_64-linux-gnu/
 
