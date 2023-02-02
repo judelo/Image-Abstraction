@@ -1416,9 +1416,9 @@ void TreeOfShapes::shift_shapes(float *shift, float *theta, int mode){
         }
     }
 }
+        
 
-
-QImage TreeOfShapes::render(TOSParameters tosParameters, QImage image_mask, bool segmentWithMask, int alternative_model, TreeOfShapes *tosDictionary, DictionaryParameters dictionaryParameters ){
+QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int alternative_model, TreeOfShapes *tosDictionary, DictionaryParameters dictionaryParameters ){
     
     std::cout <<"TreeOfShapes::Abstraction started"<< std::endl;
 
@@ -1430,14 +1430,14 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, QImage image_mask, bool
     Fimage imgShapeBlur;
     Fsignal t2b_index, gaussKernel, dictionary_correspondance;
 
-    //
-    compute_list_pixels_mask(image_mask);
-
     // Define synthesis image
     Ccimage imgsyn = mw_change_ccimage(imgsyn, _imgin->nrow, _imgin->ncol);
 
     //Step 1: Decomposition. 
     compute_tree(tosParameters, false);
+
+    // Compute list of pixels of mask 
+    compute_list_pixels_mask(image_mask);
 
     // Image filtering    
     std::cout << "Image filtering" << std::endl;
@@ -1529,12 +1529,11 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, QImage image_mask, bool
 
                 // Verify if some point of the mask touch the shape. 
                 modelToUse = tosParameters.model;
-                //if (!segmentWithMask)
-                    for (j=0; j<_len_ArrayPixelsMask; j++)
-                        if (point_in_shape((&_ArrayPixelsMask[j])->x, (&_ArrayPixelsMask[j])->y, pShape, _pTree)){
-                            modelToUse = alternative_model;
-                            break;
-                        };
+                for (j=0; j<_len_ArrayPixelsMask; j++)
+                    if (point_in_shape((&_ArrayPixelsMask[j])->x, (&_ArrayPixelsMask[j])->y, pShape, _pTree)){
+                        modelToUse = alternative_model;
+                        break;
+                    };
 
                 // Modification of shape according to model
                 if (modelToUse < 4){ // Rendering Model: Original, Rectangle, Ellipse or Circular
