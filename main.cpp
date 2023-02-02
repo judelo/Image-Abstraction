@@ -254,7 +254,7 @@ int main(int argc, char *argv[])
         resulting_image = TOS->render(TOSParameters, image_mask, segmentWithMask, alternative_model, dictionary, dictionaryParameters);
     } else {
         // Run abstraction
-        resulting_image = TOS->render(TOSParameters, image_mask, egmentWithMask, alternative_model);
+        resulting_image = TOS->render(TOSParameters, image_mask, segmentWithMask, alternative_model);
     };
 
     resulting_image.save("result.png");   
