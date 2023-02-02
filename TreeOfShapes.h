@@ -71,7 +71,7 @@ protected:
     Fsignal sgauss(float *std, Fsignal out, int *size);
     Fsignal Sgauss(float *std, Fsignal out, int *size);
     void compute_shape_attribute(int *ns);
-    void filter_image(int *ns,float *threshold,float *minarea,float *maxarea, int totalSize, float *k);
+    void filter_image(int *ns,float *threshold,float *minarea,float *maxarea, int totalSize);
     void filter_shapes( Cfimage out,char *local,float *eps);
     void get_shapes_truearea(Shape s, Shape root,int *truearea);
     int random_number(int *M);
@@ -90,24 +90,31 @@ protected:
                       Fsignal gaussKernel,
                       int *median,
                       float *alpha,
-                      int *equal, int *mcolor);
+                      int *equal, int *mcolor, int *relief,
+                      float *reliefOrentation, float *reliefHeight);
     void synshape(int model, Shape pShape,
                                    Ccimage imgsyn,
-                                   float *alpha);
+                                   float *alpha,
+                                   int *relief,
+                                   float *reliefOrentation, float *reliefHeight);
     void synshape(int model, Shape pShape,
                                   Ccimage imgsyn,
                                   Cimage imgShapeLabelSyn,
                                   Fimage imgShapeBlurSyn,
                                   Fsignal gaussKernel,
                                   int *median,
-                                  float *alpha);
+                                  float *alpha,
+                                  int *relief,
+                                  float *reliefOrentation, float *reliefHeight);
     void synshapeOriginal(Shape pShape,
                           Ccimage imgsyn,
                           Cimage imgShapeLabelSyn,
                           Fimage imgShapeBlurSyn,
                           Fsignal gaussKernel,
                           int *median,
-                          float *alpha);
+                          float *alpha,
+                          int *relief,
+                          float *reliefOrentation, float *reliefHeight);
 };
 
 #endif // TREEOFSHAPES_H

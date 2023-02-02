@@ -57,6 +57,9 @@ typedef struct TOSParameters {
     float minarea; // minimal area (in percentage of full image) for FLST,
     float maxarea; // maximal area (in percentage of full image) for FLST,
     float kappa; //compactness parameter of the attribute filtering on the orignal image",
+    int relief; //     "add relief effects, if relief =1",
+    float reliefOrientation; //    "relief orentation, in degree",
+    float reliefHeight; //     "relief height",
     int blur; //     "add blur effects, if blur =1",
     int median; //kernel size for median filter",
     int kerSize; //kernel size for Gaussian blur",
@@ -76,7 +79,6 @@ typedef struct DictionaryParameters {
     float paC2S; //   "parameter for transfer: areaOFconnectcomponent / areaOFshape, if parameter < paC2S, shape is removed",
     float paS2P; //   "parameter for transfer: areaOFshape / areaOFshapeparent, if parameter > paS2P, shape is removed",
     float kappaDict; // "compactness parameter of the attribute filtering on the transferred image",
-    int color_background; // color_background=0 use the color for background of tranferred image, otherwise use the color for background of the orignal image",
 } DictionaryParameters;
 
 TOSParameters getDefaultTOSParameters();
