@@ -2,8 +2,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
-//#include "segment-image.h"
-#include "segment-graph.h"
+#include "segment-image.h"
+//#include "segment-graph.h"
 #include "Segmentation.h"
 
 #include <QColor>
