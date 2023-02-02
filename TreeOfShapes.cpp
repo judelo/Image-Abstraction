@@ -1526,7 +1526,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool segmentWithMask, i
 
                 // Verify if some point of the mask touch the shape. 
                 modelToUse = tosParameters.model;
-                if (!segmentWithMask)
+                //if (!segmentWithMask)
                     for (j=0; j<_len_ArrayPixelsMask; j++)
                         if (point_in_shape((&_ArrayPixelsMask[j])->x, (&_ArrayPixelsMask[j])->y, pShape, _pTree)){
                             modelToUse = alternative_model;
