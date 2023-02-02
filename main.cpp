@@ -142,6 +142,7 @@ int main(int argc, char *argv[])
        imageSeg = segmentation->removeRegionUnder(TOS->getArrayPixelsMask(), TOS->getLen_ArrayPixelsMask());
        imageSeg = segmentation->getResult();
        TOS->setCfImage(cfimages_from_qimage(imageSeg));
+       imageSeg.save("image_segmented.png"); 
     };
 
     QImage resulting_image;
@@ -253,5 +254,5 @@ int main(int argc, char *argv[])
         resulting_image = TOS->render(TOSParameters, segmentWithMask, alternative_model);
     };
 
-    //resulting_image.save("result.png");   
+    resulting_image.save("result.png");   
 }
