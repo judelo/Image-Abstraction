@@ -396,9 +396,7 @@ void TreeOfShapes::synshape(int model, Shape pShape,
                                   Fimage imgShapeBlurSyn,
                                   Fsignal gaussKernel,
                                   int *median,
-                                  float *alpha,
-                                  int *relief,
-                                  float *reliefOrentation, float *reliefHeight){
+                                  float *alpha){
 
     int xi, yi, x, y;
     float ALPHA, BETA, a, b, x0temp, y0temp, top, right, left, bottom, phi, xi_e, yi_e;
@@ -475,48 +473,6 @@ void TreeOfShapes::synshape(int model, Shape pShape,
     MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
     
     // Synthesis  
-    if(*relief == 1 && pShape->area > 10){
-        float shLambda, shTR, shTG, shTB;
-        int xsh, ysh, shiftsh;
-        if(pShape->area > 10)
-            shiftsh = *reliefHeight;
-        else
-            shiftsh = (*reliefHeight)*( (float) pShape->area /10.0);
-
-        shLambda = 0.3;
-        for(x = ceil(left); x <= right; x++)
-            for(y = ceil(top); y <= bottom; y++){
-                if(imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] == 0)
-                    continue;
-
-                BETA = imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
-
-                shTR = TR* shLambda;
-                shTG = TG* shLambda;
-                shTB = TB* shLambda;
-
-                xsh = x + shiftsh*cos( PI*(*reliefOrentation)/180.0 );
-                ysh = y - shiftsh*sin( PI*(*reliefOrentation)/180.0 );
-                xsh = _MAX(0, xsh);
-                xsh = _MIN(imgsyn->ncol - 1, xsh);
-                ysh = _MAX(0, ysh);
-                ysh = _MIN(imgsyn->nrow - 1, ysh);
-
-                tr = ((float) imgsyn->red[ysh*imgsyn->ncol + xsh])*(1-BETA)   + BETA*shTR;
-                tg = ((float) imgsyn->green[ysh*imgsyn->ncol + xsh])*(1-BETA) + BETA*shTG;
-                tb = ((float) imgsyn->blue[ysh*imgsyn->ncol + xsh])*(1-BETA)  + BETA*shTB;
-
-                tR = ((float) imgsyn->red[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*tr;
-                imgsyn->red[ysh*imgsyn->ncol + xsh]   = (int) tR;
-
-                tG = ((float) imgsyn->green[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*tg;
-                imgsyn->green[ysh*imgsyn->ncol + xsh] = (int) tG;
-
-                tB = ((float) imgsyn->blue[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*tb;
-                imgsyn->blue[ysh*imgsyn->ncol + xsh]  = (int) tB;
-            }
-    }
-
     for(x = left; x <= right; x++)
         for(y = top; y <= bottom; y++){
             if(imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] == 0)
@@ -530,13 +486,11 @@ void TreeOfShapes::synshape(int model, Shape pShape,
 
             tR = ((float) imgsyn->red[y*imgsyn->ncol + x])*ALPHA + (1-ALPHA)*tr;
             imgsyn->red[y*imgsyn->ncol + x]   = (int) tR;
-
             tG = ((float) imgsyn->green[y*imgsyn->ncol + x])*ALPHA + (1-ALPHA)*tg;
             imgsyn->green[y*imgsyn->ncol + x] = (int) tG; 
-
             tB = ((float) imgsyn->blue[y*imgsyn->ncol + x])*ALPHA + (1-ALPHA)*tb;
             imgsyn->blue[y*imgsyn->ncol + x]  = (int) tB;
-
+            
             imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x]  = 0.0;
             imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] = 0;
         }
@@ -544,7 +498,7 @@ void TreeOfShapes::synshape(int model, Shape pShape,
 
 
 // Synthesis by Shape Shaking for Original, Ellipses, Rectangles or Circular shapes
-void TreeOfShapes::synshape(int model, Shape pShape,Ccimage imgsyn, float *alpha,int *relief,float *reliefOrentation, float *reliefHeight){
+void TreeOfShapes::synshape(int model, Shape pShape,Ccimage imgsyn, float *alpha){
     
     int xi, yi, i, aux;
     float a, b, x0temp, y0temp, top, right, left, bottom, ALPHA, shLambda, shTR, shTG, shTB;
@@ -601,83 +555,11 @@ void TreeOfShapes::synshape(int model, Shape pShape,Ccimage imgsyn, float *alpha
     shTB  = shLambda*((Info*)(pShape->data))->b;
 
     // Synthesis  
-    if(*relief == 1 && pShape->area > 10){
-        int xsh, ysh, shiftsh;
-
-        if(pShape->area > 10)
-            shiftsh = *reliefHeight;
-        else
-            shiftsh = (*reliefHeight)*( (float) pShape->area /10.0);
-        
-        i = 0;
-        for( xi= ceil(left); xi<= right; xi++){
-            for( yi= ceil(top); yi<= bottom; yi++){
-                
-                if (model == 0){ //Original
-                   x = ((pShape->pixels+i)->x);
-                   y = ((pShape->pixels+i)->y);
-
-                   xr = (x - x0temp)*cos(theta) + (y - y0temp)*sin(theta);
-                   yr = (y - y0temp)*cos(theta) - (x - x0temp)*sin(theta);
-
-                   xi_e = floor(xShift + x0temp + xr);
-                   yi_e = floor(yShift + y0temp + yr);
-
-                   condition = xi_e>= 0 && xi_e< _pTree->ncol && yi_e>= 0 && yi_e< _pTree->nrow; 
-                   i++;
-                   if (i == pShape->area)
-                      break; 
-                } else {
-                   xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
-                   yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
-                   
-                   if (model == 1) //Ellipse
-                      condition = ( xi_e*xi_e/(a*a) + yi_e*yi_e/(b*b) <= 1 );
-                   else if (model == 2) //Rectangle
-                      condition = ( xi_e >= -a && xi_e <= +a && yi_e >= -b && yi_e <= +b );
-                   else if (model == 3) //Circle
-                      condition = ( xi_e*xi_e/(b*b) + yi_e*yi_e/(b*b) <= 1 );
-                }
-
-                if( condition ){
-            
-                    if (model ==0){
-                       if (xi_e<0 || xi_e>= imgsyn->ncol || yi_e<0 || yi_e>= imgsyn->nrow )
-                        continue;
-                       xsh = xi_e + shiftsh*cos( PI*(*reliefOrentation)/180.0 );
-                       ysh = yi_e - shiftsh*sin( PI*(*reliefOrentation)/180.0 );
-                    } else{
-                       if (xi<0 || xi>= imgsyn->ncol || yi<0 || yi>= imgsyn->nrow )
-                        continue;
-                       xsh = xi + shiftsh*cos( PI*(*reliefOrentation)/180.0 );
-                       ysh = yi - shiftsh*sin( PI*(*reliefOrentation)/180.0 );
-                    }
-
-                    xsh = _MAX(0, xsh);
-                    xsh = _MIN(imgsyn->ncol - 1, xsh);
-                    ysh = _MAX(0, ysh);
-                    ysh = _MIN(imgsyn->nrow - 1, ysh);
-
-                    tR = ((float) imgsyn->red[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*shTR;
-                    imgsyn->red[ysh*imgsyn->ncol + xsh]   = (int) tR; 
-
-                    tG = ((float) imgsyn->green[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*shTG;
-                    imgsyn->green[ysh*imgsyn->ncol + xsh] = (int) tG;  
-
-                    tB = ((float) imgsyn->blue[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*shTB;
-                    imgsyn->blue[ysh*imgsyn->ncol + xsh]  = (int) tB;  
-                }
-            }
-            if ((i == pShape->area) && (model == 0))
-                break; 
-        }
-    }
-    
     i = 0;
     for( xi= ceil(left); xi<= right; xi++){
         for( yi= ceil(top); yi<= bottom; yi++){
 
-            if (model == 0){
+            if (model == 0){ //Original shapes
                 x = (float)((pShape->pixels+i)->x);
                 y = (float)((pShape->pixels+i)->y);
 
@@ -711,11 +593,9 @@ void TreeOfShapes::synshape(int model, Shape pShape,Ccimage imgsyn, float *alpha
                    aux = yi*_pTree->ncol + xi;
 
                 tR = ((float) imgsyn->red[aux])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->r;
-                    imgsyn->red[aux] = (int) tR; 
-
+                imgsyn->red[aux] = (int) tR; 
                 tG = ((float) imgsyn->green[aux])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->g;
                 imgsyn->green[aux] = (int) tG; 
-
                 tB = ((float) imgsyn->blue[aux])*ALPHA + (1-ALPHA)*((Info*)(pShape->data))->b;
                 imgsyn->blue[aux] = (int) tB;
             }
@@ -734,8 +614,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                                 Fsignal gaussKernel,
                                 int *median,
                                 float *alpha,
-                                int *equal, int *mcolor, int *relief,
-                                float *reliefOrentation, float *reliefHeight){
+                                int *equal, int *mcolor){
 
     int i, x, y, iKer, jKer, KerSize, MedSize, xKer, yKer, numMedain;
     float xi, yi, xr, yr, xt, yt, x0temp, y0temp, x0tempDict, y0tempDict;
@@ -912,54 +791,6 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 }
 
         }
-    
-    if(*relief == 1 && pShape->area > 30){
-        float shLambda, shTR, shTG, shTB;
-        int xsh, ysh, shiftsh;
-        if(pShape->area > 30)
-            shiftsh = (*reliefHeight);
-        else
-            shiftsh = (*reliefHeight)*( (float) pShape->area /30.0);;
-
-        shLambda = 0.3;
-        for(x = ceil(left); x <= right; x++)
-            for(y = ceil(top); y <= bottom; y++){
-                if(imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] == 0)
-                    continue;
-
-                BETA = imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
-
-                if(*mcolor == 1){
-                    TR  = imgShapeColorSyn->red[y*imgShapeLabelSyn->ncol + x];
-                    TG  = imgShapeColorSyn->green[y*imgShapeLabelSyn->ncol + x];
-                    TB  = imgShapeColorSyn->blue[y*imgShapeLabelSyn->ncol + x];
-                }
-
-                shTR = TR* shLambda;
-                shTG = TG* shLambda;
-                shTB = TB* shLambda;
-
-                xsh = x + shiftsh*cos( PI*(*reliefOrentation)/180.0 );
-                ysh = y - shiftsh*sin( PI*(*reliefOrentation)/180.0 );
-                xsh = _MAX(0, xsh);
-                xsh = _MIN(imgsyn->ncol - 1, xsh);
-                ysh = _MAX(0, ysh);
-                ysh = _MIN(imgsyn->nrow - 1, ysh);
-
-                tr = ((float) imgsyn->red[ysh*imgsyn->ncol + xsh])*(1-BETA)   + BETA*shTR;
-                tg = ((float) imgsyn->green[ysh*imgsyn->ncol + xsh])*(1-BETA) + BETA*shTG;
-                tb = ((float) imgsyn->blue[ysh*imgsyn->ncol + xsh])*(1-BETA)  + BETA*shTB;
-
-                tR = ((float) imgsyn->red[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*tr;
-                imgsyn->red[ysh*imgsyn->ncol + xsh]   = (int) tR; 
-
-                tG = ((float) imgsyn->green[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*tg;
-                imgsyn->green[ysh*imgsyn->ncol + xsh] = (int) tG;  
-
-                tB = ((float) imgsyn->blue[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*tb;
-                imgsyn->blue[ysh*imgsyn->ncol + xsh]  = (int) tB;  
-            }
-    }
 
     TR  = ((Info*)(pShape->data))->r + tempx*0;
     TG  = ((Info*)(pShape->data))->g + tempx*0;
@@ -1015,9 +846,7 @@ void TreeOfShapes::synshapeOriginal(Shape pShape,
                                     Fimage imgShapeBlurSyn,
                                     Fsignal gaussKernel,
                                     int *median,
-                                    float *alpha,
-                                    int *relief,
-                                    float *reliefOrentation, float *reliefHeight){
+                                    float *alpha){
 
     int i, xi, yi, x, y;
     float xr, yr, x0temp, y0temp, ALPHA, BETA;
@@ -1064,48 +893,6 @@ void TreeOfShapes::synshapeOriginal(Shape pShape,
     MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
 
     // Synthesis  
-    if(*relief == 1 && pShape->area > 10){
-        float shLambda, shTR, shTG, shTB;
-        int xsh, ysh, shiftsh;
-        if(pShape->area > 10)
-            shiftsh = *reliefHeight;
-        else
-            shiftsh = (*reliefHeight)*( (float) pShape->area /10.0);
-
-        shLambda = 0.3;
-        for(x = ceil(left); x <= right; x++)
-            for(y = ceil(top); y <= bottom; y++){
-                if(imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] == 0)
-                    continue;
-
-                BETA = imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
-
-                shTR = TR* shLambda;
-                shTG = TG* shLambda;
-                shTB = TB* shLambda;
-
-                xsh = x + shiftsh*cos( PI*(*reliefOrentation)/180.0 );
-                ysh = y - shiftsh*sin( PI*(*reliefOrentation)/180.0 );
-                xsh = _MAX(0, xsh);
-                xsh = _MIN(imgsyn->ncol - 1, xsh);
-                ysh = _MAX(0, ysh);
-                ysh = _MIN(imgsyn->nrow - 1, ysh);
-
-                tr = ((float) imgsyn->red[ysh*imgsyn->ncol + xsh])*(1-BETA)   + BETA*shTR;
-                tg = ((float) imgsyn->green[ysh*imgsyn->ncol + xsh])*(1-BETA) + BETA*shTG;
-                tb = ((float) imgsyn->blue[ysh*imgsyn->ncol + xsh])*(1-BETA)  + BETA*shTB;
-
-                tR = ((float) imgsyn->red[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*tr;
-                imgsyn->red[ysh*imgsyn->ncol + xsh]   = (int) tR; 
-
-                tG = ((float) imgsyn->green[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*tg;
-                imgsyn->green[ysh*imgsyn->ncol + xsh] = (int) tG;  
-
-                tB = ((float) imgsyn->blue[ysh*imgsyn->ncol + xsh])*ALPHA + (1-ALPHA)*tb;
-                imgsyn->blue[ysh*imgsyn->ncol + xsh]  = (int) tB;  
-            }
-    }
-
     for(x = left; x <= right; x++)
         for(y = top; y <= bottom; y++){
             if(imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] == 0)
@@ -1789,7 +1576,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
                 ((Info*)(pShape->data))->b = ((Info*)(pShapeDict->data))->b;
             }
             float ALPHA = 0.0;
-            synshape(2, pShape, imgsyn, &ALPHA, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);              
+            synshape(2, pShape, imgsyn, &ALPHA);              
         } 
         else if(pShape->removed != 1){
 
@@ -1809,16 +1596,16 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
                 // Modification of shape according to model
                 if (modelToUse < 4){ // Rendering Model: Original, Rectangle, Ellipse or Circular
                     if(tosParameters.blur == 0)
-                       synshape(modelToUse, pShape, imgsyn, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
+                       synshape(modelToUse, pShape, imgsyn, &tosParameters.alpha);
                     else if (modelToUse == 0)
-                        synshapeOriginal(pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
+                        synshapeOriginal(pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha);
                     else 
-                        synshape(modelToUse, pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
+                        synshape(modelToUse, pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha);
                 }
                 else{ // modelToUse ==4 -> Rendering Model: Dictionary
                     pShapeDict = tosDictionary->selectShapeDict(pShape, &dictionaryParameters.kappaDict, &dictionaryParameters.randS, shape_id, _average_r, _average_g, _average_b);
                     dictionary_correspondance->values[(int)t2b_index->values[i]] = shape_id;
-                    synShapeDict( pShapeDict, pShape, imgsyn, imgDict, imgShapeColorSyn, imgShapeLabel, imgShapeLabelSyn, imgShapeBlurSyn, gaussKernel, &tosParameters.median, &tosParameters.alpha, &dictionaryParameters.equal, &dictionaryParameters.mcolor,&tosParameters.relief, &tosParameters.reliefOrientation, &tosParameters.reliefHeight);
+                    synShapeDict( pShapeDict, pShape, imgsyn, imgDict, imgShapeColorSyn, imgShapeLabel, imgShapeLabelSyn, imgShapeBlurSyn, gaussKernel, &tosParameters.median, &tosParameters.alpha, &dictionaryParameters.equal, &dictionaryParameters.mcolor);
                 }
         }
     }

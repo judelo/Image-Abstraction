@@ -90,31 +90,24 @@ protected:
                       Fsignal gaussKernel,
                       int *median,
                       float *alpha,
-                      int *equal, int *mcolor, int *relief,
-                      float *reliefOrentation, float *reliefHeight);
+                      int *equal, int *mcolor);
     void synshape(int model, Shape pShape,
                                    Ccimage imgsyn,
-                                   float *alpha,
-                                   int *relief,
-                                   float *reliefOrentation, float *reliefHeight);
+                                   float *alpha);
     void synshape(int model, Shape pShape,
                                   Ccimage imgsyn,
                                   Cimage imgShapeLabelSyn,
                                   Fimage imgShapeBlurSyn,
                                   Fsignal gaussKernel,
                                   int *median,
-                                  float *alpha,
-                                  int *relief,
-                                  float *reliefOrentation, float *reliefHeight);
+                                  float *alpha);
     void synshapeOriginal(Shape pShape,
                           Ccimage imgsyn,
                           Cimage imgShapeLabelSyn,
                           Fimage imgShapeBlurSyn,
                           Fsignal gaussKernel,
                           int *median,
-                          float *alpha,
-                          int *relief,
-                          float *reliefOrentation, float *reliefHeight);
+                          float *alpha);
 };
 
 #endif // TREEOFSHAPES_H
