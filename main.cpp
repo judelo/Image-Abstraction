@@ -136,8 +136,8 @@ int main(int argc, char *argv[])
 
     // Update image if segmentation is selected. 
     if (segmentWithMask == 1){ //parameter for segmentation
-       QImage imageSeg(file_name);
-       Segmentation * segmentation = new Segmentation (imageSeg);
+       QImage imageSeg;
+       Segmentation * segmentation = new Segmentation (image);
        imageSeg = segmentation->segment( 0.5, 500, 50); // segParameters.c = 500;  segParameters.min_size = 50; segParameters.sigma = 0.5;
        imageSeg = segmentation->removeRegionUnder(TOS->getArrayPixelsMask(), TOS->getLen_ArrayPixelsMask());
        imageSeg = segmentation->getResult();
