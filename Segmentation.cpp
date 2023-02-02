@@ -123,17 +123,19 @@ QImage Segmentation::segment(float sigma, float c, int min_size) {
             nb_pixels[comp]++;
         }
 
-    // pick random colors for each component
+    // pick random colors for each component for resulting image
     rgb *colors = new rgb[width*height];
     for (int i = 0; i < width*height; i++)
         colors[i] = random_rgb();
 
+    // save average color of each component in component_colors
     for( std::map<int, int>::iterator it = nb_pixels.begin() ; it != nb_pixels.end() ; it++ ){
         int comp = it->first;
         component_colors[comp] = QColor(int(float(average_r[comp])/nb_pixels[comp]), int(float(average_g[comp])/nb_pixels[comp]), int(float(average_b[comp])/nb_pixels[comp]));
         removed_regions[comp] = false;
     }
 
+    // generate resulting segmented image
     for (int y = 0; y < height; y++)
         for (int x = 0; x < width; x++) {
             int comp = u->find(y * width + x);
@@ -147,20 +149,23 @@ QImage Segmentation::segment(float sigma, float c, int min_size) {
 
 // Function to remove sections of the image. Sections toaching the mask will be removed. 
 QImage Segmentation::removeRegionUnder(Point_plane  ArrayPixelsMask, int len_ArrayPixelsMask){
-
     int width = input->width();
     int height = input->height();
     int x, y, a, b, region_id;
  
+    // iterate in mask pixels
     for (int j=0; j< len_ArrayPixelsMask; j++){
         x = (&ArrayPixelsMask[j])->x;
         y = (&ArrayPixelsMask[j])->y;
 
         if( x< width && y<height ){
+            // find region of mask pixel
             region_id = u->find(y * width + x);
+            // if region wasn't removed yet
             if (removed_regions[region_id] == false){
                 removed_regions[region_id] = true;
-
+                
+                // get isolated regions. they will be removed also. 
                 std::map<int, bool> isolated_region;
                 for(std::map<int, bool>::iterator it = removed_regions.begin(); it != removed_regions.end() ; it++){
                     isolated_region[it->first] = true;
@@ -175,12 +180,14 @@ QImage Segmentation::removeRegionUnder(Point_plane  ArrayPixelsMask, int len_Arr
                         if( !removed_regions[b] ) isolated_region [a] = false;
                     }
                 }
-
+                
+                // remove isolated regions
                 for(std::map<int, bool>::iterator it = isolated_region.begin(); it != isolated_region.end() ; it++){
                     if( it->second )
                         removed_regions[it->first] = true;
                 }
 
+                // paint of wite regions to remove. 
                 for (int y = 0; y < height; y++)
                     for (int x = 0; x < width; x++) {
                         int comp = u->find(y * width + x);
@@ -198,17 +205,15 @@ QImage Segmentation::getResult( ){
 
     int width = input->width();
     int height = input->height();
-
-    // pick random colors for each component
     float average_r =0.;
     float average_g =0.;
     float average_b =0.;
-
     int nb_pixels = 0;
 
     for (int y = 0; y < height; y++) 
         for (int x = 0; x < width; x++) {
             int comp = u->find(y * width + x);
+            // All removed regions will have an average color computed with the colors of each removed region
             if( removed_regions[comp] ){
                 average_r += imRef(input, x, y).r;
                 average_g += imRef(input, x, y).g;
@@ -224,11 +229,10 @@ QImage Segmentation::getResult( ){
     for (int y = 0; y < height; y++)
         for (int x = 0; x < width; x++) {
             int comp = u->find(y * width + x);
-            if( ! removed_regions[comp] ){
-
+            if( ! removed_regions[comp] ){ // set pixel with original color
                 rgb color = imRef(input, x, y);
                 result.setPixel(x, y , qRgb(color.r, color.g, color.b));
-            } else
+            } else // set pixel with average color from removed regions. 
                 result.setPixel(x, y , qRgb(average_r, average_g, average_b));
         }
     
