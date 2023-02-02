@@ -17,6 +17,8 @@ You should have received a copy of the GNU Affero General Public License along w
 #include <QImage>
 #include <QColor>
 
+#include "Segmentation.h"
+
 // Auxiliary Function to get cfimage from a QImage
 Cfimage cfimages_from_qimage( const QImage &input_image  ){
 
@@ -47,89 +49,104 @@ Cfimage cfimages_from_qimage( const QImage &input_image  ){
 }
 
 int main(int argc, char *argv[])
-{
-    
+{   
     // Read input parameters
     char * file_name = argv[1];
     int mode = atoi(argv[2]);
     int model = atoi(argv[3]);
-    int alternative_model = atoi(argv[4]);
+    std::stringstream ss0(argv[4]);
+    bool segmentWithMask;
+    ss0 >> std::boolalpha >> segmentWithMask;
+    int alternative_model = atoi(argv[5]);
 
-    std::stringstream ss(argv[5]);
+    std::stringstream ss(argv[6]);
     bool options_shapeabstraction;
     ss >> std::boolalpha >> options_shapeabstraction;
-    int color_sketch_shapeabstraction=atoi(argv[6]);
-    int minarea_shapeabstraction=atof(argv[7]);
-    int maxarea_shapeabstraction=atof(argv[8]);
-    int scaleratio_shapeabstraction=atoi(argv[9]);
-    float threshold_shapeabstraction=atof(argv[10]);
-    float eps_shapeabstraction=atof(argv[11]);
-    int renderOrder_shapeabstraction=atoi(argv[12]);
-    float alpha_shapeabstraction=atof(argv[13]);
+    int color_sketch_shapeabstraction=atoi(argv[7]);
+    int minarea_shapeabstraction=atof(argv[8]);
+    int maxarea_shapeabstraction=atof(argv[9]);
+    int scaleratio_shapeabstraction=atoi(argv[10]);
+    float threshold_shapeabstraction=atof(argv[11]);
+    float eps_shapeabstraction=atof(argv[12]);
+    int renderOrder_shapeabstraction=atoi(argv[13]);
+    float alpha_shapeabstraction=atof(argv[14]);
 
-    std::stringstream ss1(argv[14]);
+    std::stringstream ss1(argv[15]);
     bool options_watercolor;
     ss1 >> std::boolalpha >> options_watercolor;
-    int color_sketch_watercolor=atoi(argv[15]);
-    int minarea_watercolor=atof(argv[16]);
-    int maxarea_watercolor=atof(argv[17]);
-    int scaleratio_watercolor=atoi(argv[18]);
-    float threshold_watercolor=atof(argv[19]);
-    float eps_watercolor=atof(argv[20]);
-    int renderOrder_watercolor=atoi(argv[21]);
-    float alpha_watercolor=atof(argv[22]);
+    int color_sketch_watercolor=atoi(argv[16]);
+    int minarea_watercolor=atof(argv[17]);
+    int maxarea_watercolor=atof(argv[18]);
+    int scaleratio_watercolor=atoi(argv[19]);
+    float threshold_watercolor=atof(argv[20]);
+    float eps_watercolor=atof(argv[21]);
+    int renderOrder_watercolor=atoi(argv[22]);
+    float alpha_watercolor=atof(argv[23]);
 
-    std::stringstream ss2(argv[23]);
+    std::stringstream ss2(argv[24]);
     bool options_shaking;
     ss2 >> std::boolalpha >> options_shaking;
-    int color_sketch_shaking=atoi(argv[24]);
-    int minarea_shaking=atof(argv[25]);
-    int maxarea_shaking=atof(argv[26]);
-    int scaleratio_shaking=atoi(argv[27]);
-    float threshold_shaking=atof(argv[28]);
-    float eps_shaking=atof(argv[29]);
-    int renderOrder_shaking=atoi(argv[30]);
-    float alpha_shaking=atof(argv[31]);
+    int color_sketch_shaking=atoi(argv[25]);
+    int minarea_shaking=atof(argv[26]);
+    int maxarea_shaking=atof(argv[27]);
+    int scaleratio_shaking=atoi(argv[28]);
+    float threshold_shaking=atof(argv[29]);
+    float eps_shaking=atof(argv[30]);
+    int renderOrder_shaking=atoi(argv[31]);
+    float alpha_shaking=atof(argv[32]);
 
-    std::stringstream ss3(argv[32]);
+    std::stringstream ss3(argv[33]);
     bool options_shapefiltering;
     ss3 >> std::boolalpha >> options_shapefiltering;
-    int color_sketch_shapefiltering=atoi(argv[33]);
-    int minarea_shapefiltering=atof(argv[34]);
-    int maxarea_shapefiltering=atof(argv[35]);
-    int scaleratio_shapefiltering=atoi(argv[36]);
-    float threshold_shapefiltering=atof(argv[37]);
-    float eps_shapefiltering=atof(argv[38]);
-    int renderOrder_shapefiltering=atoi(argv[39]);
-    float alpha_shapefiltering=atof(argv[40]);
+    int color_sketch_shapefiltering=atoi(argv[34]);
+    int minarea_shapefiltering=atof(argv[35]);
+    int maxarea_shapefiltering=atof(argv[36]);
+    int scaleratio_shapefiltering=atoi(argv[37]);
+    float threshold_shapefiltering=atof(argv[38]);
+    float eps_shapefiltering=atof(argv[39]);
+    int renderOrder_shapefiltering=atoi(argv[40]);
+    float alpha_shapefiltering=atof(argv[41]);
 
-    std::stringstream ss4(argv[41]);
+    std::stringstream ss4(argv[42]);
     bool options_styletransfer;
     ss4 >> std::boolalpha >> options_styletransfer;
-    int color_sketch_styletransfer=atoi(argv[42]);
-    int minarea_styletransfer=atof(argv[43]);
-    int maxarea_styletransfer=atof(argv[44]);
-    int scaleratio_styletransfer=atoi(argv[45]);
-    float threshold_styletransfer=atof(argv[46]);
-    float eps_styletransfer=atof(argv[47]);
-    int renderOrder_styletransfer=atoi(argv[48]);
-    float alpha_styletransfer=atof(argv[49]);
-    int modelDictionary = atoi(argv[50]); 
-    int mcolor = atoi(argv[51]);
-    int color_background = atoi(argv[52]);
-    int equal = atoi(argv[53]);
-    float kappaDict = atof(argv[54]);
+    int color_sketch_styletransfer=atoi(argv[43]);
+    int minarea_styletransfer=atof(argv[44]);
+    int maxarea_styletransfer=atof(argv[45]);
+    int scaleratio_styletransfer=atoi(argv[46]);
+    float threshold_styletransfer=atof(argv[47]);
+    float eps_styletransfer=atof(argv[48]);
+    int renderOrder_styletransfer=atoi(argv[49]);
+    float alpha_styletransfer=atof(argv[50]);
+    int modelDictionary = atoi(argv[51]); 
+    int mcolor = atoi(argv[52]);
+    int color_background = atoi(argv[53]);
+    int equal = atoi(argv[54]);
+    float kappaDict = atof(argv[55]);
 
-    char * dictionary_file_name = argv[55];
-    char * mask_file_name = argv[56];  
+    char * dictionary_file_name = argv[56];
+    char * mask_file_name = argv[57];  
     
     // Load Image
     QImage image(file_name);
-
-    // Load Mask
-    QImage image_mask(mask_file_name);
        
     TreeOfShapes * TOS = new TreeOfShapes(cfimages_from_qimage(image));
+
+    // Load Mask and compute its pixels
+    QImage image_mask(mask_file_name);
+    TOS->compute_list_pixels_mask(image_mask);
+
+    // Update image if segmentation is selected. 
+    if (segmentWithMask){ //parameter for segmentation
+       std::cout << "Segmentation of image " << std::endl;
+       QImage imageSeg;
+       Segmentation * segmentation = new Segmentation (image);
+       imageSeg = segmentation->segment( 0.5, 500, 50); // segParameters.c = 500;  segParameters.min_size = 50; segParameters.sigma = 0.5;
+       imageSeg = segmentation->removeRegionUnder(TOS->getArrayPixelsMask(), TOS->getLen_ArrayPixelsMask());
+       imageSeg = segmentation->getResult();
+       TOS->setCfImage(cfimages_from_qimage(imageSeg));
+       imageSeg.save("image_segmented.png"); 
+    };
 
     QImage resulting_image;
 
@@ -234,10 +251,10 @@ int main(int argc, char *argv[])
         dictionary->compute_tree( getDefaultTOSParameters(), true);
 
         // Run abstraction
-        resulting_image = TOS->render(TOSParameters, image_mask, alternative_model, dictionary, dictionaryParameters);
+        resulting_image = TOS->render(TOSParameters, segmentWithMask, alternative_model, dictionary, dictionaryParameters);
     } else {
         // Run abstraction
-        resulting_image = TOS->render(TOSParameters, image_mask, alternative_model);
+        resulting_image = TOS->render(TOSParameters, segmentWithMask, alternative_model);
     };
 
     resulting_image.save("result.png");   
