@@ -17,6 +17,8 @@ You should have received a copy of the GNU Affero General Public License along w
 #include <QImage>
 #include <QColor>
 
+#include "Segmentation.h"
+
 // Auxiliary Function to get cfimage from a QImage
 Cfimage cfimages_from_qimage( const QImage &input_image  ){
 

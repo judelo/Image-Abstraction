@@ -41,7 +41,7 @@ public:
     void compute_list_pixels_mask(QImage image_mask);
     int getTreeId(){ return _tree_id; }
     int getMaxArea(){ return _maxArea; }
-    int getArrayPixelsMask(){ return _ArrayPixelsMask; }
+    Point_plane getArrayPixelsMask(){ return _ArrayPixelsMask; }
     int getLen_ArrayPixelsMask(){ return _len_ArrayPixelsMask; }
 protected:
     bool _tree_computed;
