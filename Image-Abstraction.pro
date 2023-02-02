@@ -8,11 +8,13 @@ TARGET = image_abstraction
 INCLUDEPATH += src/flst  \
     src/synth \
     src/mw3 \
+    src/segment \
     src/kdtree \
     src/kdtree/ann/include
 DEPENDPATH += src/flst \
     src/synth \
     src/mw3 \
+    src/segment \
     src/kdtree \
     src/kdtree/ann/include
 
@@ -21,12 +23,14 @@ HEADERS       =  src/flst/*.h \
     src/synth/*.h \
     src/kdtree/*.h \
     src/kdtree/ann/include/ANN/*.h \
+    src/segment/*.h \
     TreeOfShapes.h
 SOURCES       = main.cpp \
     src/flst/*.c \
     src/mw3/*.c \
     src/synth/*.c \
     src/kdtree/ann/src/*.cpp \
+    src/segment/*.cpp \
     TreeOfShapes.cpp
 LIBS = -L/usr/lib/x86_64-linux-gnu/
 

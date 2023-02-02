@@ -47,8 +47,7 @@ Cfimage cfimages_from_qimage( const QImage &input_image  ){
 }
 
 int main(int argc, char *argv[])
-{
-    
+{   
     // Read input parameters
     char * file_name = argv[1];
     int mode = atoi(argv[2]);
@@ -130,6 +129,20 @@ int main(int argc, char *argv[])
     QImage image_mask(mask_file_name);
        
     TreeOfShapes * TOS = new TreeOfShapes(cfimages_from_qimage(image));
+
+    ////////////////
+    // Update image if segmentation is selected. 
+    if (1==1){ //parameter for segmentation
+       QImage imageSeg(file_name);
+       TOS->compute_list_pixels_mask(image_mask);
+       Segmentation * segmentation = new Segmentation (imageSeg);
+       imageSeg = segmentation->segment( 0.5, 500, 50); // segParameters.c = 500;  segParameters.min_size = 50; segParameters.sigma = 0.5;
+       imageSeg = segmentation->removeRegionUnder(TOS->getArrayPixelsMask(), TOS->getLen_ArrayPixelsMask());
+       imageSeg = segmentation->getResult();
+       imageSeg.save("result.png"); //other name
+       TOS->setCfImage(cfimages_from_qimage(imageSeg));
+    };
+    ////////////////
 
     QImage resulting_image;
 
@@ -240,5 +253,5 @@ int main(int argc, char *argv[])
         resulting_image = TOS->render(TOSParameters, image_mask, alternative_model);
     };
 
-    resulting_image.save("result.png");   
+    //resulting_image.save("result.png");   
 }
