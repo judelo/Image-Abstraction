@@ -76,6 +76,7 @@ typedef struct DictionaryParameters {
     float paC2S; //   "parameter for transfer: areaOFconnectcomponent / areaOFshape, if parameter < paC2S, shape is removed",
     float paS2P; //   "parameter for transfer: areaOFshape / areaOFshapeparent, if parameter > paS2P, shape is removed",
     float kappaDict; // "compactness parameter of the attribute filtering on the transferred image",
+    int color_background; // color_background=0 use the color for background of tranferred image, otherwise use the color for background of the orignal image",
 } DictionaryParameters;
 
 TOSParameters getDefaultTOSParameters();
