@@ -1418,7 +1418,7 @@ void TreeOfShapes::shift_shapes(float *shift, float *theta, int mode){
 }
 
 
-QImage TreeOfShapes::render(TOSParameters tosParameters, int, segmentWithMask, int alternative_model, int segTreeOfShapes *tosDictionary, DictionaryParameters dictionaryParameters ){
+QImage TreeOfShapes::render(TOSParameters tosParameters, int segmentWithMask, int alternative_model, int segTreeOfShapes *tosDictionary, DictionaryParameters dictionaryParameters ){
     
     std::cout <<"TreeOfShapes::Abstraction started"<< std::endl;
 
