@@ -1145,10 +1145,10 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,float *minarea,float *m
 
         // Conditions to remove shape
         // Area smaller than mpixel or larger than maxpixel or
-        // (area/area_grand_parent)*(Contrast between shape and parent) is less than threshold or
-        // distance multiply by contrast between shape and parent is negative. How can be negative??
-        //removed: || Dist*CONTR < 0.
-        if(pShape->area <= mpixel || maxpixel < pShape->area || (((Info*)(pShape->data))->attribute[0])*CONTR<= thre || ((((Info*)(pShape->data))->attribute[0])< (*k)))
+        // (area/area_parent)*Contrast between both is less than threshold or
+        // distance multiply by contrast between shape and parent is negative. How can be negative?? or 
+        // (area/area_parent) smaller than compactess parameter. // How can be negative?? k it is set to zero for all tasks. 
+        if(pShape->area <= mpixel || maxpixel < pShape->area || (((Info*)(pShape->data))->attribute[0])*CONTR<= thre || Dist*CONTR < 0. || ((((Info*)(pShape->data))->attribute[0])< (*k)))
             pShape->removed = 1;
         else
             pShape->removed = 0;
