@@ -992,8 +992,10 @@ Fsignal TreeOfShapes::Sgauss(float *std, Fsignal out, int *size){
         for (j = i; j<n; j++){
             out->values[j*n + i] = sgaussX->values[i] * sgaussY->values[j];
             out->values[i*n + j] = out->values[j*n + i];
-            sum += out->values[i*n + j];
+            //sum += out->values[i*n + j];
         }
+    for (i = 0; i<n*n; i++)
+         sum += out->values[i];
     for (i = 0; i<n*n; i++)
         out->values[i] /= sum;
 
