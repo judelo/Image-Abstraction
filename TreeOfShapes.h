@@ -71,7 +71,7 @@ protected:
     Fsignal sgauss(float *std, Fsignal out, int *size);
     Fsignal Sgauss(float *std, Fsignal out, int *size);
     void compute_shape_attribute(int *ns);
-    void filter_image(int *ns,float *threshold,float *minarea,float *maxarea, int totalSize);
+    void filter_image(int *ns,float *threshold,float *minarea,float *maxarea, int totalSize, float *k);
     void filter_shapes( Cfimage out,char *local,float *eps);
     void get_shapes_truearea(Shape s, Shape root,int *truearea);
     int random_number(int *M);

@@ -54,10 +54,8 @@ void TreeOfShapes::init(Cfimage inputImg, Shapes &pTree){
 
     if  ( ((imgIntensity = mw_new_fimage()) == NULL) || (mw_alloc_fimage(imgIntensity,inputImg->nrow,inputImg->ncol) == NULL) )
         mwerror(FATAL,1,"Not enough memory.\n");
-
     if((pTree = mw_new_shapes()) == NULL)
         mwerror(FATAL, 1, "fgrain --> Not enough memory to allocate the tree of shapes");
-
     if  ( ((_NormOfDu = mw_new_fimage()) == NULL) || (mw_alloc_fimage(_NormOfDu,inputImg->nrow,inputImg->ncol) == NULL) )
         mwerror(FATAL,1,"Not enough memory.\n");
 
@@ -268,7 +266,7 @@ void TreeOfShapes::tree_boundingbox(){
 }
 
 
-// Compute shape attributes for the tree of shapes: orientation, elongarion, color, etc.  
+// Compute shape attributes for the tree of shapes: orientation, engienvalues of shapes, color, contrast.  
 void TreeOfShapes::compute_shape_attribute(){
     float oren, lamb1, lamb2, x0, y0, length;
     Shape pShape;
@@ -310,7 +308,7 @@ void TreeOfShapes::compute_shape_attribute(){
 }
 
 
-// Compute shape attribute  
+// Compute shape attributes: elongation, orientation, compactness.  
 void TreeOfShapes::compute_shape_attribute(int *ns){
     float oren, elg, kap, x0, y0;
     Shape pShape, pShapeTemp;
@@ -322,12 +320,16 @@ void TreeOfShapes::compute_shape_attribute(int *ns){
         pShapeTemp = m_order_parent(pShape, *ns);
         ((Info*)(pShape->data))->attribute[0] = ((float) pShape->area)/((float) pShapeTemp->area);
 
+        // To delete
+        /*
         if( ((Info*)(pShape->data))->attribute[0] <= ((float) pShape->area)/((float) pShapeTemp->area))
             ((Info*)(pShape->data))->attribute[0] = ((float) pShape->area)/((float) pShapeTemp->area);
-        
+        */
+        // Update attribute 0 of parent shape. 
         if( ((Info*)(pShapeTemp->data))->attribute[0] <= ((float) pShape->area)/((float) pShapeTemp->area))
             ((Info*)(pShapeTemp->data))->attribute[0] = ((float) pShape->area)/((float) pShapeTemp->area);
-
+        
+        
         ((Info*)(pShape->data))->attribute[1] = kap;
         ((Info*)(pShape->data))->attribute[2] = elg;
         ((Info*)(pShape->data))->attribute[3] = oren;
@@ -519,7 +521,7 @@ void TreeOfShapes::synshape(int model, Shape pShape,Ccimage imgsyn, float *alpha
     phi = ((Info*)(pShape->data))->oren;
 
     // Compute limits of shape before shaking
-    if (model == 0){ //Original
+    if (model == 0){ //Original. We compute the actual point in for loop. 
         left   = 0;
         right  = _pTree->ncol -1;
         top    = 0;
@@ -565,7 +567,7 @@ void TreeOfShapes::synshape(int model, Shape pShape,Ccimage imgsyn, float *alpha
 
                 xr = (x - x0temp)*cos(theta) + (y - y0temp)*sin(theta);
                 yr = (y - y0temp)*cos(theta) - (x - x0temp)*sin(theta);
-
+                // Point of shape: (xi_e, yi_e)
                 xi_e = floor(xShift + x0temp + xr);
                 yi_e = floor(yShift + y0temp + yr);
 
@@ -643,8 +645,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
         TR = ((Info*)(pShapeDict->data))->r + tempx*0;
         TG = ((Info*)(pShapeDict->data))->g + tempx*0;
         TB = ((Info*)(pShapeDict->data))->b + tempx*0;
-    }
-    else{
+    } else{
         TR  = ((Info*)(pShape->data))->r + tempx*0;
         TG  = ((Info*)(pShape->data))->g + tempx*0;
         TB  = ((Info*)(pShape->data))->b + tempx*0;
@@ -659,8 +660,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
     if(*equal == 1){
         SCALEx = sqrt( (double) pShape->area / (double) pShapeDict->area );
         SCALEy = SCALEx;
-    }
-    else{
+    } else{
         SCALEx =  sqrt( ((Info*)(pShape->data))->lambda1) /  sqrt(((Info*)(pShapeDict->data))->lambda1 );
         SCALEy =  sqrt( ((Info*)(pShape->data))->lambda2) /  sqrt(((Info*)(pShapeDict->data))->lambda2 );
     }
@@ -878,8 +878,7 @@ void TreeOfShapes::synshapeOriginal(Shape pShape,
         xi = floor(xShift + x0temp + xr);
         yi = floor(yShift + y0temp + yr);
 
-        if(xi<0 || xi>= imgShapeLabelSyn->ncol ||
-                yi<0 || yi>= imgShapeLabelSyn->nrow )
+        if(xi<0 || xi>= imgShapeLabelSyn->ncol || yi<0 || yi>= imgShapeLabelSyn->nrow )
             continue;
 
         imgShapeLabelSyn->gray[yi*imgShapeLabelSyn->ncol + xi] = 1;
@@ -940,8 +939,7 @@ void TreeOfShapes::sortShapes(Fsignal t2b_index){
 
 
 // Generate a 1D Gaussian kernel. Used for generate a 2D Gaussian kernel
-Fsignal TreeOfShapes::sgauss(float *std, Fsignal out, int *size){
-    
+Fsignal TreeOfShapes::sgauss(float *std, Fsignal out, int *size){  
     int i,n;
     double sum, v;
 
@@ -978,7 +976,7 @@ Fsignal TreeOfShapes::sgauss(float *std, Fsignal out, int *size){
 Fsignal TreeOfShapes::Sgauss(float *std, Fsignal out, int *size){
     Fsignal sgaussX, sgaussY;
     int i, j, n;
-    float sum;
+    float sum= 0.0;
     n = *size;
 
     if  ( ((sgaussX = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(sgaussX, n) == NULL) )
@@ -988,28 +986,24 @@ Fsignal TreeOfShapes::Sgauss(float *std, Fsignal out, int *size){
 
     sgaussX = sgauss(std, sgaussX, size);
     sgaussY = sgauss(std, sgaussY, size);
-
     out = mw_change_fsignal(out, n*n);
+
     for (i = 0; i<n; i++)
         for (j = i; j<n; j++){
             out->values[j*n + i] = sgaussX->values[i] * sgaussY->values[j];
             out->values[i*n + j] = out->values[j*n + i];
+            sum += out->values[i*n + j];
         }
-    sum = 0.0;
-    for (i = 0; i<n*n; i++)
-        sum += out->values[i];
     for (i = 0; i<n*n; i++)
         out->values[i] /= sum;
 
     mw_delete_fsignal(sgaussX);
     mw_delete_fsignal(sgaussY);
-
     return(out);
 }
 
-
+// Recursively compute area of shapes when holes are removed 
 void TreeOfShapes::get_shapes_truearea(Shape s, Shape root, int *truearea){
-
     int index = s-root;
     truearea[index] = s->area;
     Shape t = mw_get_first_child_shape(s);
@@ -1107,7 +1101,7 @@ void TreeOfShapes::filter_shapes( Cfimage out, char *local, float *eps){
 
 
 // Filter the image  
-void TreeOfShapes::filter_image(int *ns,float *threshold,float *minarea,float *maxarea, int totalSize){
+void TreeOfShapes::filter_image(int *ns,float *threshold,float *minarea,float *maxarea, int totalSize, float *k){
     // Declare variables here
     int i, nn;
     float elong, elong_pre, kappa, kappa_pre, oren, oren_pre, sca, sca_pre, Dist, thre, CONTR, mpixel, maxpixel;
@@ -1127,7 +1121,8 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,float *minarea,float *m
 
         if(pShape->parent == NULL)
             continue;
-
+        
+        // compute distance of color between shape and parent shape (Contrast)
         CONTR = sqrt(pow((((Info*)(pShape->data))->r - ((Info*)(pShape->parent->data))->r), 2.0) +
                      pow((((Info*)(pShape->data))->g - ((Info*)(pShape->parent->data))->g), 2.0) +
                      pow((((Info*)(pShape->data))->b - ((Info*)(pShape->parent->data))->b), 2.0));
@@ -1141,71 +1136,70 @@ void TreeOfShapes::filter_image(int *ns,float *threshold,float *minarea,float *m
         kappa_pre = ((Info*)(pShape->parent->data))->attribute[1];
         oren_pre  = ((Info*)(pShape->parent->data))->attribute[3];
         sca_pre   = (float) pShape->parent->area;
-
+        
+        // compute distance according to elongation, compactness, scale and area
         Dist = sqrt((elong - elong_pre)*(elong - elong_pre) +
                     (kappa - kappa_pre)*(kappa - kappa_pre) +
                     (oren - oren_pre)*(oren - oren_pre)/(PI*PI) +
                     (1 - _MIN(sca_pre/sca, sca/sca_pre))*(1 - _MIN(sca_pre/sca, sca/sca_pre)))/4;
 
-        if(pShape->area <= mpixel || maxpixel < pShape->area || (((Info*)(pShape->data))->attribute[0])*CONTR<= thre || Dist*CONTR < 0.)
+        // Conditions to remove shape
+        // Area smaller than mpixel or larger than maxpixel or
+        // (area/area_parent)*Contrast between both is less than threshold or
+        // distance multiply by contrast between shape and parent is negative. How can be negative?? or 
+        // (area/area_parent) smaller than compactess parameter. // How can be negative?? k it is set to zero for all tasks. 
+        if(pShape->area <= mpixel || maxpixel < pShape->area || (((Info*)(pShape->data))->attribute[0])*CONTR<= thre || Dist*CONTR < 0. || ((((Info*)(pShape->data))->attribute[0])< (*k)))
             pShape->removed = 1;
         else
             pShape->removed = 0;
-
+        
+        // First shape it's not removed
         if(i ==0)
             pShape->removed = 0;
     };
 }
 
-
+// Selects random number smaller than (*M). 
 int TreeOfShapes::random_number(int *M){
-
     int i, size, select_i;
-    float pb_sum, temp;
+    float temp = ((float)rand())/RAND_MAX;
     Fsignal pb=0;
-
     size = *M;
     select_i = size-1;
 
-    pb_sum = 0.0;
     pb = mw_change_fsignal(pb,size);
     mw_clear_fsignal(pb,0.0);
 
-    for(i=0; i< size; i++){
-        // Sampling by uniform distribution
-        pb->values[i] = 1;
-        pb_sum += pb->values[i];
-    }
-
+    // Sampling by uniform distribution
     for(i=0; i< size; i++)
-        pb->values[i] /= pb_sum;
+        pb->values[i] = 1/size;
 
-    for(i=1; i< size; i++)
+    for(i=1; i< size; i++){
         pb->values[i] += pb->values[i-1];
-
-    temp = ((float)rand())/RAND_MAX;
-
-    for(i= 0; i< size; i++)
         if( temp <= pb->values[i]){
             select_i = i;
             break;
         }
+    }
 
     mw_delete_fsignal(pb);
     return select_i;
 }
 
 
+// Function to Compute kd_tree in case there are more than 1000 shapes in the tree.
 void TreeOfShapes::computeKdTree(float average_r, float average_g, float average_b ){
     _use_kdtree = false;
     float lambda1, lambda2, elongDict, kappaDict, scaDict;
 
+    // Compute kd_tree in case there are more than 1000 shapes in the tree. 
     if( _pTree->nb_shapes > 1000 ){
         std::cout <<"Building KD tree" << std::endl;
         _annTree = BasicANNkdTree(6);
         Shape pShape;
 
         std::vector<std::vector<float>> values;
+        // Compute values for all shapes to push into the kd_tree. 
         for(int i=1; i < _pTree->nb_shapes; i++){
             pShape = _pTree->the_shapes + i;
             lambda1 = ((Info*)(pShape->data))->lambda1;
@@ -1230,9 +1224,6 @@ void TreeOfShapes::computeKdTree(float average_r, float average_g, float average
 }
 
 // Select Shape according to the distance of its attributes
-// randS=0, randomly select shapes;           
-// randS=1, select shapes according to elongation, compactness and scale;  
-// randS=2, select shapes according to elongation, compactness, scale and color
 Shape TreeOfShapes::selectShapeDict(Shape pShape,
                                     float *paDict,
                                     int *randS,
@@ -1252,18 +1243,20 @@ Shape TreeOfShapes::selectShapeDict(Shape pShape,
     sca = ((float) pShape->area);
     index = 1; 
     minDist = 10000.0;
-
-    if(*randS == 0){
+    
+    if(*randS == 0){ // randS=0, randomly select shapes; 
         temp = _pTree->nb_shapes -1;
         index = random_number(&temp) + 1;
     } else{
+        // randS=1, select shapes according to elongation, compactness and scale;  
+        // randS=2, select shapes according to elongation, compactness, scale and color
         if (!_use_kdtree){
             for(i= 1; i<_pTree->nb_shapes; i++){
+
+                // Attribute filtering. Index the 3th parent of the shape to compute compactness.  
                 pShapeDict = _pTree->the_shapes + i;
                 pShapeTemp =  m_order_parent(pShapeDict, 3, true);
-                pa = ((float) pShapeDict->area)/((float) pShapeTemp->area);
-
-                if(pa < *paDict)
+                if((((float) pShapeDict->area)/((float) pShapeTemp->area)) < *paDict)
                     continue;
 
                 lambda1 = ((Info*)(pShapeDict->data))->lambda1;
@@ -1271,9 +1264,11 @@ Shape TreeOfShapes::selectShapeDict(Shape pShape,
                 elongDict = lambda2 / lambda1;
                 kappaDict = ((float) pShapeDict->area)/(sqrt(lambda2*lambda1)*4*PI);
                 scaDict = ((float) pShapeDict->area);
-
+                
+                // compute distance according to elongation, compactness and scale 
                 Dist = pow((elong - elongDict), 2.0) + pow((kappa - kappaDict), 2.0) + pow((1 - _MIN(sca/scaDict, scaDict/sca)), 2.0);
-
+                
+                // if randS==2, Add information of color to the distance
                 if(*randS == 2){
                     Dist +=  ( pow((1 - _MIN(((Info*)(pShape->data))->r/((Info*)(pShapeDict->data))->r,
                                              ((Info*)(pShapeDict->data))->r/((Info*)(pShape->data))->r)), 2.0) +
@@ -1282,13 +1277,15 @@ Shape TreeOfShapes::selectShapeDict(Shape pShape,
                                pow((1 - _MIN(((Info*)(pShape->data))->b/((Info*)(pShapeDict->data))->b,
                                              ((Info*)(pShapeDict->data))->b/((Info*)(pShape->data))->b)), 2.0) )/3.0;
                 }
-
+                
+                // Update closest shape
                 if(minDist > Dist){
                     minDist = Dist;
                     index = i;
                 }
             }
         } else{
+            // Get the k=10 nearest neighbors using kd_tree. 
             std::vector<float> value;
             value.push_back(elong);
             value.push_back(kappa);
@@ -1303,11 +1300,11 @@ Shape TreeOfShapes::selectShapeDict(Shape pShape,
             _annTree.knearest(value, k, neighbors, neighbors_sqr_dists);
 
             for(i= 1; i<k; i++){
+
+                // Attribute filtering. Index the 3th parent of the shape to compute compactness  
                 pShapeDict = _pTree->the_shapes + (int)neighbors[i];
                 pShapeTemp =  m_order_parent(pShapeDict, 3, true);
-                pa = ((float) pShapeDict->area)/((float) pShapeTemp->area);
-
-                if(pa < *paDict)
+                if((((float) pShapeDict->area)/((float) pShapeTemp->area)) < *paDict)
                     continue;
 
                 lambda1 = ((Info*)(pShapeDict->data))->lambda1;
@@ -1316,8 +1313,10 @@ Shape TreeOfShapes::selectShapeDict(Shape pShape,
                 kappaDict = ((float) pShapeDict->area)/(sqrt(lambda2*lambda1)*4*PI);
                 scaDict = ((float) pShapeDict->area);
 
+                // Compute distance according to elongation, compactness and scale 
                 Dist = pow((elong - elongDict), 2.0) + pow((kappa - kappaDict), 2.0) + pow((1 - _MIN(sca/scaDict, scaDict/sca)), 2.0);
 
+                // randS=2. Add information of color to the distance
                 if(*randS == 2){
                     Dist +=  ( pow((1 - _MIN(((Info*)(pShape->data))->r/((Info*)(pShapeDict->data))->r,
                                              ((Info*)(pShapeDict->data))->r/((Info*)(pShape->data))->r)), 2.0) +
@@ -1326,7 +1325,8 @@ Shape TreeOfShapes::selectShapeDict(Shape pShape,
                                pow((1 - _MIN(((Info*)(pShape->data))->b/((Info*)(pShapeDict->data))->b,
                                              ((Info*)(pShapeDict->data))->b/((Info*)(pShape->data))->b)), 2.0) )/3.0;
                 }
-
+                
+                // Update closest shape 
                 if(minDist > Dist){
                     minDist = Dist;
                     index = (int)neighbors[i];
@@ -1399,6 +1399,7 @@ void TreeOfShapes::compute_list_pixels_mask(QImage image_mask){
         };
 }
 
+// Function to add a random shift to each shape of the tree. Additionaly add also a random rotation to each shape (smode =1)
 void TreeOfShapes::shift_shapes(float *shift, float *theta, int mode){
     int i,j;
     Shape pShape;
@@ -1488,7 +1489,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
     // Image filtering    
     std::cout << "Image filtering" << std::endl;
     totalSize = _imgin->nrow * _imgin->ncol;
-    filter_image(&tosParameters.ns,&tosParameters.threshold, &tosParameters.minarea, &tosParameters.maxarea, totalSize);
+    filter_image(&tosParameters.ns,&tosParameters.threshold, &tosParameters.minarea, &tosParameters.maxarea, totalSize, &tosParameters.kappa);
 
     // Select the rendering order 
     std::cout << "Rendering order " << tosParameters.order <<std::endl;
@@ -1573,10 +1574,12 @@ QImage TreeOfShapes::render(TOSParameters tosParameters,  QImage image_mask, int
         } 
         else if(pShape->removed != 1){
 
-                // Attribute filtering. Index the 3th parent of the shape. 
+                // Attribute filtering. Index the 3th parent of the shape to compute compactness. 
+                /* 
                 pShapeTemp =  m_order_parent(pShape, 3);
                 if(((float) pShape->area)/((float) pShapeTemp->area) < tosParameters.kappa)
                     continue;
+                */
 
                 // Verify if some point of the mask touch the shape. 
                 modelToUse = tosParameters.model;
