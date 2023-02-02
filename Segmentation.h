@@ -16,7 +16,8 @@ public:
     Segmentation(const QImage & input_image);
     ~Segmentation();
     QImage segment(float sigma, float c, int min_size);
-    QImage removeRegionUnder(Point_plane ArrayPixelsMask, int len_ArrayPixelsMask)
+    QImage removeRegionUnder(Point_plane ArrayPixelsMask, int len_ArrayPixelsMask);
+    QImage getResult();
 protected:
     image<rgb> *input;
     image<rgb> *segmentation;
