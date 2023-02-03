@@ -578,7 +578,7 @@ void TreeOfShapes::synshape(int model, Shape pShape,Ccimage imgsyn, float *alpha
 void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                                 Ccimage imgsyn,Cfimage imgDict, 
                                 Cfimage imgShapeColorSyn,Cimage imgShapeLabelDict, Cimage imgShapeLabelSyn,Fimage imgShapeBlurSyn,
-                                Fsignal gaussKernel,]int *median,
+                                Fsignal gaussKernel,int *median,
                                 float *alpha,
                                 int *equal, int *mcolor){
 
