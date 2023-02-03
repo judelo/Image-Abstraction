@@ -658,6 +658,31 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
 
     MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
 
+    for(x = ceil(left); x <= right; x++)
+         for(y = ceil(top); y <= bottom; y++){
+             index = y*imgShapeLabelSyn->ncol + x;
+
+             if(imgShapeLabelSyn->gray[index] == 0 ){
+                 xt = (x - x0temp);
+                 yt = (y - y0temp);
+
+                 // Rotate to the major axis for scaling
+                 xi = ( (1/SCALEx)* (xt*cos(theta) + yt*sin(theta)));
+                 yi = ( (1/SCALEy)* (yt*cos(theta) - xt*sin(theta)));
+
+                 // Inverse-transformation
+                 xr = ( (xi*cos(thetaDict) - yi*sin(thetaDict)) + x0tempDict);
+                 yr = ( (yi*cos(thetaDict) + xi*sin(thetaDict)) + y0tempDict);
+
+                 if(xr <0 || xr >=imgShapeLabelDict->ncol || yr <0 || yr >=imgShapeLabelDict->nrow)
+                    continue;
+
+                 imgShapeColorSyn->red[index]   =  imgDict->red[(int)(yr)*imgShapeLabelDict->ncol + (int)(xr)];
+                 imgShapeColorSyn->green[index] =  imgDict->green[(int)(yr)*imgShapeLabelDict->ncol + (int)(xr)];
+                 imgShapeColorSyn->blue[index]  =  imgDict->blue[(int)(yr)*imgShapeLabelDict->ncol + (int)(xr)];
+             }
+         }
+
     if(*mcolor == 2){ // Color from dictionary
         TR = ((Info*)(pShapeDict->data))->r;
         TG = ((Info*)(pShapeDict->data))->g;
