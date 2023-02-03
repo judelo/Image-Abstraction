@@ -629,8 +629,6 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
     top    = _MAX(0, y0temp - bLimit);
     bottom = _MIN(imgsyn->nrow - 1, y0temp + bLimit);
 
-    std::cout <<"a"<< std::endl;
-
     // Transformation  
     for(x = ceil(left); x <= right; x++)
         for(y = ceil(top); y <= bottom; y++){
@@ -662,12 +660,16 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 imgShapeColorSyn->blue[index]  = imgDict->blue[(int)(yr)*imgShapeLabelDict->ncol + (int)(xr)];
             }
         }
-    std::cout <<"b"<< std::endl;
+    std::cout <<"a"<< std::endl;
 
     MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
 
+    std::cout <<"b"<< std::endl;
+
     for(x = ceil(left); x <= right; x++)
         for(y = ceil(top); y <= bottom; y++){
+            index = y*imgShapeLabelSyn->ncol + x;
+
             if(imgShapeLabelSyn->gray[index] == 0 ){
                 xt = (x - x0temp);
                 yt = (y - y0temp);
@@ -685,6 +687,8 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 imgShapeColorSyn->blue[index]  =  imgDict->blue[(int)(yr)*imgShapeLabelDict->ncol + (int)(xr)];
             }
         }
+        
+    std::cout <<"c"<< std::endl;
 
     if(*mcolor == 2){
         TR = ((Info*)(pShapeDict->data))->r;
