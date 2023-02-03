@@ -576,16 +576,13 @@ void TreeOfShapes::synshape(int model, Shape pShape,Ccimage imgsyn, float *alpha
 
 // Synthesis of shape using model dictionary and blur
 void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
-                                Ccimage imgsyn,
-                                Cfimage imgDict, Cfimage imgShapeColorSyn,
-                                Cimage imgShapeLabel, Cimage imgShapeLabelSyn,
-                                Fimage imgShapeBlurSyn,
-                                Fsignal gaussKernel,
-                                int *median,
+                                Ccimage imgsyn,Cfimage imgDict, 
+                                Cfimage imgShapeColorSyn,Cimage imgShapeLabelDict, Cimage imgShapeLabelSyn,Fimage imgShapeBlurSyn,
+                                Fsignal gaussKernel,]int *median,
                                 float *alpha,
                                 int *equal, int *mcolor){
 
-    int i, x, y, iKer, jKer, KerSize, MedSize, xKer, yKer, numMedain;
+    int i, x, y, iKer, jKer, KerSize, MedSize, xKer, yKer, numMedain, index;
     float xi, yi, xr, yr, xt, yt, x0temp, y0temp, x0tempDict, y0tempDict;
     float tR, tG, tB, ALPHA, tr, tg, tb, BETA, TR, TG, TB;
     float xBound_l, xBound_r, yBound_t, yBound_b;
@@ -603,9 +600,10 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
     for(i=0; i < pShapeDict->area; i++){
         x = (pShapeDict->pixels+i)->x;
         y = (pShapeDict->pixels+i)->y;
-        imgShapeLabel->gray[y*imgShapeLabel->ncol + x] = 1;
+        imgShapeLabelDict->gray[y*imgShapeLabelDict->ncol + x] = 1;
     }
     std::cout << "a " << std::endl; 
+    /*
     srand( time(NULL) );
     if(*mcolor == 1){
         tempx = (rand()%10);
@@ -623,6 +621,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
         TG = ((Info*)(pShapeDict->data))->g;
         TB = ((Info*)(pShapeDict->data))->b;
     }
+    */
 
     if(*equal == 1){
         SCALEx = sqrt( (double) pShape->area / (double) pShapeDict->area );
@@ -653,6 +652,8 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
     // Transformation  
     for(x = ceil(left); x <= right; x++)
         for(y = ceil(top); y <= bottom; y++){
+            index = y*imgShapeLabelSyn->ncol + x;
+
             xt = (x - x0temp);
             yt = (y - y0temp);
 
@@ -664,14 +665,14 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
             xr = ( (xi*cos(thetaDict) - yi*sin(thetaDict)) + x0tempDict);
             yr = ( (yi*cos(thetaDict) + xi*sin(thetaDict)) + y0tempDict);
 
-            if(xr <0 || xr >=imgShapeLabel->ncol || yr <0 || yr >=imgShapeLabel->nrow)
+            if(xr <0 || xr >=imgShapeLabelDict->ncol || yr <0 || yr >=imgShapeLabelDict->nrow)
                 continue;
-
-            if( imgShapeLabel->gray[(int)(yr)*imgShapeLabel->ncol + (int)(xr)] == 1 ){
-                imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] = 1;
-                imgShapeColorSyn->red[y*imgShapeLabelSyn->ncol + x]   =  imgDict->red[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
-                imgShapeColorSyn->green[y*imgShapeLabelSyn->ncol + x] =  imgDict->green[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
-                imgShapeColorSyn->blue[y*imgShapeLabelSyn->ncol + x]  =  imgDict->blue[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
+            
+            if( imgShapeLabelDict->gray[(int)(yr)*imgShapeLabelDict->ncol + (int)(xr)] == 1 ){
+                imgShapeLabelSyn->gray[index]  = 1;
+                imgShapeColorSyn->red[index]   =  imgDict->red[(int)(yr)*imgShapeLabelDict->ncol + (int)(xr)];
+                imgShapeColorSyn->green[index] =  imgDict->green[(int)(yr)*imgShapeLabelDict->ncol + (int)(xr)];
+                imgShapeColorSyn->blue[index]  =  imgDict->blue[(int)(yr)*imgShapeLabelDict->ncol + (int)(xr)];
             }
         }
     std::cout << "c " << std::endl;
@@ -679,7 +680,9 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
     MedSize = (int)((*median)/2.0);
     for(x = ceil(left); x <= right; x++)
         for(y = ceil(top); y <= bottom; y++){
+            index = y*imgShapeBlurSyn->ncol + x;
             numMedain = 0;
+
             for(iKer = - MedSize; iKer <= MedSize; iKer++)
                 for(jKer = - MedSize; jKer <= MedSize; jKer++){
                     xKer = x + iKer;
@@ -687,22 +690,21 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
 
                     if(xKer<0 || xKer>= imgShapeLabelSyn->ncol || yKer<0 || yKer>= imgShapeLabelSyn->nrow )
                         continue;
-
-                    imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] +=
-                            (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
+                    
+                    imgShapeBlurSyn->gray[index] += (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
                     numMedain++;
                 }
-            if( imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] < ((float) numMedain)/2.0 ){
-                imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
-            }
-            else{
-                imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 1.0;
-            }
+            if( imgShapeBlurSyn->gray[index] < ((float) numMedain)/2.0 )
+                imgShapeBlurSyn->gray[idex] = 0.0;
+            else
+                imgShapeBlurSyn->gray[index] = 1.0;    
         }
+
     std::cout << "d " << std::endl;
     for(x = ceil(left); x <= right; x++)
         for(y = ceil(top); y <= bottom; y++){
-            if( imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] == 0  ){
+            index = y*imgShapeLabelSyn->ncol + x;
+            if(imgShapeLabelSyn->gray[index] == 0){
                 xt = (x - x0temp);
                 yt = (y - y0temp);
 
@@ -713,20 +715,30 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 // Inverse-transformation
                 xr = ( (xi*cos(thetaDict) - yi*sin(thetaDict)) + x0tempDict);
                 yr = ( (yi*cos(thetaDict) + xi*sin(thetaDict)) + y0tempDict);
-
-                imgShapeColorSyn->red[y*imgShapeLabelSyn->ncol + x]   =  imgDict->red[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
-                imgShapeColorSyn->green[y*imgShapeLabelSyn->ncol + x] =  imgDict->green[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
-                imgShapeColorSyn->blue[y*imgShapeLabelSyn->ncol + x]  =  imgDict->blue[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
+                
+                std::cout << "d1 " << std::endl;
+                int index2 = (int)(yr)*imgShapeLabelDict->ncol + (int)(xr);
+                int lu1 = imgDict->red[index2];
+                int lu2 = imgDict->green[index2];
+                int lu3 = imgDict->blue[index2];
+                std::cout << "d2 " << std::endl;
+                
+                imgShapeColorSyn->red[index]   =  lu1;
+                imgShapeColorSyn->green[index] =  lu2;
+                imgShapeColorSyn->blue[index]  = lu3;
+                std::cout << "d3 " << std::endl;
             }
 
-            (imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x]) = (int) imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
-            imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
+            imgShapeLabelSyn->gray[index] = (int) imgShapeBlurSyn->gray[index];
+            imgShapeBlurSyn->gray[index] = 0.0;
+            std::cout << "d4 " << std::endl;
         }
     std::cout << "e " << std::endl;
     // Add Gaussian Blur  
     KerSize = (int) ( sqrt( (double) gaussKernel->size) /2.0 );
     for(x = ceil(left); x <= right; x++)
         for(y = ceil(top); y <= bottom; y++){
+            index = y*imgShapeLabelSyn->ncol + x;
             for(iKer = -KerSize; iKer <= KerSize; iKer++)
                 for(jKer = -KerSize; jKer <= KerSize; jKer++){
                     xKer = x + iKer;
@@ -735,11 +747,10 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                     if(xKer<0 || xKer>= imgShapeLabelSyn->ncol || yKer<0 || yKer>= imgShapeLabelSyn->nrow )
                         continue;
 
-                    imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] +=
-                            gaussKernel->values[(iKer + KerSize)*KerSize + (jKer + KerSize)]*
+                    imgShapeBlurSyn->gray[index] += gaussKernel->values[(iKer + KerSize)*KerSize + (jKer + KerSize)]*
                             (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
 
-                    if( imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] == 0  ){
+                    if(imgShapeLabelSyn->gray[index] == 0 ){
                         xt = (x - x0temp);
                         yt = (y - y0temp);
 
@@ -751,20 +762,20 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                         xr = ( (xi*cos(thetaDict) - yi*sin(thetaDict)) + x0tempDict);
                         yr = ( (yi*cos(thetaDict) + xi*sin(thetaDict)) + y0tempDict);
 
-                        imgShapeColorSyn->red[y*imgShapeLabelSyn->ncol + x]   =  imgDict->red[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
-                        imgShapeColorSyn->green[y*imgShapeLabelSyn->ncol + x] =  imgDict->green[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
-                        imgShapeColorSyn->blue[y*imgShapeLabelSyn->ncol + x]  =  imgDict->blue[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
+                        imgShapeColorSyn->red[index]   =  imgDict->red[(int)(yr)*imgShapeLabelDict->ncol + (int)(xr)];
+                        imgShapeColorSyn->green[index] =  imgDict->green[(int)(yr)*imgShapeLabelDict->ncol + (int)(xr)];
+                        imgShapeColorSyn->blue[index]  =  imgDict->blue[(int)(yr)*imgShapeLabelDict->ncol + (int)(xr)];
                     }
                 }
 
         }
     std::cout << "f " << std::endl; 
-    TR  = ((Info*)(pShape->data))->r + tempx*0;
-    TG  = ((Info*)(pShape->data))->g + tempx*0;
-    TB  = ((Info*)(pShape->data))->b + tempx*0;
+    //TR  = ((Info*)(pShape->data))->r + tempx*0;
+    //TG  = ((Info*)(pShape->data))->g + tempx*0;
+    //TB  = ((Info*)(pShape->data))->b + tempx*0;
 
     if(*mcolor == 2){
-        TR = ((Info*)(pShapeDict->data))->r ;
+        TR = ((Info*)(pShapeDict->data))->r;
         TG = ((Info*)(pShapeDict->data))->g;
         TB = ((Info*)(pShapeDict->data))->b;
     }
@@ -801,7 +812,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
     for(i=0; i < pShapeDict->area; i++){
         x = (pShapeDict->pixels+i)->x;
         y = (pShapeDict->pixels+i)->y;
-        imgShapeLabel->gray[y*imgShapeLabel->ncol + x] = 0;
+        imgShapeLabelDict->gray[y*imgShapeLabelDict->ncol + x] = 0;
     }
     std::cout << "g " << std::endl; 
 }
