@@ -687,7 +687,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
         TR = ((Info*)(pShapeDict->data))->r;
         TG = ((Info*)(pShapeDict->data))->g;
         TB = ((Info*)(pShapeDict->data))->b;
-    } else if (*mcolor = 0){ // Color from input
+    } else if (*mcolor == 0){ // Color from input
         TR  = ((Info*)(pShape->data))->r;
         TG  = ((Info*)(pShape->data))->g;
         TB  = ((Info*)(pShape->data))->b;
