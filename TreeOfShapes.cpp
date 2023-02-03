@@ -687,6 +687,10 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
         TR = ((Info*)(pShapeDict->data))->r;
         TG = ((Info*)(pShapeDict->data))->g;
         TB = ((Info*)(pShapeDict->data))->b;
+    } else if (*mcolor = 0){ // Color from input
+        TR  = ((Info*)(pShape->data))->r;
+        TG  = ((Info*)(pShape->data))->g;
+        TB  = ((Info*)(pShape->data))->b;
     }
 
     for(x = ceil(left); x <= right; x++)
@@ -696,7 +700,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
 
             BETA = imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
 
-            if(*mcolor == 1){
+            if(*mcolor == 1){ // Color from average dictionary
                 TR  = imgShapeColorSyn->red[y*imgShapeLabelSyn->ncol + x];
                 TG  = imgShapeColorSyn->green[y*imgShapeLabelSyn->ncol + x];
                 TB  = imgShapeColorSyn->blue[y*imgShapeLabelSyn->ncol + x];
