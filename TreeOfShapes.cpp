@@ -367,7 +367,7 @@ void TreeOfShapes::synshape(int model, Shape pShape,
                                   int *median,
                                   float *alpha){
 
-    int xi, yi, x, y;
+    int xi, yi, x, y, x_aux, y_aux;
     float ALPHA, BETA, a, b, x0temp, y0temp, top, right, left, bottom, phi, xi_e, yi_e;
     float xShift, yShift, theta, tR, tG, tB, TR, TG, TB, tr, tg, tb;
     bool condition;
@@ -385,7 +385,14 @@ void TreeOfShapes::synshape(int model, Shape pShape,
     phi = ((Info*)(pShape->data))->oren;
 
     // Compute limits of shape before shaking
-    if (model == 1){ //Ellipse
+    if (model == 0){ //Original. We compute the actual point in for loop. 
+        left   = 0;
+        right  = _pTree->ncol -1;
+        top    = 0;
+        bottom = _pTree->nrow - 1;
+        x0temp = (((Info*)(pShape->data))->x0);
+        y0temp = (((Info*)(pShape->data))->y0);
+    } else if (model == 1){ //Ellipse
         a = 2.0 * sqrt(((Info*)(pShape->data))->lambda1);
         b = 2.0 * sqrt(((Info*)(pShape->data))->lambda2);
         left   = _MAX(0, x0temp - a);
@@ -413,12 +420,26 @@ void TreeOfShapes::synshape(int model, Shape pShape,
     TG  = ((Info*)(pShape->data))->g;
     TB  = ((Info*)(pShape->data))->b;
 
-    for( xi= ceil(left); xi<= right; xi++)
+    for( xi= ceil(left); xi<= right; xi++){
         for( yi= ceil(top); yi<= bottom; yi++){
             xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
             yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
 
-            if (model == 1) //Ellipse
+            if (model == 0){ //Original shapes
+                x = (float)((pShape->pixels+i)->x);
+                y = (float)((pShape->pixels+i)->y);
+
+                xr = (x - x0temp)*cos(theta) + (y - y0temp)*sin(theta);
+                yr = (y - y0temp)*cos(theta) - (x - x0temp)*sin(theta);
+                // Point of shape: (xi_e, yi_e)
+                xi_e = floor(xShift + x0temp + xr);
+                yi_e = floor(yShift + y0temp + yr);
+
+                condition = xi_e>= 0 && xi_e< _pTree->ncol && yi_e>= 0 && yi_e< _pTree->nrow; 
+                i++;
+                if (i == pShape->area)
+                    break;       
+            } else if (model == 1) //Ellipse
                 condition = ( xi_e*xi_e/(a*a) + yi_e*yi_e/(b*b) <= 1 );
             else if (model == 2){ //Rectangle
                 condition = ( xi_e >= -a && xi_e <= +a && yi_e >= -b && yi_e <= +b );
@@ -427,18 +448,27 @@ void TreeOfShapes::synshape(int model, Shape pShape,
             };
 
             if( condition ){
-                if ((xi<0 || xi>= imgsyn->ncol || yi<0 || yi>= imgsyn->nrow ))
+                if (model ==0){
+                   x_aux = xi_e;
+                   y_aux = yi_e;
+                }else{
+                   x_aux = xi;
+                   y_aux = yi;
+                }
+                if ((x_aux<0 || x_aux>= imgsyn->ncol || y_aux<0 || y_aux>= imgsyn->nrow ))
                     continue;
 
-                imgShapeLabelSyn->gray[yi*imgShapeLabelSyn->ncol + xi] = 1;
+                imgShapeLabelSyn->gray[y_aux*imgShapeLabelSyn->ncol + x_aux] = 1;
 
-                left   = _MIN(xi, left);
-                top    = _MIN(yi, top);
-                right  = _MAX(xi, right);
-                bottom = _MAX(yi, bottom);
+                left   = _MIN(x_aux, left);
+                top    = _MIN(y_aux, top);
+                right  = _MAX(x_aux, right);
+                bottom = _MAX(y_aux, bottom);
             }
         }
-
+        if ((i == pShape->area) && (model == 0))
+            break; 
+    }
     MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
     
     // Synthesis  
@@ -541,8 +571,7 @@ void TreeOfShapes::synshape(int model, Shape pShape,Ccimage imgsyn, float *alpha
                 condition = xi_e>= 0 && xi_e< _pTree->ncol && yi_e>= 0 && yi_e< _pTree->nrow; 
                 i++;
                 if (i == pShape->area)
-                    break; 
-                
+                    break;             
             } else {
                 xi_e = ((float)xi - x0temp)*cos(phi+theta) + ((float)yi - y0temp)*sin(phi+theta);
                 yi_e = ((float)yi - y0temp)*cos(phi+theta) - ((float)xi - x0temp)*sin(phi+theta);
@@ -1432,7 +1461,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool segmentWithMask, i
                     if(tosParameters.blur == 0)
                        synshape(modelToUse, pShape, imgsyn, &tosParameters.alpha);
                     else if (modelToUse == 0)
-                        synshapeOriginal(pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha);
+                       synshape(modelToUse, pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha);
                     else 
                         synshape(modelToUse, pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha);
                 }
