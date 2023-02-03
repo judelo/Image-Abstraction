@@ -716,22 +716,22 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 xr = ( (xi*cos(thetaDict) - yi*sin(thetaDict)) + x0tempDict);
                 yr = ( (yi*cos(thetaDict) + xi*sin(thetaDict)) + y0tempDict);
                 
-                std::cout << "d1 " << std::endl;
+                //std::cout << "d1 " << std::endl;
                 int index2 = (int)(yr)*imgShapeLabelDict->ncol + (int)(xr);
                 int lu1 = imgDict->red[index2];
                 int lu2 = imgDict->green[index2];
                 int lu3 = imgDict->blue[index2];
-                std::cout << "d2 " << std::endl;
+                //std::cout << "d2 " << std::endl;
                 
                 imgShapeColorSyn->red[index]   =  lu1;
                 imgShapeColorSyn->green[index] =  lu2;
                 imgShapeColorSyn->blue[index]  = lu3;
-                std::cout << "d3 " << std::endl;
+                //std::cout << "d3 " << std::endl;
             }
 
             imgShapeLabelSyn->gray[index] = (int) imgShapeBlurSyn->gray[index];
             imgShapeBlurSyn->gray[index] = 0.0;
-            std::cout << "d4 " << std::endl;
+            //std::cout << "d4 " << std::endl;
         }
     std::cout << "e " << std::endl;
     // Add Gaussian Blur  
