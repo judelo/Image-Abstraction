@@ -674,7 +674,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 imgShapeColorSyn->blue[y*imgShapeLabelSyn->ncol + x]  =  imgDict->blue[(int)(yr)*imgShapeLabel->ncol + (int)(xr)];
             }
         }
-    
+    std::cout << "c " << std::endl;
     // Median Filter  
     MedSize = (int)((*median)/2.0);
     for(x = ceil(left); x <= right; x++)
@@ -699,7 +699,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 1.0;
             }
         }
-
+    std::cout << "d " << std::endl;
     for(x = ceil(left); x <= right; x++)
         for(y = ceil(top); y <= bottom; y++){
             if( imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] == 0  ){
@@ -722,7 +722,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
             (imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x]) = (int) imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x];
             imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x] = 0.0;
         }
-
+    std::cout << "e " << std::endl;
     // Add Gaussian Blur  
     KerSize = (int) ( sqrt( (double) gaussKernel->size) /2.0 );
     for(x = ceil(left); x <= right; x++)
@@ -758,7 +758,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 }
 
         }
-    std::cout << "c " << std::endl; 
+    std::cout << "f " << std::endl; 
     TR  = ((Info*)(pShape->data))->r + tempx*0;
     TG  = ((Info*)(pShape->data))->g + tempx*0;
     TB  = ((Info*)(pShape->data))->b + tempx*0;
@@ -797,13 +797,13 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
             imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x]   = 0.0;
             imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] = 0;
         }
-    std::cout << "d " << std::endl; 
+
     for(i=0; i < pShapeDict->area; i++){
         x = (pShapeDict->pixels+i)->x;
         y = (pShapeDict->pixels+i)->y;
         imgShapeLabel->gray[y*imgShapeLabel->ncol + x] = 0;
     }
-    std::cout << "e " << std::endl; 
+    std::cout << "g " << std::endl; 
 }
 
 // Synthesis by Shape Shaking witn original shapes
