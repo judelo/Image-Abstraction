@@ -661,6 +661,8 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
             }
         }
 
+    MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
+/*
     // Median Filter  
     MedSize = (int)((*median)/2.0);
     for(x = ceil(left); x <= right; x++)
@@ -709,7 +711,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                             (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
                 }
         }
-    
+   */ 
     for(x = ceil(left); x <= right; x++)
         for(y = ceil(top); y <= bottom; y++){
             if(imgShapeLabelSyn->gray[index] == 0 ){
@@ -729,10 +731,6 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 imgShapeColorSyn->blue[index]  =  imgDict->blue[(int)(yr)*imgShapeLabelDict->ncol + (int)(xr)];
             }
         }
-
-    //TR  = ((Info*)(pShape->data))->r + tempx*0;
-    //TG  = ((Info*)(pShape->data))->g + tempx*0;
-    //TB  = ((Info*)(pShape->data))->b + tempx*0;
 
     if(*mcolor == 2){
         TR = ((Info*)(pShapeDict->data))->r;
