@@ -660,7 +660,6 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 imgShapeColorSyn->blue[index]  = imgDict->blue[(int)(yr)*imgShapeLabelDict->ncol + (int)(xr)];
             }
         }
-    std::cout <<"a"<< std::endl;
 
     MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
 
@@ -682,12 +681,15 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 xr = ( (xi*cos(thetaDict) - yi*sin(thetaDict)) + x0tempDict);
                 yr = ( (yi*cos(thetaDict) + xi*sin(thetaDict)) + y0tempDict);
 
+                if(xr <0 || xr >=imgShapeLabelDict->ncol || yr <0 || yr >=imgShapeLabelDict->nrow)
+                   continue;
+
                 imgShapeColorSyn->red[index]   =  imgDict->red[(int)(yr)*imgShapeLabelDict->ncol + (int)(xr)];
                 imgShapeColorSyn->green[index] =  imgDict->green[(int)(yr)*imgShapeLabelDict->ncol + (int)(xr)];
                 imgShapeColorSyn->blue[index]  =  imgDict->blue[(int)(yr)*imgShapeLabelDict->ncol + (int)(xr)];
             }
         }
-        
+
     std::cout <<"c"<< std::endl;
 
     if(*mcolor == 2){
