@@ -46,18 +46,25 @@ TreeOfShapes::TreeOfShapes( Cfimage imageIn ){
 }
 
 
+
 void TreeOfShapes::init(Cfimage inputImg, Shapes &pTree){
 
     std::cout << "TreeOfShapes::init(Cfimage inputImg, Shapes &pTree)" << std::endl;
     Shape pShape;
     Fimage imgIntensity;
 
-    if  ( ((imgIntensity = mw_new_fimage()) == NULL) || (mw_alloc_fimage(imgIntensity,inputImg->nrow,inputImg->ncol) == NULL) )
-        mwerror(FATAL,1,"Not enough memory.\n");
-    if((pTree = mw_new_shapes()) == NULL)
-        mwerror(FATAL, 1, "fgrain --> Not enough memory to allocate the tree of shapes");
-    if  ( ((_NormOfDu = mw_new_fimage()) == NULL) || (mw_alloc_fimage(_NormOfDu,inputImg->nrow,inputImg->ncol) == NULL) )
-        mwerror(FATAL,1,"Not enough memory.\n");
+    if  ( ((imgIntensity = mw_new_fimage()) == NULL) || (mw_alloc_fimage(imgIntensity,inputImg->nrow,inputImg->ncol) == NULL) ){
+        std::cout << "Error while creating resources" << std::endl; 
+        return 0;
+    }
+    if ((pTree = mw_new_shapes()) == NULL) {
+        std::cout << "Error while creating resources" << std::endl; 
+        return 0;
+    }
+    if  ( ((_NormOfDu = mw_new_fimage()) == NULL) || (mw_alloc_fimage(_NormOfDu,inputImg->nrow,inputImg->ncol) == NULL) ){
+        std::cout << "Error while creating resources" << std::endl; 
+        return 0;
+    }
 
     // Compute Intensity image
     for( int i= 0; i< inputImg->ncol; i++)
@@ -915,7 +922,10 @@ Fsignal TreeOfShapes::sgauss(float *std, Fsignal out, int *size){
     v = 0.5*v*v/log(10.);
 
     out = mw_change_fsignal(out, n);
-    if (!out) mwerror(FATAL,1,"Not enough memory.");
+    if (!out){
+        std::cout << "Error while creating resources" << std::endl; 
+        return 0;
+    }
 
     out->shift = -0.5*(float)(n-1);
 
@@ -946,10 +956,14 @@ Fsignal TreeOfShapes::Sgauss(float *std, Fsignal out, int *size){
     float sum= 0.0;
     n = *size;
 
-    if  ( ((sgaussX = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(sgaussX, n) == NULL) )
-        mwerror(FATAL,1,"Not enough memory.\n");
-    if  ( ((sgaussY = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(sgaussY, n) == NULL) )
-        mwerror(FATAL,1,"Not enough memory.\n");
+    if  ( ((sgaussX = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(sgaussX, n) == NULL) ){
+        std::cout << "Error while creating resources" << std::endl; 
+        return 0;
+    }
+    if  ( ((sgaussY = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(sgaussY, n) == NULL) ){
+        std::cout << "Error while creating resources" << std::endl; 
+        return 0;
+    }
 
     sgaussX = sgauss(std, sgaussX, size);
     sgaussY = sgauss(std, sgaussY, size);
@@ -996,7 +1010,10 @@ void TreeOfShapes::filter_shapes( Cfimage out, char *local, float *eps){
     tree = mw_new_shapes();
     Fv = mw_change_fimage(NULL,_imgin->nrow,_imgin->ncol);
 
-    if(!Fv ) mwerror(FATAL,1,"Not enough memory.\n");
+    if(!Fv ){
+        std::cout << "Error while creating resources" << std::endl; 
+        return 0;
+    }
 
     lgeo = 10.; step = 1.; prec = 2; hstep = 0.01; std=0.5;
     tcleanup = 1.; all=(char) 1; visit = 100;
@@ -1014,8 +1031,10 @@ void TreeOfShapes::filter_shapes( Cfimage out, char *local, float *eps){
     green = (float*)calloc(tree->nb_shapes,sizeof(float));
     blue = (float*)calloc(tree->nb_shapes,sizeof(float));
     gray = (float*)calloc(tree->nb_shapes,sizeof(float));
-    if(!(gray && red  && green && blue))
-        mwerror(FATAL,1,"Not enough memory.\n");
+    if(!(gray && red  && green && blue)){
+        std::cout << "Error while creating resources" << std::endl; 
+        return 0;
+    }
 
     // Integrate grey level saturation and hue
     for(i=0;i<ncol;i++)
@@ -1030,8 +1049,10 @@ void TreeOfShapes::filter_shapes( Cfimage out, char *local, float *eps){
 
     // Recursively compute area of meaningful shapes when holes are removed 
     truearea = (int*)malloc(sizeof(int)*tree->nb_shapes);
-    if(!truearea)     
-       mwerror(FATAL,1,"Not enough memory.\n");
+    if(!truearea){
+        std::cout << "Error while creating resources" << std::endl; 
+        return 0;
+    }
     get_shapes_truearea(tree->the_shapes,tree->the_shapes,truearea);
 
     for(i=0;i<tree->nb_shapes;i++){
@@ -1445,14 +1466,18 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool segmentWithMask, i
     // Select the rendering order 
     std::cout << "Rendering order " << tosParameters.order <<std::endl;
 
-    if  ( ((t2b_index = mw_new_fsignal()) == NULL) ||(mw_alloc_fsignal(t2b_index,_pTree->nb_shapes) == NULL) )
-        mwerror(FATAL,1,"Not enough memory.\n");
+    if  ( ((t2b_index = mw_new_fsignal()) == NULL) ||(mw_alloc_fsignal(t2b_index,_pTree->nb_shapes) == NULL) ){
+        std::cout << "Error while creating resources" << std::endl; 
+        return 0;
+    }
 
     if(tosParameters.order == 0)
         top2bottom_index_tree(t2b_index);
     else{ // tosParameters.order == 1     
-        if ( ((_large_to_small_index = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(_large_to_small_index,_pTree->nb_shapes) == NULL) )
-            mwerror(FATAL,1,"Not enough memory.\n");
+        if ( ((_large_to_small_index = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(_large_to_small_index,_pTree->nb_shapes) == NULL) ){
+            std::cout << "Error while creating resources" << std::endl; 
+            return 0;
+        }
         sortShapes(_large_to_small_index);
         _large_to_small_index_computed = true;     
         mw_copy_fsignal_values(_large_to_small_index, t2b_index);
@@ -1461,10 +1486,14 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool segmentWithMask, i
     // Special resources needed if blur is selected
     if (tosParameters.blur == 1){
         // Define auxiliar images for abstraction
-        if  ( ((imgShapeLabel = mw_new_cimage()) == NULL) || (mw_alloc_cimage(imgShapeLabel, _imgin->nrow, _imgin->ncol) == NULL) )
-            mwerror(FATAL,1,"Not enough memory.\n");
-        if  ( ((imgShapeBlur = mw_new_fimage()) == NULL) || (mw_alloc_fimage(imgShapeBlur, _imgin->nrow, _imgin->ncol) == NULL) )
-            mwerror(FATAL,1,"Not enough memory.\n");
+        if  ( ((imgShapeLabel = mw_new_cimage()) == NULL) || (mw_alloc_cimage(imgShapeLabel, _imgin->nrow, _imgin->ncol) == NULL) ){
+            std::cout << "Error while creating resources" << std::endl; 
+            return 0;
+        }
+        if  ( ((imgShapeBlur = mw_new_fimage()) == NULL) || (mw_alloc_fimage(imgShapeBlur, _imgin->nrow, _imgin->ncol) == NULL) ){
+            std::cout << "Error while creating resources" << std::endl; 
+            return 0;
+        }
 
         imgShapeLabel = mw_change_cimage(imgShapeLabel, _imgin->nrow, _imgin->ncol);
         imgShapeBlur  = mw_change_fimage(imgShapeBlur, _imgin->nrow, _imgin->ncol);
@@ -1473,28 +1502,38 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool segmentWithMask, i
 
         // Compute a Gaussian kernel
         std::cout << "Compute a Gaussian kernel" << std::endl;     
-        if  ( ((gaussKernel = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(gaussKernel, tosParameters.kerSize*tosParameters.kerSize) == NULL) )
-            mwerror(FATAL,1,"Not enough memory.\n");
+        if  ( ((gaussKernel = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(gaussKernel, tosParameters.kerSize*tosParameters.kerSize) == NULL) ){
+            std::cout << "Error while creating resources" << std::endl; 
+            return 0;
+        }
         gaussKernel = Sgauss(&tosParameters.kerStd, gaussKernel, &tosParameters.kerSize);
 
         // Sepcial resources needed if dictionary is selected
         if( tosParameters.model == 4 ){
             // Define auxiliar images for abstraction
             imgDict = tosDictionary->getCfImage();
-            if  ( ((imgShapeColorSyn = mw_new_cfimage()) == NULL) || (mw_alloc_cfimage(imgShapeColorSyn, _imgin->nrow, _imgin->ncol) == NULL) )
-                mwerror(FATAL,1,"Not enough memory.\n");
-            if  ( ((imgShapeLabelDict = mw_new_cimage()) == NULL) || (mw_alloc_cimage(imgShapeLabelDict, imgDict->nrow, imgDict->ncol) == NULL) )
-                mwerror(FATAL,1,"Not enough memory.\n");
+            if  ( ((imgShapeColorSyn = mw_new_cfimage()) == NULL) || (mw_alloc_cfimage(imgShapeColorSyn, _imgin->nrow, _imgin->ncol) == NULL) ){
+                std::cout << "Error while creating resources" << std::endl; 
+                return 0;
+            }
+            if  ( ((imgShapeLabelDict = mw_new_cimage()) == NULL) || (mw_alloc_cimage(imgShapeLabelDict, imgDict->nrow, imgDict->ncol) == NULL) ){
+                std::cout << "Error while creating resources" << std::endl; 
+                return 0;
+            }
 
             imgShapeColorSyn = mw_change_cfimage(imgShapeColorSyn, _imgin->nrow, _imgin->ncol);
             imgShapeLabelDict = mw_change_cimage(imgShapeLabelDict, imgDict->nrow, imgDict->ncol);
             mw_clear_cimage(imgShapeLabelDict,0);
 
             // Compute kd-tree to perform efficient search to compute matching shapes between shapes of images - shapes of dictionary.  
-            if  ( ((dictionary_correspondance = mw_new_fsignal()) == NULL) ||(mw_alloc_fsignal(dictionary_correspondance,_pTree->nb_shapes) == NULL) )
-                mwerror(FATAL,1,"Not enough memory.\n");
-            if  ( ((_dictionary_selections[ tosDictionary->getTreeId() ] = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(_dictionary_selections[ tosDictionary->getTreeId() ],_pTree->nb_shapes) == NULL) )
-                mwerror(FATAL,1,"Not enough memory.\n");
+            if  ( ((dictionary_correspondance = mw_new_fsignal()) == NULL) ||(mw_alloc_fsignal(dictionary_correspondance,_pTree->nb_shapes) == NULL) ){
+                std::cout << "Error while creating resources" << std::endl; 
+                return 0;
+            }
+            if  ( ((_dictionary_selections[ tosDictionary->getTreeId() ] = mw_new_fsignal()) == NULL) || (mw_alloc_fsignal(_dictionary_selections[ tosDictionary->getTreeId() ],_pTree->nb_shapes) == NULL) ){
+                std::cout << "Error while creating resources" << std::endl; 
+                return 0;
+            }
             mw_clear_fsignal(_dictionary_selections[ tosDictionary->getTreeId() ],-1.0);
             tosDictionary->computeKdTree(_average_r, _average_g, _average_b);
         }
@@ -1505,7 +1544,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool segmentWithMask, i
     shift_shapes(&tosParameters.shift, &tosParameters.theta, tosParameters.smodel);
      
     // Iterate in shapes
-    std::cout << "Iterate in shapes" << std::endl;
+    std::cout << "Iterate in shapes: " <<  _pTree->nb_shapes << " shapes." << std::endl;
 
     for(i=0; i < _pTree->nb_shapes; i++) {
         pShape = _pTree->the_shapes + (int)t2b_index->values[i];
@@ -1524,7 +1563,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool segmentWithMask, i
             synshape(2, pShape, imgsyn, &ALPHA);              
         } 
         else if(pShape->removed != 1){
-
+                std::cout << "Shape not removed: " << i << std::endl; 
                 // Verify if some point of the mask touch the shape. 
                 modelToUse = tosParameters.model;
                 if (!segmentWithMask)
@@ -1544,9 +1583,13 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool segmentWithMask, i
                         synshape(modelToUse, pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha);
                 }
                 else{ // modelToUse ==4 -> Rendering Model: Dictionary
+                    std::cout << "0 " << std::endl; 
                     pShapeDict = tosDictionary->selectShapeDict(pShape, &dictionaryParameters.kappaDict, &dictionaryParameters.randS, shape_id, _average_r, _average_g, _average_b);
+                    std::cout << "1 " << std::endl; 
                     dictionary_correspondance->values[(int)t2b_index->values[i]] = shape_id;
+                    std::cout << "2 " << std::endl; 
                     synShapeDict( pShapeDict, pShape, imgsyn, imgDict, imgShapeColorSyn, imgShapeLabelDict, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &dictionaryParameters.equal, &dictionaryParameters.mcolor);
+                    std::cout << "3 " << std::endl; 
                 }
         }
     }
