@@ -581,14 +581,10 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                                 Fsignal gaussKernel,int *median,
                                 float *alpha,
                                 int *equal, int *mcolor){
-
-    int i, x, y, iKer, jKer, KerSize, MedSize, xKer, yKer, numMedain, index;
+    int i, x, y, index;
     float xi, yi, xr, yr, xt, yt, x0temp, y0temp, x0tempDict, y0tempDict;
-    float tR, tG, tB, ALPHA, tr, tg, tb, BETA, TR, TG, TB;
-    float xBound_l, xBound_r, yBound_t, yBound_b;
-    float SCALEx, SCALEy, theta, thetaDict;
-    float top, right, left, bottom;
-    float a, b, bLimit, tempx;
+    float tR, tG, tB, ALPHA, tr, tg, tb, BETA, TR, TG, TB, xBound_l, xBound_r, yBound_t, yBound_b;
+    float SCALEx, SCALEy, theta, thetaDict, top, right, left, bottom, a, b, bLimit;
     ALPHA = *alpha;
 
     xBound_l = (int) ((Info*)(pShapeDict->data))->boundingbox[0];
@@ -596,7 +592,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
     yBound_t = (int) ((Info*)(pShapeDict->data))->boundingbox[2];
     yBound_b = (int) ((Info*)(pShapeDict->data))->boundingbox[3];
 
-    // Begin Label pShapeDict 
+    // Label pShapeDict 
     for(i=0; i < pShapeDict->area; i++){
         x = (pShapeDict->pixels+i)->x;
         y = (pShapeDict->pixels+i)->y;
@@ -613,7 +609,6 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
 
     a = SCALEx * (xBound_r - xBound_l);
     b = SCALEy * (yBound_b - yBound_t);
-
     bLimit = (1.0*sqrt(a*a + b*b)/2.0);
 
     x0temp = ((Info*)(pShape->data))->x0;
@@ -662,9 +657,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
         }
 
     MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
-
-    std::cout <<"b"<< std::endl;
-
+/*
     for(x = ceil(left); x <= right; x++)
         for(y = ceil(top); y <= bottom; y++){
             index = y*imgShapeLabelSyn->ncol + x;
@@ -689,10 +682,9 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 imgShapeColorSyn->blue[index]  =  imgDict->blue[(int)(yr)*imgShapeLabelDict->ncol + (int)(xr)];
             }
         }
+    */
 
-    std::cout <<"c"<< std::endl;
-
-    if(*mcolor == 2){
+    if(*mcolor == 2){ // Color from dictionary
         TR = ((Info*)(pShapeDict->data))->r;
         TG = ((Info*)(pShapeDict->data))->g;
         TB = ((Info*)(pShapeDict->data))->b;
@@ -746,9 +738,7 @@ void TreeOfShapes::synshapeOriginal(Shape pShape,
                                     float *alpha){
 
     int i, xi, yi, x, y;
-    float xr, yr, x0temp, y0temp, ALPHA, BETA;
-    float xShift, yShift, theta, tR, tG, tB, tr, tg, tb, TR, TG, TB;
-    float top, right, left, bottom;
+    float xr, yr, x0temp, y0temp, ALPHA, BETA, xShift, yShift, theta, tR, tG, tB, tr, tg, tb, TR, TG, TB, top, right, left, bottom;
 
     ALPHA = *alpha;
     x0temp = (((Info*)(pShape->data))->x0);
@@ -762,9 +752,11 @@ void TreeOfShapes::synshapeOriginal(Shape pShape,
     TG  = ((Info*)(pShape->data))->g;
     TB  = ((Info*)(pShape->data))->b;
 
-    right = 0.0;  bottom= 0.0;
+    right = 0.0;  
+    bottom= 0.0;
     left = (float)(imgShapeLabelSyn->ncol-1);
     top  = (float)(imgShapeLabelSyn->nrow-1);
+
     for(i=0; i< pShape->area; i++){
         x = (pShape->pixels+i)->x;
         y = (pShape->pixels+i)->y;
@@ -802,10 +794,8 @@ void TreeOfShapes::synshapeOriginal(Shape pShape,
 
             tR = ((float) imgsyn->red[y*imgsyn->ncol + x])*ALPHA + (1-ALPHA)*tr;
             imgsyn->red[y*imgsyn->ncol + x]   = (int) tR; 
-
             tG = ((float) imgsyn->green[y*imgsyn->ncol + x])*ALPHA + (1-ALPHA)*tg;
             imgsyn->green[y*imgsyn->ncol + x] = (int) tG;  
-
             tB = ((float) imgsyn->blue[y*imgsyn->ncol + x])*ALPHA + (1-ALPHA)*tb;
             imgsyn->blue[y*imgsyn->ncol + x]  = (int) tB;  
 
@@ -1476,7 +1466,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool segmentWithMask, i
                     pShapeDict = tosDictionary->selectShapeDict(pShape, &dictionaryParameters.kappaDict, &dictionaryParameters.randS, shape_id, _average_r, _average_g, _average_b);
                     dictionary_correspondance->values[(int)t2b_index->values[i]] = shape_id;
                     synShapeDict( pShapeDict, pShape, imgsyn, imgDict, imgShapeColorSyn, imgShapeLabelDict, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &dictionaryParameters.equal, &dictionaryParameters.mcolor);
-                    //std::cout << "3 " << std::endl; 
                 }
         }
     }
