@@ -695,7 +695,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                     numMedain++;
                 }
             if( imgShapeBlurSyn->gray[index] < ((float) numMedain)/2.0 )
-                imgShapeBlurSyn->gray[idex] = 0.0;
+                imgShapeBlurSyn->gray[index] = 0.0;
             else
                 imgShapeBlurSyn->gray[index] = 1.0;    
         }
