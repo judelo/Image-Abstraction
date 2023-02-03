@@ -657,7 +657,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
         }
 
     MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
-/*
+
     for(x = ceil(left); x <= right; x++)
         for(y = ceil(top); y <= bottom; y++){
             index = y*imgShapeLabelSyn->ncol + x;
@@ -682,7 +682,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 imgShapeColorSyn->blue[index]  =  imgDict->blue[(int)(yr)*imgShapeLabelDict->ncol + (int)(xr)];
             }
         }
-    */
+    
 
     if(*mcolor == 2){ // Color from dictionary
         TR = ((Info*)(pShapeDict->data))->r;
