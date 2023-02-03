@@ -629,6 +629,8 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
     top    = _MAX(0, y0temp - bLimit);
     bottom = _MIN(imgsyn->nrow - 1, y0temp + bLimit);
 
+    std::cout <<"a"<< std::endl;
+
     // Transformation  
     for(x = ceil(left); x <= right; x++)
         for(y = ceil(top); y <= bottom; y++){
@@ -660,58 +662,10 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 imgShapeColorSyn->blue[index]  = imgDict->blue[(int)(yr)*imgShapeLabelDict->ncol + (int)(xr)];
             }
         }
+    std::cout <<"b"<< std::endl;
 
     MedianFilterAndGaussianBlur(left, right, top, bottom, imgShapeLabelSyn,imgShapeBlurSyn,gaussKernel, median);
-/*
-    // Median Filter  
-    MedSize = (int)((*median)/2.0);
-    for(x = ceil(left); x <= right; x++)
-        for(y = ceil(top); y <= bottom; y++){
-            index = y*imgShapeBlurSyn->ncol + x;
-            numMedain = 0;
 
-            for(iKer = - MedSize; iKer <= MedSize; iKer++)
-                for(jKer = - MedSize; jKer <= MedSize; jKer++){
-                    xKer = x + iKer;
-                    yKer = y + jKer;
-
-                    if(xKer<0 || xKer>= imgShapeLabelSyn->ncol || yKer<0 || yKer>= imgShapeLabelSyn->nrow )
-                        continue;
-                    
-                    imgShapeBlurSyn->gray[index] += (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
-                    numMedain++;
-                }
-            if( imgShapeBlurSyn->gray[index] < ((float) numMedain)/2.0 )
-                imgShapeBlurSyn->gray[index] = 0.0;
-            else
-                imgShapeBlurSyn->gray[index] = 1.0;    
-        }
-
-    for(x = ceil(left); x <= right; x++)
-        for(y = ceil(top); y <= bottom; y++){
-            index = y*imgShapeLabelSyn->ncol + x;
-            imgShapeLabelSyn->gray[index] = (int) imgShapeBlurSyn->gray[index];
-            imgShapeBlurSyn->gray[index] = 0.0;
-        }
- 
-    // Add Gaussian Blur  
-    KerSize = (int) ( sqrt( (double) gaussKernel->size) /2.0 );
-    for(x = ceil(left); x <= right; x++)
-        for(y = ceil(top); y <= bottom; y++){
-            index = y*imgShapeLabelSyn->ncol + x;
-            for(iKer = -KerSize; iKer <= KerSize; iKer++)
-                for(jKer = -KerSize; jKer <= KerSize; jKer++){
-                    xKer = x + iKer;
-                    yKer = y + jKer;
-
-                    if(xKer<0 || xKer>= imgShapeLabelSyn->ncol || yKer<0 || yKer>= imgShapeLabelSyn->nrow )
-                        continue;
-
-                    imgShapeBlurSyn->gray[index] += gaussKernel->values[(iKer + KerSize)*KerSize + (jKer + KerSize)]*
-                            (float)(imgShapeLabelSyn->gray[yKer*imgShapeLabelSyn->ncol + xKer]);
-                }
-        }
-   */ 
     for(x = ceil(left); x <= right; x++)
         for(y = ceil(top); y <= bottom; y++){
             if(imgShapeLabelSyn->gray[index] == 0 ){
@@ -757,16 +711,17 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
 
             tR = ((float) imgsyn->red[y*imgsyn->ncol + x])*ALPHA + (1-ALPHA)*tr;
             imgsyn->red[y*imgsyn->ncol + x]   = (int) tR; 
-
             tG = ((float) imgsyn->green[y*imgsyn->ncol + x])*ALPHA + (1-ALPHA)*tg;
             imgsyn->green[y*imgsyn->ncol + x] = (int) tG;  
-
             tB = ((float) imgsyn->blue[y*imgsyn->ncol + x])*ALPHA + (1-ALPHA)*tb;
             imgsyn->blue[y*imgsyn->ncol + x]  = (int) tB;  
+            
+            // Reset indicator images
             imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x]   = 0.0;
             imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] = 0;
         }
-
+    
+    // Reset indicator image
     for(i=0; i < pShapeDict->area; i++){
         x = (pShapeDict->pixels+i)->x;
         y = (pShapeDict->pixels+i)->y;
