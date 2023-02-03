@@ -605,7 +605,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
         y = (pShapeDict->pixels+i)->y;
         imgShapeLabel->gray[y*imgShapeLabel->ncol + x] = 1;
     }
-
+    std::cout << "a " << std::endl; 
     srand( time(NULL) );
     if(*mcolor == 1){
         tempx = (rand()%10);
@@ -649,7 +649,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
     right  = _MIN(imgsyn->ncol - 1, x0temp + bLimit );
     top    = _MAX(0, y0temp - bLimit);
     bottom = _MIN(imgsyn->nrow - 1, y0temp + bLimit);
-
+    std::cout << "b " << std::endl; 
     // Transformation  
     for(x = ceil(left); x <= right; x++)
         for(y = ceil(top); y <= bottom; y++){
@@ -758,7 +758,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 }
 
         }
-
+    std::cout << "c " << std::endl; 
     TR  = ((Info*)(pShape->data))->r + tempx*0;
     TG  = ((Info*)(pShape->data))->g + tempx*0;
     TB  = ((Info*)(pShape->data))->b + tempx*0;
@@ -797,12 +797,13 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
             imgShapeBlurSyn->gray[y*imgShapeBlurSyn->ncol + x]   = 0.0;
             imgShapeLabelSyn->gray[y*imgShapeLabelSyn->ncol + x] = 0;
         }
-
+    std::cout << "d " << std::endl; 
     for(i=0; i < pShapeDict->area; i++){
         x = (pShapeDict->pixels+i)->x;
         y = (pShapeDict->pixels+i)->y;
         imgShapeLabel->gray[y*imgShapeLabel->ncol + x] = 0;
     }
+    std::cout << "e " << std::endl; 
 }
 
 // Synthesis by Shape Shaking witn original shapes
@@ -1544,9 +1545,9 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool segmentWithMask, i
                         synshape(modelToUse, pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha);
                 }
                 else{ // modelToUse ==4 -> Rendering Model: Dictionary
-                    std::cout << "0 " << std::endl; 
+                    //std::cout << "0 " << std::endl; 
                     pShapeDict = tosDictionary->selectShapeDict(pShape, &dictionaryParameters.kappaDict, &dictionaryParameters.randS, shape_id, _average_r, _average_g, _average_b);
-                    std::cout << "1 " << std::endl; 
+                    //std::cout << "1 " << std::endl; 
                     dictionary_correspondance->values[(int)t2b_index->values[i]] = shape_id;
                     std::cout << "2 " << std::endl; 
                     synShapeDict( pShapeDict, pShape, imgsyn, imgDict, imgShapeColorSyn, imgShapeLabelDict, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &dictionaryParameters.equal, &dictionaryParameters.mcolor);
