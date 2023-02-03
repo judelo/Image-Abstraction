@@ -602,7 +602,6 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
         y = (pShapeDict->pixels+i)->y;
         imgShapeLabelDict->gray[y*imgShapeLabelDict->ncol + x] = 1;
     }
-    std::cout << "a " << std::endl; 
     /*
     srand( time(NULL) );
     if(*mcolor == 1){
@@ -648,7 +647,6 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
     right  = _MIN(imgsyn->ncol - 1, x0temp + bLimit );
     top    = _MAX(0, y0temp - bLimit);
     bottom = _MIN(imgsyn->nrow - 1, y0temp + bLimit);
-    std::cout << "b " << std::endl; 
     // Transformation  
     for(x = ceil(left); x <= right; x++)
         for(y = ceil(top); y <= bottom; y++){
@@ -675,7 +673,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 imgShapeColorSyn->blue[index]  =  imgDict->blue[(int)(yr)*imgShapeLabelDict->ncol + (int)(xr)];
             }
         }
-    std::cout << "c " << std::endl;
+
     // Median Filter  
     MedSize = (int)((*median)/2.0);
     for(x = ceil(left); x <= right; x++)
@@ -700,7 +698,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 imgShapeBlurSyn->gray[index] = 1.0;    
         }
 
-    std::cout << "d " << std::endl;
+ 
     for(x = ceil(left); x <= right; x++)
         for(y = ceil(top); y <= bottom; y++){
             index = y*imgShapeLabelSyn->ncol + x;
@@ -733,7 +731,7 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
             imgShapeBlurSyn->gray[index] = 0.0;
             //std::cout << "d4 " << std::endl;
         }
-    std::cout << "e " << std::endl;
+ 
     // Add Gaussian Blur  
     KerSize = (int) ( sqrt( (double) gaussKernel->size) /2.0 );
     for(x = ceil(left); x <= right; x++)
@@ -769,7 +767,6 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
                 }
 
         }
-    std::cout << "f " << std::endl; 
     //TR  = ((Info*)(pShape->data))->r + tempx*0;
     //TG  = ((Info*)(pShape->data))->g + tempx*0;
     //TB  = ((Info*)(pShape->data))->b + tempx*0;
@@ -814,7 +811,6 @@ void TreeOfShapes::synShapeDict(Shape pShapeDict, Shape pShape,
         y = (pShapeDict->pixels+i)->y;
         imgShapeLabelDict->gray[y*imgShapeLabelDict->ncol + x] = 0;
     }
-    std::cout << "g " << std::endl; 
 }
 
 // Synthesis by Shape Shaking witn original shapes
@@ -1536,7 +1532,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool segmentWithMask, i
             synshape(2, pShape, imgsyn, &ALPHA);              
         } 
         else if(pShape->removed != 1){
-                std::cout << "Shape not removed: " << i << std::endl; 
+                //std::cout << "Shape not removed: " << i << std::endl; 
                 // Verify if some point of the mask touch the shape. 
                 modelToUse = tosParameters.model;
                 if (!segmentWithMask)
@@ -1556,13 +1552,10 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool segmentWithMask, i
                         synshape(modelToUse, pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha);
                 }
                 else{ // modelToUse ==4 -> Rendering Model: Dictionary
-                    //std::cout << "0 " << std::endl; 
                     pShapeDict = tosDictionary->selectShapeDict(pShape, &dictionaryParameters.kappaDict, &dictionaryParameters.randS, shape_id, _average_r, _average_g, _average_b);
-                    //std::cout << "1 " << std::endl; 
                     dictionary_correspondance->values[(int)t2b_index->values[i]] = shape_id;
-                    std::cout << "2 " << std::endl; 
                     synShapeDict( pShapeDict, pShape, imgsyn, imgDict, imgShapeColorSyn, imgShapeLabelDict, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &dictionaryParameters.equal, &dictionaryParameters.mcolor);
-                    std::cout << "3 " << std::endl; 
+                    //std::cout << "3 " << std::endl; 
                 }
         }
     }
