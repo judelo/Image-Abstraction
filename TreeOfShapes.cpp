@@ -922,7 +922,7 @@ void TreeOfShapes::filter_shapes( Cfimage out, char *local, float *eps){
     if(!Fv ) mwerror(FATAL,1,"Not enough memory.\n");
 
     step = 1.; prec = 2; hstep = 0.01; std=0.5; all=(char) 1; visit = 100;
-    step = 0.00392; hstep = 0.0000392; //eps = 0.; 
+    //step = 0.00392; hstep = 0.0000392; //eps = 0.; 
 
     nrow = _imgin->nrow;
     ncol = _imgin->ncol;
