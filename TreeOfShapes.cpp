@@ -910,7 +910,7 @@ void TreeOfShapes::filter_shapes( Cfimage out, char *local, float *eps){
 
     std::cout <<"TreeOfShapes::filter_shapes()::begin"<< std::endl;
     Fimage Fv;
-    float lgeo,step,hstep,tcleanup,farea, std, *gray,*red,*green,*blue;
+    float step,hstep,farea, std, *gray,*red,*green,*blue;
     int prec,visit,nrow,ncol,i,j,indexshape,*truearea;
     char all;
     Shapes tree;
@@ -921,8 +921,8 @@ void TreeOfShapes::filter_shapes( Cfimage out, char *local, float *eps){
 
     if(!Fv ) mwerror(FATAL,1,"Not enough memory.\n");
 
-    lgeo = 10.; step = 1.; prec = 2; hstep = 0.01; std=0.5;
-    tcleanup = 1.; all=(char) 1; visit = 100;
+    step = 1.; prec = 2; hstep = 0.01; std=0.5; all=(char) 1; visit = 100;
+    step = 0.00392; hstep = 0.0000392; //eps = 0.; 
 
     nrow = _imgin->nrow;
     ncol = _imgin->ncol;
@@ -930,7 +930,6 @@ void TreeOfShapes::filter_shapes( Cfimage out, char *local, float *eps){
         Fv->gray[i] = (_imgin->red[i]+_imgin->green[i]+_imgin->blue[i])/3.;
     
     // Function from MegaWave module. Extract (local or not) meaningful boundaries from FV
-    //char * all2 = 'a';
     //ll_boundaries2(Fv,eps,NULL,&step,&prec,&std,&hstep,NULL,&visit,NULL,NULL,tree);
     ll_boundaries2(Fv,eps,NULL,&step,&prec,&std,&hstep,&all,&visit,NULL,NULL,tree);
 
