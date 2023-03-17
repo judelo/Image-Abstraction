@@ -223,9 +223,9 @@ int main(int argc, char *argv[])
 
     TOSParameters.model = model; 
     // if we use segmentation, we don't apply filter shapes based on contrast. 
-    if (segmentWithMask){ 
-        TOSParameters.color_sketch = 0;
-    }
+    //if (segmentWithMask){ 
+      //  TOSParameters.color_sketch = 0;
+    //}
     
     if (model == 4) { 
         // Load dictionary parameters
