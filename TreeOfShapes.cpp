@@ -930,7 +930,9 @@ void TreeOfShapes::filter_shapes( Cfimage out, char *local, float *eps){
         Fv->gray[i] = (_imgin->red[i]+_imgin->green[i]+_imgin->blue[i])/3.;
     
     // Function from MegaWave module. Extract (local or not) meaningful boundaries from FV
-    ll_boundaries2(Fv,eps,NULL,&step,&prec,&std,&hstep,NULL,&visit,NULL,NULL,tree);
+    char * all2 = 'a';
+    //ll_boundaries2(Fv,eps,NULL,&step,&prec,&std,&hstep,NULL,&visit,NULL,NULL,tree);
+    ll_boundaries2(Fv,eps,NULL,&step,&prec,&std,&hstep,all2,&visit,NULL,NULL,tree);
 
     // Compute recursively integral of gray level saturation cos and sin of hue 
     red = (float*)calloc(tree->nb_shapes,sizeof(float));
