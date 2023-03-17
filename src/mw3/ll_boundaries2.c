@@ -692,7 +692,7 @@ Flists ll_boundaries2(Fimage in,float *eps,Shapes tree,float *step,int *prec,flo
     tabsaddles = mw_newtab_gray_fimage(saddles);
     if (!tabsaddles) mwerror(FATAL,1,"Not enough memory");
 
-    mwdebug("Total number of shapes: %d\n",ref_tree->nb_shapes);
+    printf("Total number of shapes: %d\n",ref_tree->nb_shapes);
 
 
     /* compute NormofDu*/
@@ -718,7 +718,7 @@ Flists ll_boundaries2(Fimage in,float *eps,Shapes tree,float *step,int *prec,flo
     /* multiply NFA by maximal number of visits for a shape*/
     if(Global.local) threshold -= (float) log10((double) *visit);
 
-    mwdebug("NFA threshold: %g\n",threshold);
+    printf("NFA threshold: %g\n",threshold);
     ndetect = 0;
     root = ref_tree->the_shapes;
 
