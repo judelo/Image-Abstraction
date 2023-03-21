@@ -16,6 +16,7 @@ You should have received a copy of the GNU Affero General Public License along w
 #include <sstream>
 #include <QImage>
 #include <QColor>
+#include <random>
 
 #include "Segmentation.h"
 
@@ -47,6 +48,49 @@ Cfimage cfimages_from_qimage( const QImage &input_image  ){
 
     return out;
 }
+
+#include <random>
+
+// Function to add Gaussian noise to a QImage with a given standard deviation
+void addGaussianNoise(QImage& image, double sigma)
+{
+    // Get the pixel data from the image
+    QRgb* pixels = reinterpret_cast<QRgb*>(image.bits());
+
+    // Create a random number generator with a normal distribution
+    std::default_random_engine generator;
+    std::normal_distribution<double> distribution(0, sigma);
+
+    // Iterate over all pixels in the image
+    for (int y = 0; y < image.height(); y++) {
+        for (int x = 0; x < image.width(); x++) {
+            // Get the color value of the pixel
+            QRgb color = pixels[y * image.width() + x];
+
+            // Get the red, green, and blue components of the color
+            int red = qRed(color);
+            int green = qGreen(color);
+            int blue = qBlue(color);
+
+            // Generate a random value with a normal distribution and adjust it for the color components
+            red += static_cast<int>(distribution(generator));
+            green += static_cast<int>(distribution(generator));
+            blue += static_cast<int>(distribution(generator));
+
+            // Make sure the color components are within the valid range (0-255)
+            red = qBound(0, red, 255);
+            green = qBound(0, green, 255);
+            blue = qBound(0, blue, 255);
+
+            // Create a new color with the modified components
+            QRgb newColor = qRgb(red, green, blue);
+
+            // Assign the new color to the pixel
+            pixels[y * image.width() + x] = newColor;
+        }
+    }
+}
+
 
 int main(int argc, char *argv[])
 {   
@@ -144,6 +188,7 @@ int main(int argc, char *argv[])
        imageSeg = segmentation->segment( 0.5, 500, 50); // segParameters.c = 500;  segParameters.min_size = 50; segParameters.sigma = 0.5;
        imageSeg = segmentation->removeRegionUnder(TOS->getArrayPixelsMask(), TOS->getLen_ArrayPixelsMask());
        imageSeg = segmentation->getResult();
+       addGaussianNoise(imageSeg, 0.01 * 255);
        TOS->setCfImage(cfimages_from_qimage(imageSeg));
        imageSeg.save("image_segmented.png"); 
     };
