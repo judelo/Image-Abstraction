@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
        imageSeg = segmentation->segment( 0.5, 500, 50); // segParameters.c = 500;  segParameters.min_size = 50; segParameters.sigma = 0.5;
        imageSeg = segmentation->removeRegionUnder(TOS->getArrayPixelsMask(), TOS->getLen_ArrayPixelsMask());
        imageSeg = segmentation->getResult();
-       addGaussianNoise(imageSeg, 0.01 * 255);
+       addGaussianNoise(imageSeg, 0.01 * 255); //1% of noise
        TOS->setCfImage(cfimages_from_qimage(imageSeg));
        imageSeg.save("image_segmented.png"); 
     };
@@ -267,10 +267,6 @@ int main(int argc, char *argv[])
     };
 
     TOSParameters.model = model; 
-    // if we use segmentation, we don't apply filter shapes based on contrast. 
-    //if (segmentWithMask){ 
-      //  TOSParameters.color_sketch = 0;
-    //}
     
     if (model == 4) { 
         // Load dictionary parameters
