@@ -107,8 +107,8 @@ int main(int argc, char *argv[])
     bool options_shapeabstraction;
     ss >> std::boolalpha >> options_shapeabstraction;
     int color_sketch_shapeabstraction=atoi(argv[7]);
-    int minarea_shapeabstraction=atof(argv[8]);
-    int maxarea_shapeabstraction=atof(argv[9]);
+    float minarea_shapeabstraction=atof(argv[8]);
+    float maxarea_shapeabstraction=atof(argv[9]);
     int scaleratio_shapeabstraction=atoi(argv[10]);
     float threshold_shapeabstraction=atof(argv[11]);
     float eps_shapeabstraction=atof(argv[12]);
@@ -119,8 +119,8 @@ int main(int argc, char *argv[])
     bool options_watercolor;
     ss1 >> std::boolalpha >> options_watercolor;
     int color_sketch_watercolor=atoi(argv[16]);
-    int minarea_watercolor=atof(argv[17]);
-    int maxarea_watercolor=atof(argv[18]);
+    float minarea_watercolor=atof(argv[17]);
+    float maxarea_watercolor=atof(argv[18]);
     int scaleratio_watercolor=atoi(argv[19]);
     float threshold_watercolor=atof(argv[20]);
     float eps_watercolor=atof(argv[21]);
@@ -131,8 +131,8 @@ int main(int argc, char *argv[])
     bool options_shaking;
     ss2 >> std::boolalpha >> options_shaking;
     int color_sketch_shaking=atoi(argv[25]);
-    int minarea_shaking=atof(argv[26]);
-    int maxarea_shaking=atof(argv[27]);
+    float minarea_shaking=atof(argv[26]);
+    float maxarea_shaking=atof(argv[27]);
     int scaleratio_shaking=atoi(argv[28]);
     float threshold_shaking=atof(argv[29]);
     float eps_shaking=atof(argv[30]);
@@ -143,8 +143,8 @@ int main(int argc, char *argv[])
     bool options_shapefiltering;
     ss3 >> std::boolalpha >> options_shapefiltering;
     int color_sketch_shapefiltering=atoi(argv[34]);
-    int minarea_shapefiltering=atof(argv[35]);
-    int maxarea_shapefiltering=atof(argv[36]);
+    float minarea_shapefiltering=atof(argv[35]);
+    float maxarea_shapefiltering=atof(argv[36]);
     int scaleratio_shapefiltering=atoi(argv[37]);
     float threshold_shapefiltering=atof(argv[38]);
     float eps_shapefiltering=atof(argv[39]);
@@ -155,8 +155,8 @@ int main(int argc, char *argv[])
     bool options_styletransfer;
     ss4 >> std::boolalpha >> options_styletransfer;
     int color_sketch_styletransfer=atoi(argv[43]);
-    int minarea_styletransfer=atof(argv[44]);
-    int maxarea_styletransfer=atof(argv[45]);
+    float minarea_styletransfer=atof(argv[44]);
+    float maxarea_styletransfer=atof(argv[45]);
     int scaleratio_styletransfer=atoi(argv[46]);
     float threshold_styletransfer=atof(argv[47]);
     float eps_styletransfer=atof(argv[48]);
