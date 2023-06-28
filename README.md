@@ -16,7 +16,7 @@ This source code provides a C++ implementation of the framework for the structur
 ### Contents
 
 * main.cpp: Main Script to parse arguments and run the task. 
-* Segmentation.h and cpp:  Class to implement segmentation on input image.
+* Segmentation.h and cpp:  Class to implement segmentation on input image, based on code provided by Pedro Felzenszwalb.
 * TreeOfShapes.h and TreeOfShapes.cpp:  Class to implement abstraction process.
 * src/tree_of_shapes.h and src/tree_of_shapes.cpp:  Class to implement initialization of shapes and default parameters.
 * Image-Abstraction.pro: file used for compilation with qmake. 
