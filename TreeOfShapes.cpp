@@ -1447,11 +1447,11 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool segmentWithMask, i
             }
             float ALPHA = 0.0;
 
-            // Transform shape. Correspondence to line 12-13 of the algorithm pseudocode
+            // Transform shape. Correspondence to line 12 of the algorithm pseudocode
             synshape(2, pShape, imgsyn, &ALPHA);              
         } 
         else if(pShape->removed != 1){
-                // Verify if some point of the mask touch the shape. Correspondence to line 15-18 of the algorithm pseudocode
+                // Verify if some point of the mask touch the shape. Correspondence to line 14-17 of the algorithm pseudocode
                 modelToUse = tosParameters.model;
                 if (!segmentWithMask)
                     for (j=0; j<_len_ArrayPixelsMask; j++)
@@ -1464,7 +1464,7 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool segmentWithMask, i
                 // Modification of shape according to model
 
                 // Rendering Model: Original, Rectangle, Ellipse or Circular. 
-                // Correspondence to line 19-21 of the algorithm pseudocode
+                // Correspondence to line 18-19 of the algorithm pseudocode
                 if (modelToUse < 4){
                     if(tosParameters.blur == 0)
                        synshape(modelToUse, pShape, imgsyn, &tosParameters.alpha);
@@ -1474,12 +1474,12 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool segmentWithMask, i
                         synshape(modelToUse, pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha);
                 }
                 // modelToUse ==4 -> Rendering Model: Dictionary
-                // Correspondence to line 22 of the algorithm pseudocode
+                // Correspondence to line 20 of the algorithm pseudocode
                 else{ 
-                    // Correspondence to line 23 of the algorithm pseudocode
+                    // Correspondence to line 21 of the algorithm pseudocode
                     pShapeDict = tosDictionary->selectShapeDict(pShape, &dictionaryParameters.kappaDict, &dictionaryParameters.randS, shape_id, _average_r, _average_g, _average_b);
                     dictionary_correspondance->values[(int)t2b_index->values[i]] = shape_id;
-                    // Correspondence to line 24-25 of the algorithm pseudocode
+                    // Correspondence to line 22 of the algorithm pseudocode
                     synShapeDict( pShapeDict, pShape, imgsyn, imgDict, imgShapeColorSyn, imgShapeLabelDict, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &dictionaryParameters.equal, &dictionaryParameters.mcolor);
                 }
         }
@@ -1510,6 +1510,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool segmentWithMask, i
             mw_delete_cimage(imgShapeLabelDict);
         }
     }
-    // Correspondence to line 26 of the algorithm pseudocode
+    // Correspondence to line 23 of the algorithm pseudocode
     return result_image;
 }
