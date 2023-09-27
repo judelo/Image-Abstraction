@@ -1356,18 +1356,18 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool segmentWithMask, i
     Fimage imgShapeBlur;
     Fsignal t2b_index, gaussKernel, dictionary_correspondance;
 
-    // Define synthesis image
+    // Define synthesis image. Correspondence to line 1 of the algorithm pseudocode.
     Ccimage imgsyn = mw_change_ccimage(imgsyn, _imgin->nrow, _imgin->ncol);
 
-    //Step 1: Decomposition. 
+    //Step 1: Decomposition. Correspondence to line 2 of the algorithm pseudocode
     compute_tree(tosParameters, false);
 
-    // Image filtering    
+    // Image filtering. Correspondence to line 3-6 of the algorithm pseudocode
     std::cout << "Image filtering" << std::endl;
     totalSize = _imgin->nrow * _imgin->ncol;
     filter_image(&tosParameters.ns,&tosParameters.threshold, &tosParameters.minarea, &tosParameters.maxarea, totalSize, &tosParameters.kappa);
 
-    // Select the rendering order 
+    // Select the rendering order. Correspondence to line 7 of the algorithm pseudocode
     std::cout << "Rendering order " << tosParameters.order <<std::endl;
 
     if  ( ((t2b_index = mw_new_fsignal()) == NULL) ||(mw_alloc_fsignal(t2b_index,_pTree->nb_shapes) == NULL) )
@@ -1429,37 +1429,43 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool segmentWithMask, i
     std::cout << "Image Shaking" << std::endl;   
     shift_shapes(&tosParameters.shift, &tosParameters.theta, tosParameters.smodel);
      
-    // Iterate in shapes
+    // Iterate in shapes. Correspondence to line 8 of the algorithm pseudocode
     std::cout << "Iterate in shapes: " <<  _pTree->nb_shapes << " shapes." << std::endl;
-
     for(i=0; i < _pTree->nb_shapes; i++) {
         pShape = _pTree->the_shapes + (int)t2b_index->values[i];
          
+        // if shape is first shape. Correspondence to line 9 of the algorithm pseudocode
         if((int)t2b_index->values[i] == 0 ) { // Background shape: Rectangle and average color.
-           
-            //before: if (tosParameters.model == 4 && (dictionaryParameters.mcolor == 1 || dictionaryParameters.mcolor ==2)){
+            
+            // if Style transfer. Correspondence to line 10 of the algorithm pseudocode
             if (tosParameters.model == 4 && (dictionaryParameters.color_background==0)){
-                // Take color from dictionary for background
+                // Take color from dictionary for background. Correspondence to line 11 of the algorithm pseudocode
                 pShapeDict = tosDictionary->getShape(0);
                 ((Info*)(pShape->data))->r = ((Info*)(pShapeDict->data))->r;
                 ((Info*)(pShape->data))->g = ((Info*)(pShapeDict->data))->g;
                 ((Info*)(pShape->data))->b = ((Info*)(pShapeDict->data))->b;
             }
             float ALPHA = 0.0;
+
+            // Transform shape. Correspondence to line 12-13 of the algorithm pseudocode
             synshape(2, pShape, imgsyn, &ALPHA);              
         } 
         else if(pShape->removed != 1){
-                // Verify if some point of the mask touch the shape. 
+                // Verify if some point of the mask touch the shape. Correspondence to line 15-18 of the algorithm pseudocode
                 modelToUse = tosParameters.model;
                 if (!segmentWithMask)
                     for (j=0; j<_len_ArrayPixelsMask; j++)
                         if (point_in_shape((&_ArrayPixelsMask[j])->x, (&_ArrayPixelsMask[j])->y, pShape, _pTree)){
+                            // Correspondence to line 16 of the algorithm pseudocode
                             modelToUse = alternative_model;
                             break;
                         };
 
                 // Modification of shape according to model
-                if (modelToUse < 4){ // Rendering Model: Original, Rectangle, Ellipse or Circular
+
+                // Rendering Model: Original, Rectangle, Ellipse or Circular. 
+                // Correspondence to line 19-21 of the algorithm pseudocode
+                if (modelToUse < 4){
                     if(tosParameters.blur == 0)
                        synshape(modelToUse, pShape, imgsyn, &tosParameters.alpha);
                     else if (modelToUse == 0)
@@ -1467,9 +1473,13 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool segmentWithMask, i
                     else 
                         synshape(modelToUse, pShape, imgsyn, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha);
                 }
-                else{ // modelToUse ==4 -> Rendering Model: Dictionary
+                // modelToUse ==4 -> Rendering Model: Dictionary
+                // Correspondence to line 22 of the algorithm pseudocode
+                else{ 
+                    // Correspondence to line 23 of the algorithm pseudocode
                     pShapeDict = tosDictionary->selectShapeDict(pShape, &dictionaryParameters.kappaDict, &dictionaryParameters.randS, shape_id, _average_r, _average_g, _average_b);
                     dictionary_correspondance->values[(int)t2b_index->values[i]] = shape_id;
+                    // Correspondence to line 24-25 of the algorithm pseudocode
                     synShapeDict( pShapeDict, pShape, imgsyn, imgDict, imgShapeColorSyn, imgShapeLabelDict, imgShapeLabel, imgShapeBlur, gaussKernel, &tosParameters.median, &tosParameters.alpha, &dictionaryParameters.equal, &dictionaryParameters.mcolor);
                 }
         }
@@ -1500,6 +1510,6 @@ QImage TreeOfShapes::render(TOSParameters tosParameters, bool segmentWithMask, i
             mw_delete_cimage(imgShapeLabelDict);
         }
     }
- 
+    // Correspondence to line 26 of the algorithm pseudocode
     return result_image;
 }
